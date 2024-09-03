@@ -3,7 +3,7 @@
     <h1 class="display-3">NOVA VENDA</h1>
     <hr>
 
-<form action="{{url_for('main')}}", method="POST">
+<form action="{{url_for('main')}}", method="POST", id="meuFormulario">
     <div class="container">        
         <div class="row">            
             <div class="col-md-6">
@@ -38,7 +38,7 @@
                     </div>
                     <div class="form-group col-md-6">
                         <label for="inputAddress">Taxa de entrega</label>
-                        <input type="text" class="form-control" id="inputAddress" onkeypress='validate(event)' placeholder="0,00" required>
+                        <input type="text" class="form-control" id="inputAddress" onkeypress='validate(event)' placeholder="0,00">
                     </div>
                 </div>
                 
@@ -62,7 +62,7 @@
                 <p class="lead text-center">INFORMAÇÕES DO CLIENTE</p>
                 <div class="form-group col-md-12">
                     <label for="inputnome">Nome</label>
-                    <input type="text" class="form-control" id="inputnome" placeholder="Nome" required>
+                    <input type="text" class="form-control" id="inputnome" placeholder="Nome">
                 </div>
                 <div class="form-group col-md-12">
                     <label for="inputendereco">Endereço</label>
@@ -115,14 +115,17 @@
                     </div>
                     <br>
                     <div class="d-flex justify-content-center">
-                        <button type="submit" class="btn btn-outline-primary">Adicionar produto</button>
+                        <button type="submit" name="add-prod" class="btn btn-outline-primary">Adicionar produto</button>
                     </div>
                 <br>
 
                 <ul class="list-group">
                     {% for produto in produtos %}
-                    <li class="list-group-item list-group-item-info" >Produto: {{produto[0]}} - Quantidade: {{produto[1]}} - Valor unitário: {{produto[2]}}    
-                        <button type="button" name="remove-produto" style="float: right; background-color: rgb(238, 111, 111);">Remover</button></button>
+                    
+                    <li class="list-group-item list-group-item-success" >{{produto[0]}} - Quantidade: {{produto[1]}} - Valor unitário: {{produto[2]}}    
+                    <form method="POST" action="{{ url_for('remove_product', product_id=loop.index0) }}" style="display:inline;">
+                        <button type="submit" class="btn btn-danger" style="float: right;">Remover</button>
+                    </form>
                     </li>
                     {% endfor %}
                 </ul class="list-group">
@@ -158,9 +161,9 @@
         </div>
     </div>
     <br>
-    <!--
-    <button type="submit" class="btn btn-success btn-lg">Finalizar Venda</button>
-    -->
+    
+    <button type="submit" name="add-venda" class="btn btn-success btn-lg">Finalizar Venda</button>
+    
     </div>
     
     <br>
@@ -185,6 +188,7 @@
             theEvent.returnValue = false;
             if(theEvent.preventDefault) theEvent.preventDefault();
         }
+
 }
 </script>
 
