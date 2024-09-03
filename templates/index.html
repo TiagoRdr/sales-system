@@ -1,0 +1,191 @@
+{% extends 'base.html' %}
+{% block conteudo %}
+    <h1 class="display-3">NOVA VENDA</h1>
+    <hr>
+
+<form action="{{url_for('main')}}", method="POST">
+    <div class="container">        
+        <div class="row">            
+            <div class="col-md-6">
+                <p class="lead text-center ">INFORMAÇÕES DA VENDA</p>   
+                <div class="form-group col-md-12">
+                    <label for="inputnumerovenda" >Nº da venda</label>
+                    <fieldset disabled>
+                        <input type="text" class="form-control" id="inputnumerovenda" required>
+                    </fieldset>
+                </div>
+                <div class="row">
+                    <div class="form-group col-md-6">
+                        <label for="inputdatavenda">Data da venda</label>
+                        <input type="date" class="form-control" id="inputdatavenda" value={{data_atual}}>
+                    </div>
+                    <div class="form-group col-md-6">
+                        <label for="inputdataentrega">Data da entrega</label>
+                        <input type="date" class="form-control" id="inputdataentrega" value={{data_atual}}>
+                    </div>
+                </div>        
+                <div class="row">
+                    <div class="form-group col-md-6">
+                        <label for="inputmetodopagamento">Método de pagamento</label>
+                        <select id="inputmetodopagamento" class="form-control">
+                            <option selected>Escolher método de pagamento...</option>
+                            <option>Cartão Débito</option>
+                            <option>Cartão Crédito</option>
+                            <option>Dinheiro</option>
+                            <option>PIX</option>
+                            <option>Boleto</option>
+                        </select>
+                    </div>
+                    <div class="form-group col-md-6">
+                        <label for="inputAddress">Taxa de entrega</label>
+                        <input type="text" class="form-control" id="inputAddress" onkeypress='validate(event)' placeholder="0,00" required>
+                    </div>
+                </div>
+                
+                <div class="row">
+                    <div class="form-group col-md-6">
+                        <label for="inputstatuspagamento">Status do pagamento</label>
+                        <select id="inputstatuspagamento" class="form-control" required>
+                            <option selected>Escolher status do pagamento...</option>
+                            <option>Pago</option>
+                            <option>Pendente</option>                            
+                        </select>
+                    </div>
+                    <div class="form-group col-md-6">
+                        <label for="inputenderecoentrega">Endereço de entrega</label>
+                        <input type="text" class="form-control" id="inputenderecoentrega" placeholder="Nome da rua, nº e bairro">
+                    </div>
+                </div>               
+            </div>
+            
+            <div class="col-md-6" style="border-left: 1px solid rgb(0, 0, 0);">                
+                <p class="lead text-center">INFORMAÇÕES DO CLIENTE</p>
+                <div class="form-group col-md-12">
+                    <label for="inputnome">Nome</label>
+                    <input type="text" class="form-control" id="inputnome" placeholder="Nome" required>
+                </div>
+                <div class="form-group col-md-12">
+                    <label for="inputendereco">Endereço</label>
+                    <input type="text" class="form-control" id="inputendereco" placeholder="Nome da rua, nº e bairro">
+                </div>
+                <div class="form-group col-md-12">
+                    <label for="inputemail">E-mail</label>
+                    <input type="email" class="form-control" id="inputemail" placeholder="email@mail.com">
+                </div>
+                <div class="row">
+                <div class="form-group col-md-6">
+                    <label for="inputtelefone">Telefone</label>
+                    <input type="text" class="form-control" id="inputtelefone" placeholder="(99) 99999-9999">
+                </div>
+                <div class="form-group col-md-6">
+                    <label for="inputcpfcnpj">CPF/CNPJ</label>
+                    <input type="text" class="form-control" id="inputcpfcnpj" placeholder="9999999999   ">
+                </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <br>
+        <hr>
+        <br>
+    <div class="container">
+        <div class="row">   
+            <div class="col-md-6">
+                <p class="lead text-center">INFORMAÇÕES DO PRODUTO</p>
+                <div class="form-row">
+                    <div class="form-group col-md-12">
+                        <label for="inputproduto">Produto</label>
+                        <select id="inputproduto" name="inputproduto" class="form-control" required>
+                            <option selected>Escolher Produto...</option>
+                            <option>Produto 1</option>
+                            <option>Produto 2</option>
+                        </select>
+                    </div>
+                    <div class="form-group col-md-12">
+                        <label for="inputquantidade">Fornecedor</label>
+                        <input type="text" class="form-control" id="inputquantidade" placeholder="Fornecedor">
+                    </div>
+                    <div class="form-group col-md-12">
+                        <label for="inputquantidade">Quantidade</label>
+                        <input type="text" class="form-control" id="inputquantidade" name="inputquantidade" onkeypress='validate(event)' placeholder="0" required>
+                    </div>
+                        <div class="form-group col-md-12">
+                            <label for="inputvalorunitario">Valor unitário</label>
+                            <input type="text" class="form-control" id="inputvalorunitario" name="inputvalorunitario", onkeypress='validate(event)' placeholder="0,00">
+                    </div>
+                    <br>
+                    <div class="d-flex justify-content-center">
+                        <button type="submit" class="btn btn-outline-primary">Adicionar produto</button>
+                    </div>
+                <br>
+
+                <ul class="list-group">
+                    {% for produto in produtos %}
+                    <li class="list-group-item list-group-item-info" >Produto: {{produto[0]}} - Quantidade: {{produto[1]}} - Valor unitário: {{produto[2]}}    
+                        <button type="button" name="remove-produto" style="float: right; background-color: rgb(238, 111, 111);">Remover</button></button>
+                    </li>
+                    {% endfor %}
+                </ul class="list-group">
+                </div>
+            </div>
+            <div class="col-md-6" style="border-left: 1px solid rgb(0, 0, 0);">
+                <p class="lead text-center">INFORMAÇÕES ADICIONAIS</p>
+                <div class="form-row">
+                    <div class="form-group col-md-12">
+                        <label for="inputquantidade">Desconto</label>
+                        <input type="text" class="form-control" id="inputdesconto" placeholder="0,00" onkeypress='validate(event)'>
+                    </div>                    
+                    <div class="form-group col-md-12">
+                        <label for="inputAddress2">Observações</label>
+                        <textarea class="form-control" id="obstextarea" rows="6"></textarea>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <hr>
+<br><br>
+    
+    <div class="col-md-6" style="background-color: rgb(226, 233, 238); border: 2px solid rgb(0, 0, 0); width: 500px; margin: 10px auto;  display: block;">
+        <p class="lead text-center" style="font-weight: bold;" >RESUMO DA VENDA</p>
+        <div class="row">            
+            <label for="lbldesconto" style="margin-left: 10px;">DESCONTO TOTAL: </label>
+            <label for="lbltaxaentrega" style="margin-left: 10px;">TAXA DE ENTREGA: </label>
+            <label for="lbltaxaentrega" style="margin-left: 10px;">VALOR TOTAL DE PRODUTOS: </label>
+            <hr style="margin-left: 20px; width: 480px; margin-bottom: 10px;">
+            <label for="lbltotalvenda" style="margin-left: 10px;">TOTAL DA VENDA: </label>
+        </div>
+    </div>
+    <br>
+    <!--
+    <button type="submit" class="btn btn-success btn-lg">Finalizar Venda</button>
+    -->
+    </div>
+    
+    <br>
+    
+    
+</form>
+
+<script>
+    function validate(evt) {
+        var theEvent = evt || window.event;
+
+        // Handle paste
+        if (theEvent.type === 'paste') {
+            key = event.clipboardData.getData('text/plain');
+        } else {
+        // Handle key press
+            var key = theEvent.keyCode || theEvent.which;
+            key = String.fromCharCode(key);
+        }
+        var regex = /[0-9,]|\./;
+        if( !regex.test(key) ) {
+            theEvent.returnValue = false;
+            if(theEvent.preventDefault) theEvent.preventDefault();
+        }
+}
+</script>
+
+{% endblock conteudo %}
