@@ -87,7 +87,7 @@ def resume_sale():
             return jsonify({"error": "Missing values"}), 400  # Retorna erro 400 se valores ausentes
 
         total_venda = total_vendas(product_taxa, product_desconto)
-        return render_template('/resume-sale.html', total_prods=str(total_prods).replace(".",","), total_venda=str(total_venda).replace(".",","), taxaentrega=str(product_taxa).replace(".",","), desconto=str(product_desconto).replace(".",","), nomecliente=nomecliente, datavenda=datavenda, dataentrega=dataentrega, metodopagamento=metodopagamento, observacoes=observacoes)
+        return render_template('/resume-sale.html', total_prods=str(total_prods).replace(".",","), total_venda=str(total_venda).replace(".",","), taxaentrega=str(product_taxa).replace(".",","), desconto=str(product_desconto).replace(".",","), nomecliente=nomecliente, datavenda=datavenda, dataentrega=dataentrega, metodopagamento=metodopagamento, observacoes=observacoes, produtos=produtos)
 
     
     except Exception as e:

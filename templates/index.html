@@ -232,30 +232,29 @@
     }
 
     form_resume_sale.onsubmit = function(event){
-    event.preventDefault();    
-    $.ajax({
-        type: 'POST',
-        url: '/resume-sale',
-        data: {         
-            valortaxa: $("#inputtaxaentrega").val(),
-            valordesconto: $("#inputdesconto").val(),
-            nomecliente: $("#inputnome").val(),
-            datavenda: $("#inputdatavenda").val(),
-            dataentrega: $("#inputdataentrega").val(),
-            metodopagamento: $("#inputmetodopagamento").val(),
-            observacoes: $("#inputobservacoes").val()
-        },
-        success: function(response) {
-            console.log("Success:", response);
-            // Atualize o conteúdo da página aqui diretamente, se necessário
-            $("#resume_sale").html(response);
-        },
-        error: function(jqXHR, textStatus, errorThrown) {
-            console.log("Error details:", jqXHR, textStatus, errorThrown);
-        }
-    });
-}
-
+        event.preventDefault();    
+        $.ajax({
+            type: 'POST',
+            url: '/resume-sale',
+            data: {         
+                valortaxa: $("#inputtaxaentrega").val(),
+                valordesconto: $("#inputdesconto").val(),
+                nomecliente: $("#inputnome").val(),
+                datavenda: $("#inputdatavenda").val(),
+                dataentrega: $("#inputdataentrega").val(),
+                metodopagamento: $("#inputmetodopagamento").val(),
+                observacoes: $("#inputobservacoes").val()
+            },
+            success: function(response) {
+                console.log("Success:", response);
+                // Atualize o conteúdo da página aqui diretamente, se necessário
+                $("#resume_sale").html(response);
+            },
+            error: function(jqXHR, textStatus, errorThrown) {
+                console.log("Error details:", jqXHR, textStatus, errorThrown);
+            }
+        });
+    }
     document.addEventListener('DOMContentLoaded', function() {
         // Faz a requisição POST para limpar a lista de produtos quando a página for recarregada
         fetch('/clear_products', {

@@ -1,47 +1,60 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Resumo da venda</title>
-</head>
-<body>
-    <div style="background-color: rgb(236, 236, 219); border: 2px solid rgb(0, 0, 0); width: 520px; margin: 10px auto;  display: block;">
-        <div class="justify-content-center" style="border-bottom: 2px solid rgb(0, 0, 0); background-color: rgb(245, 245, 220);">
-        <p class="lead text-center" style="font-weight: bold; margin-bottom: 3px; font-size: 25PX;" >RESUMO DA VENDA</p>
-        </div>
-        <div >
-            <div class="justify-content-center row" style="border-bottom: 2px solid rgb(0, 0, 0); background-color: rgb(235, 235, 220); margin: auto;">
-                <p class="lead text-center" style="font-weight: bold; margin-left: 10px; font-size: 17px;">INFORMAÇÕES GERAIS</p>        
-                <label for="nomecliente" id="nomecliente" style="margin-left: 10px;  font-size: 15px;">NOME DO CLIENTE: <div style="float: right;">{{nomecliente}}</div></label>
-                <label for="datavenda" id="datavenda" style="margin-left: 10px;  font-size: 15px;">DATA DA VENDA: <div style="float: right;">{{datavenda}}</div></label>
-                <label for="dataentrega" id="dataentrega" style="margin-left: 10px;  font-size: 15px;">DATA DA ENTREGA: <div style="float: right;">{{dataentrega}}</div></label>
-                <label for="metodopagamento" id="metodopagamento" style="margin-left: 10px;  font-size: 15px;">MÉTODO DE PAGAMENTO: <div style="float: right;">{{metodopagamento}}</div></label>
-                <label for="observacoes" id="observacoes" style="margin-left: 10px;  font-size: 15px; margin-bottom: 10px;">OBSERVAÇÕES: <div style="float: right;">{{observacoes}}</div></label>   
-            </div>
-            <div>
-                <div class="justify-content-center row" style="border-bottom: 2px solid rgb(0, 0, 0); background-color: rgb(226, 226, 211); margin: auto;">
-                    <p class="lead text-center" style="font-weight: bold;margin-left: 10px; font-size: 17px;" >VALORES FINAIS</p>         
-                    <label for="lbldesconto" id="lbldesconto" style="margin-left: 10px;  font-size: 15px;">DESCONTO TOTAL: <div style="float: right; color: red;">R$ {{desconto}}</div></label>
-                    <label for="lbltaxaentrega" id="lbltaxaentrega" style="margin-left: 10px; font-size: 15px;">TAXA DE ENTREGA: <div style="float: right; color: green;">R$ {{taxaentrega}}</div></label>
-                    <label for="lvlvalorprodutos" id="lbltotalprodutos" style="margin-left: 10px; font-size: 15px; margin-bottom: 10px;">VALOR TOTAL DE PRODUTOS: <div style="float: right; color: green;">R$ {{total_prods}}</div></label>
-                </div>
-            </div>
-            
-            <div>
-                <div class="justify-content-center row" style="background-color: rgb(214, 214, 197); margin: auto;">
-                    <label for="lbltotalvenda" id="lbltotalvenda" style="margin-left: 10px; margin-bottom: 25px; font-weight: bold; font-size: 25px;">TOTAL DA VENDA: <div style="float: right; color: green;">R$ {{total_venda}}</div></label>
-                </div>
-            </div>
-    
-            
-            <!-- <hr style="margin-left: 20px; width: 480px; margin-bottom: 10px;"> -->
-        </div>
-        <form>
-            <div class="d-flex justify-content-center" style="background-color: rgb(214, 214, 197); margin: auto;">
-                <button type="submit" name="add-venda" class="btn btn-success btn-lg" style="width: 250px; margin-bottom: 10px;">Finalizar Venda</button>
-            </div>
-        </form>
+{% extends 'base.html' %}
+{% block conteudo %}
+<div style="background-color: rgb(236, 236, 219); border: 2px solid rgb(0, 0, 0); width: 520px; margin: 10px auto;  display: block;">
+    <div class="justify-content-center" style="border-bottom: 2px solid rgb(0, 0, 0); background-color: rgb(245, 245, 220);">
+    <p class="lead text-center" style="font-weight: bold; margin-bottom: 3px; font-size: 25PX;" >RESUMO DA VENDA</p>
     </div>
-</body>
-</html>
+    <div >
+        <div class="justify-content-center row" style="border-bottom: 2px solid rgb(0, 0, 0); background-color: rgb(235, 235, 220); margin: auto;">
+            <p class="lead text-center" style="font-weight: bold; margin-left: 10px; font-size: 17px;">INFORMAÇÕES GERAIS</p>        
+            <label for="nomecliente" id="nomecliente" style="margin-left: 10px;  font-size: 15px;">NOME DO CLIENTE: <div style="float: right; font-size: 17px;">{{nomecliente}}</div></label>
+            <label for="datavenda" id="datavenda" style="margin-left: 10px;  font-size: 15px;">DATA DA VENDA: <div style="float: right; font-size: 17px;">{{datavenda}}</div></label>
+            <label for="dataentrega" id="dataentrega" style="margin-left: 10px;  font-size: 15px;">DATA DA ENTREGA: <div style="float: right; font-size: 17px;">{{dataentrega}}</div></label>
+            <label for="metodopagamento" id="metodopagamento" style="margin-left: 10px;  font-size: 15px;">MÉTODO DE PAGAMENTO: <div style="float: right; font-size: 17px;">{{metodopagamento}}</div></label>
+            <label for="observacoes" id="observacoes" style="margin-left: 10px;  font-size: 15px; margin-bottom: 10px;">OBSERVAÇÕES: <div style="float: right; font-size: 17px;">{{observacoes}}</div></label>   
+        </div>
+        <div>
+            <div class="justify-content-center row" style="border-bottom: 2px solid rgb(0, 0, 0); background-color: rgb(226, 226, 211); margin: auto;">
+                <p class="lead text-center" style="font-weight: bold;margin-left: 10px; font-size: 17px;" >PRODUTOS</p>
+                <ul class="list-group list-group-flush">        
+                {% for produto in produtos %}   
+                <details>
+                    <summary style="margin-left: 10px;  font-size: 15px; margin-bottom: 10px; font-size: 17px;">{{produto[0]}}</summary>
+                    <p style="margin-left: 20px;  font-size: 15px; margin-bottom: 10px; font-size: 17px;"> 
+                        Quantidade: {{ produto[1] }} <br>
+                        Valor unitário: {{ produto[2] }}
+                    </p>
+                    <!-- <li class="list-group-item">
+                        {{ produto[0] }} - Quantidade: {{ produto[1] }} - Valor unitário: {{ produto[2] }}
+                    </li>   -->
+                </details>
+                {% endfor %}
+                
+                </ul> 
+            </div>
+        </div>
+        <div>
+            <div class="justify-content-center row" style="border-bottom: 2px solid rgb(0, 0, 0); background-color: rgb(226, 226, 211); margin: auto;">
+                <p class="lead text-center" style="font-weight: bold;margin-left: 10px; font-size: 17px;" >VALORES FINAIS</p>         
+                <label for="lbldesconto" id="lbldesconto" style="margin-left: 10px;  font-size: 15px;">DESCONTO TOTAL: <div style="float: right; color: red; font-size: 17px;">R$ {{desconto}}</div></label>
+                <label for="lbltaxaentrega" id="lbltaxaentrega" style="margin-left: 10px; font-size: 15px;">TAXA DE ENTREGA: <div style="float: right; color: green; font-size: 17px;">R$ {{taxaentrega}}</div></label>
+                <label for="lvlvalorprodutos" id="lbltotalprodutos" style="margin-left: 10px; font-size: 15px; margin-bottom: 10px;">VALOR TOTAL DE PRODUTOS: <div style="float: right; color: green; font-size: 17px;">R$ {{total_prods}}</div></label>
+            </div>
+        </div>
+        
+        <div>
+            <div class="justify-content-center row" style="background-color: rgb(214, 214, 197); margin: auto;">
+                <label for="lbltotalvenda" id="lbltotalvenda" style="margin-left: 10px; margin-bottom: 25px; font-weight: bold; font-size: 25px;">TOTAL DA VENDA: <div style="float: right; color: green;">R$ {{total_venda}}</div></label>
+            </div>
+        </div>
+
+        
+        <!-- <hr style="margin-left: 20px; width: 480px; margin-bottom: 10px;"> -->
+    </div>
+    <form>
+        <div class="d-flex justify-content-center" style="background-color: rgb(214, 214, 197); margin: auto;">
+            <button type="submit" name="add-venda" class="btn btn-success btn-lg" style="width: 250px; margin-bottom: 10px;">Finalizar Venda</button>
+        </div>
+    </form>
+</div>
+{% endblock conteudo %}
