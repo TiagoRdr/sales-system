@@ -3,6 +3,7 @@
     <h1 class="display-3">NOVA VENDA</h1>
     <hr>
 
+
 <div class="container">        
     <div class="row">            
         <div class="col-md-6">
@@ -37,7 +38,7 @@
                 </div>
                 <div class="form-group col-md-6">
                     <label for="inputAddress">Taxa de entrega</label>
-                    <input type="text" class="form-control" id="inputAddress" onkeypress='validate(event)' placeholder="0,00">
+                    <input type="text" class="form-control" id="inputtaxaentrega" autocomplete="off" onkeypress='validate(event)' placeholder="0,00">
                 </div>
             </div>
             
@@ -52,7 +53,7 @@
                 </div>
                 <div class="form-group col-md-6">
                     <label for="inputenderecoentrega">Endereço de entrega</label>
-                    <input type="text" class="form-control" id="inputenderecoentrega" placeholder="Nome da rua, nº e bairro">
+                    <input type="text" class="form-control" id="inputenderecoentrega" autocomplete="off" placeholder="Nome da rua, nº e bairro">
                 </div>
             </div>               
         </div>
@@ -61,30 +62,30 @@
             <p class="lead text-center">INFORMAÇÕES DO CLIENTE</p>
             <div class="form-group col-md-12">
                 <label for="inputnome">Nome</label>
-                <input type="text" class="form-control" id="inputnome" placeholder="Nome">
+                <input type="text" class="form-control" id="inputnome" autocomplete="off" placeholder="Nome">
             </div>
             <div class="form-group col-md-12">
                 <label for="inputendereco">Endereço</label>
-                <input type="text" class="form-control" id="inputendereco" placeholder="Nome da rua, nº e bairro">
+                <input type="text" class="form-control" id="inputendereco" autocomplete="off" placeholder="Nome da rua, nº e bairro">
             </div>
             <div class="form-group col-md-12">
                 <label for="inputemail">E-mail</label>
-                <input type="email" class="form-control" id="inputemail" placeholder="email@mail.com">
+                <input type="email" class="form-control" id="inputemail" autocomplete="off" placeholder="email@mail.com">
             </div>
             <div class="row">
             <div class="form-group col-md-6">
                 <label for="inputtelefone">Telefone</label>
-                <input type="text" class="form-control" id="inputtelefone" placeholder="(99) 99999-9999">
+                <input type="text" class="form-control" id="inputtelefone" autocomplete="off" placeholder="(99) 99999-9999">
             </div>
             <div class="form-group col-md-6">
                 <label for="inputcpfcnpj">CPF/CNPJ</label>
-                <input type="text" class="form-control" id="inputcpfcnpj" placeholder="9999999999   ">
+                <input type="text" class="form-control" id="inputcpfcnpj" autocomplete="off" placeholder="9999999999">
             </div>
             </div>
         </div>
     </div>
 </div>
-<br>
+    <br>
     <hr>
     <br>
 <div class="container">
@@ -92,7 +93,7 @@
         <div class="col-md-6">
             <p class="lead text-center">INFORMAÇÕES DO PRODUTO</p>
             <div class="form-row">
-                <form method="POST" id="form_product">
+                <form method="POST" id="form_product" autocomplete="off">
                     <div class="form-group col-md-12">
                         <label for="inputproduto">Produto</label>
                         <select id="inputproduto" name="inputproduto" class="form-control">
@@ -120,15 +121,7 @@
                 </form>
             <br>
 
-            <ul class="list-group" id="main_list">
-                <!-- {% for produto in produtos %}
-                
-                <li class="list-group-item list-group-item-success" >{{produto[0]}} - Quantidade: {{produto[1]}} - Valor unitário: {{produto[2]}}    
-                    <form action="{{ url_for('remove_product', index=loop.index0) }}" method="post" id="form_remove_product" style="display:inline;">
-                        <button type="submit" class="btn btn-danger" style="float: right;">Remover</button>
-                    </form>
-                </li>
-                {% endfor %} -->
+            <ul class="list-group" id="main_list">                
             </ul class="list-group">
 
 
@@ -139,39 +132,39 @@
             <div class="form-row">
                 <div class="form-group col-md-12">
                     <label for="inputquantidade">Desconto</label>
-                    <input type="text" class="form-control" id="inputdesconto" placeholder="0,00" onkeypress='validate(event)'>
+                    <input type="text" class="form-control" id="inputdesconto" autocomplete="off" placeholder="0,00" onkeypress='validate(event)'>
                 </div>                    
                 <div class="form-group col-md-12">
                     <label for="inputAddress2">Observações</label>
-                    <textarea class="form-control" id="obstextarea" rows="6"></textarea>
+                    <textarea class="form-control" id="obstextarea" autocomplete="off" rows="6"></textarea>
                 </div>
             </div>
         </div>
     </div>
 </div>
 
-    <hr>
-<br><br>
-    
-    <!-- <div class="col-md-6" style="background-color: rgb(226, 233, 238); border: 2px solid rgb(0, 0, 0); width: 500px; margin: 10px auto;  display: block;">
-        <p class="lead text-center" style="font-weight: bold;" >RESUMO DA VENDA</p>
-        <div class="row">            
-            <label for="lbldesconto" style="margin-left: 10px;">DESCONTO TOTAL: </label>
-            <label for="lbltaxaentrega" style="margin-left: 10px;">TAXA DE ENTREGA: </label>
-            <label for="lbltaxaentrega" style="margin-left: 10px;">VALOR TOTAL DE PRODUTOS: </label>
-            <hr style="margin-left: 20px; width: 480px; margin-bottom: 10px;">
-            <label for="lbltotalvenda" style="margin-left: 10px;">TOTAL DA VENDA: </label>
-        </div>
-    </div> -->
-    <br>
-    
-    <button type="submit" name="add-venda" class="btn btn-success btn-lg">Finalizar Venda</button>
-    
+<hr>
+
+
+<form method="POST" id="form_resume_sale">
+    <div class="d-flex justify-content-center">
+        <button type="submit" name="btn-resume-sale" class="btn btn-success btn-lg">Visualizar/Atualizar resumo da venda</button>
     </div>
+</form>
+
+
+    <div class="col-md-6" id="resume_sale" style="background-color: rgb(226, 233, 238); border: 2px solid rgb(0, 0, 0); width: 500px; margin: 10px auto;  display: block;">
+        
+    </div>
+    <br>
+    <div class="d-flex justify-content-center">
+        <button type="submit" name="add-venda" class="btn btn-success btn-lg">Finalizar Venda</button>
+    </div>
+</div>
     
     <br>
 
-<script>
+<script type="text/javascript">
     function validate(evt) {
         var theEvent = evt || window.event;
 
@@ -183,15 +176,13 @@
             var key = theEvent.keyCode || theEvent.which;
             key = String.fromCharCode(key);
         }
-        var regex = /[0-9,]|\./;
+        var regex = /[0-9,]/;
         if( !regex.test(key) ) {
             theEvent.returnValue = false;
             if(theEvent.preventDefault) theEvent.preventDefault();
         }
     }
-    </script>
 
-<script type="text/javascript">
     window.onload = function(){
         const form_product = document.getElementById("form_product");
         const main_list = document.getElementById("main_list");
@@ -208,7 +199,8 @@
                     valorunitario: $("#inputvalorunitario").val()
                 }
             }).then(() => {
-                updateList(); // Atualiza a lista após adicionar
+                updateList();
+                // Atualiza a lista após adicionar
             });
         }
 
@@ -221,7 +213,8 @@
                     type: 'POST',
                     url: `/remove/${index}`,
                 }).then(() => {
-                    updateList(); // Atualiza a lista após remoção
+                    updateList();
+                    // Atualiza a lista após remoção
                 });
             }
         });
@@ -237,6 +230,34 @@
             });
         }
     }
+
+    form_resume_sale.onsubmit = function(event){
+    event.preventDefault();    
+    $.ajax({
+        type: 'POST',
+        url: '/resume-sale',
+        data: {         
+            valortaxa: $("#inputtaxaentrega").val(),
+            valordesconto: $("#inputdesconto").val()
+        },
+        success: function(response) {
+            console.log("Success:", response);
+            // Atualize o conteúdo da página aqui diretamente, se necessário
+            $("#resume_sale").html(response);
+        },
+        error: function(jqXHR, textStatus, errorThrown) {
+            console.log("Error details:", jqXHR, textStatus, errorThrown);
+        }
+    });
+}
+
+    document.addEventListener('DOMContentLoaded', function() {
+        // Faz a requisição POST para limpar a lista de produtos quando a página for recarregada
+        fetch('/clear_products', {
+            method: 'POST'            
+        })
+    })
+    
 </script>
 
 {% endblock conteudo %}
