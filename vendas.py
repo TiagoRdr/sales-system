@@ -1,13 +1,12 @@
 from flask import Flask, render_template, request, redirect, url_for, session, jsonify
-import datetime
-
+from datetime import datetime, date
 app = Flask(__name__)
 
 app.config['FLASK_ENV'] = 'development'
 app.config['DEBUG'] = True
 app.config['TESTING'] = True
 
-data_atual = datetime.date.today().strftime("%Y-%m-%d")
+data_atual = date.today().strftime("%Y-%m-%d")
 produtos = []
 
 @app.route('/', methods=["GET", "POST"])
@@ -63,8 +62,7 @@ def remove_product(index):
 @app.route('/clear_products', methods=["POST"])
 def clear_products():    
     produtos.clear() # Limpa a lista de produtos
-    total_prods = total_produtos()
-    return render_template('total-products.html', total_prods=total_prods)
+    return render_template('list-products.html', produtos=produtos)
 
 
 
@@ -79,12 +77,17 @@ def resume_sale():
         total_prods = total_produtos()
         product_taxa = request.form.get('valortaxa') 
         product_desconto = request.form.get('valordesconto')
+        nomecliente = request.form.get('nomecliente') if len(request.form.get('nomecliente')) > 1 else '-'
+        datavenda = datetime.strptime(request.form.get('datavenda'), '%Y-%m-%d').date().strftime('%d/%m/%Y')
+        dataentrega = datetime.strptime(request.form.get('dataentrega'), '%Y-%m-%d').date().strftime('%d/%m/%Y')       
+        metodopagamento = request.form.get('metodopagamento')
+        observacoes = request.form.get('observacoes') if len(request.form.get('observacoes')) > 1 else '-'
 
         if not product_taxa or not product_desconto:
             return jsonify({"error": "Missing values"}), 400  # Retorna erro 400 se valores ausentes
 
         total_venda = total_vendas(product_taxa, product_desconto)
-        return render_template('/resume-sale.html', total_prods=total_prods, total_venda=total_venda, taxaentrega=product_taxa, desconto=product_desconto)
+        return render_template('/resume-sale.html', total_prods=str(total_prods).replace(".",","), total_venda=str(total_venda).replace(".",","), taxaentrega=str(product_taxa).replace(".",","), desconto=str(product_desconto).replace(".",","), nomecliente=nomecliente, datavenda=datavenda, dataentrega=dataentrega, metodopagamento=metodopagamento, observacoes=observacoes)
 
     
     except Exception as e:

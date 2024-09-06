@@ -116,7 +116,7 @@
                     </div>
                     <br>
                     <div class="d-flex justify-content-center">                        
-                        <button type="submit" class="btn btn-outline-primary">Adicionar produto</button>                        
+                        <button type="submit" class="btn btn-outline-dark">Adicionar produto</button>                        
                     </div>
                 </form>
             <br>
@@ -135,8 +135,8 @@
                     <input type="text" class="form-control" id="inputdesconto" autocomplete="off" placeholder="0,00" onkeypress='validate(event)'>
                 </div>                    
                 <div class="form-group col-md-12">
-                    <label for="inputAddress2">Observações</label>
-                    <textarea class="form-control" id="obstextarea" autocomplete="off" rows="6"></textarea>
+                    <label for="inputobservacoes">Observações</label>
+                    <textarea class="form-control" id="inputobservacoes" autocomplete="off" rows="2"></textarea>
                 </div>
             </div>
         </div>
@@ -148,18 +148,18 @@
 
 <form method="POST" id="form_resume_sale">
     <div class="d-flex justify-content-center">
-        <button type="submit" name="btn-resume-sale" class="btn btn-success btn-lg">Visualizar/Atualizar resumo da venda</button>
+        <button type="submit" name="btn-resume-sale" class="btn btn-outline-primary btn-lg">Resumo da venda</button>
     </div>
 </form>
 
 
-    <div class="col-md-6" id="resume_sale" style="background-color: rgb(226, 233, 238); border: 2px solid rgb(0, 0, 0); width: 500px; margin: 10px auto;  display: block;">
-        
+    <div id="resume_sale">
+    
     </div>
+
+
     <br>
-    <div class="d-flex justify-content-center">
-        <button type="submit" name="add-venda" class="btn btn-success btn-lg">Finalizar Venda</button>
-    </div>
+    
 </div>
     
     <br>
@@ -238,7 +238,12 @@
         url: '/resume-sale',
         data: {         
             valortaxa: $("#inputtaxaentrega").val(),
-            valordesconto: $("#inputdesconto").val()
+            valordesconto: $("#inputdesconto").val(),
+            nomecliente: $("#inputnome").val(),
+            datavenda: $("#inputdatavenda").val(),
+            dataentrega: $("#inputdataentrega").val(),
+            metodopagamento: $("#inputmetodopagamento").val(),
+            observacoes: $("#inputobservacoes").val()
         },
         success: function(response) {
             console.log("Success:", response);
