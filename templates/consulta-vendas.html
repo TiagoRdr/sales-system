@@ -1,0 +1,157 @@
+{% extends 'base.html' %}
+
+{% block conteudo %}
+    <h1 class="display-3">CONSULTAR VENDAS</h1>
+    <hr>
+
+<p class="lead text-center ">FILTROS</p>
+
+<div style="display: inline-block; justify-content: center; align-items: center; flex-direction: column;">
+<input type="date" class="text-center" id="filtro_data" style="width: 426px;" onkeyup="filtrarPorData()" onchange="filtrarPorData()" placeholder="Filtrar por data da venda">
+<input type="text" class="text-center" id="filtro_pagamento" style="width: 426px;" onkeyup="filtrarVendasPagamento()" placeholder="Filtrar por forma de pagamento">
+<input type="text" class="text-center" id="filtro_clientes" style="width: 426px;" onkeyup="filtrarVendasClientes()" placeholder="Filtrar por nome do cliente">
+</div>
+
+<br><br>
+
+
+<div class="container">        
+    <div class="row">         
+        <div class="table-container"> 
+            <table class="table table-striped" id="tabela">
+                <thead>
+                    <tr>
+                    <th scope="col" class="coluna">Código Venda</th>
+                    <th scope="col">Data da venda</th>
+                    <th scope="col">Forma Pagamento</th>
+                    <th scope="col">Taxa de entrega</th>
+                    <th scope="col">Cliente</th>
+                    <th scope="col">Total da venda</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for venda in vendas_mes %}
+                    <tr>
+                        <th scope="row">{{venda[0]}}</th>
+                        <td>{{venda[1]}}</td>
+                        <td>{{venda[2]}}</td>
+                        <td>{{venda[3]}}</td>                    
+                        <td>{{venda[4]}}</td>
+                        <td>{{venda[5]}}</td>
+                        <td><input type="button" class="btn btn-info" name="btn_visualizar" id="btn_visualizar" value="Visualizar"></td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<br><br><br>
+
+<style>
+.table-container {
+    max-height: 700px; /* Ajuste conforme necessário */
+    overflow-y: auto;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+}
+
+th, td {
+    text-align: center; /* Alinha o texto horizontalmente ao centro */
+}
+
+tbody tr {
+  vertical-align: middle; /* Alinha o texto verticalmente ao centro */
+}
+</style>
+
+
+<script>
+    function filtrarPorData() {
+    // Obtém o valor da data do input no formato AAAA-MM-DD
+    var input = document.getElementById("filtro_data").value;
+    
+    // Se o campo de data estiver vazio, exibe todas as linhas
+    if (!input) {
+        exibirTodasAsLinhas();
+        return;
+    }
+
+    // Obtém o valor da data do input sem fuso horário (apenas a data)
+    var filtroData = input.split("-").reverse().join("/"); // Converte para DD/MM/AAAA
+
+    var tabela = document.getElementById("tabela");
+    var tr = tabela.getElementsByTagName("tr");
+
+    // Itera sobre todas as linhas da tabela (exceto o cabeçalho)
+    for (var i = 1; i < tr.length; i++) {
+        var td = tr[i].getElementsByTagName("td")[0]; // Coluna de data de venda
+        if (td) {
+        var dataVendaTexto = td.textContent || td.innerText;
+
+        // Verifica se a data de venda coincide com a data do input
+        if (filtroData === dataVendaTexto) {
+            tr[i].style.display = "";
+        } else {
+            tr[i].style.display = "none";
+        }
+        }
+    }
+    }
+
+    function exibirTodasAsLinhas() {
+    var tabela = document.getElementById("tabela");
+    var tr = tabela.getElementsByTagName("tr");
+    for (var i = 1; i < tr.length; i++) {
+        tr[i].style.display = "";
+    }
+    }
+
+    function filtrarVendasPagamento() {
+      // Obtém o valor do input de filtro
+        var input = document.getElementById("filtro_pagamento");
+        var filtro = input.value.toLowerCase();
+        var tabela = document.getElementById("tabela");
+        var tr = tabela.getElementsByTagName("tr");
+
+      // Itera sobre todas as linhas da tabela (exceto o cabeçalho)
+    for (var i = 1; i < tr.length; i++) {
+        var td = tr[i].getElementsByTagName("td")[1]; // Filtra pela primeira coluna (Nome do Produto)
+        if (td) {
+        var texto = td.textContent || td.innerText;
+        // Exibe ou oculta a linha com base no filtro
+        if (texto.toLowerCase().indexOf(filtro) > -1) {
+            tr[i].style.display = "";
+        } else {
+            tr[i].style.display = "none";
+            }
+            }
+        }
+    }
+
+    function filtrarVendasClientes() {
+      // Obtém o valor do input de filtro
+        var input = document.getElementById("filtro_clientes");
+        var filtro = input.value.toLowerCase();
+        var tabela = document.getElementById("tabela");
+        var tr = tabela.getElementsByTagName("tr");
+
+      // Itera sobre todas as linhas da tabela (exceto o cabeçalho)
+    for (var i = 1; i < tr.length; i++) {
+        var td = tr[i].getElementsByTagName("td")[3]; // Filtra pela primeira coluna (Nome do Produto)
+        if (td) {
+        var texto = td.textContent || td.innerText;
+        // Exibe ou oculta a linha com base no filtro
+        if (texto.toLowerCase().indexOf(filtro) > -1) {
+            tr[i].style.display = "";
+        } else {
+            tr[i].style.display = "none";
+            }
+            }
+        }
+    }
+
+</script>
+
+{% endblock conteudo %}

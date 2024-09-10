@@ -1,261 +1,204 @@
 {% extends 'base.html' %}
 {% block conteudo %}
-    <h1 class="display-3">NOVA VENDA</h1>
-    <hr>
+<!-- <h1 class="display-2 text-center">Marlene e Camilo</h1>
+<h3 class="display-6 text-center">Perfumes e Cosméticos</h3> -->
+<img class="img_marlene" src="../static/marleneecamilo.jpg" alt="logo">
+<hr>
 
+<div class="containers">
+    <div class="card">
+      <div class="image-text">
+        <img src="https://cdn.icon-icons.com/icons2/514/PNG/512/shop_icon-icons.com_51010.png" alt="Imagem 1">
+        <div class="text-container">
+          <p class="top-text">Vendas do Mês</p>
+          <p class="bottom-text">R$ {{total_mensal}}</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="image-text">
+        <img class="img_header" src="https://cdn.pixabay.com/photo/2013/07/13/12/49/group-160427_1280.png" alt="Imagem 2">
+        <div class="text-container">
+          <p class="top-text">Total de clientes</p>
+          <p class="bottom-text">{{total_clientes}} Clientes</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="image-text">
+        <img src="https://cdn.icon-icons.com/icons2/943/PNG/512/shoppaymentorderbuy-11_icon-icons.com_73850.png" alt="Imagem 3">
+        <div class="text-container">
+          <p class="top-text">Ticket médio</p>
+          <p class="bottom-text">R$ {{ticket_medio}}</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+        <div class="image-text">
+          <img src="../static/up-and-down-arrows.png" alt="Imagem 3">
+          <div class="text-container">
+            <p class="top-text">Variação Mensal</p>
+            <p class="bottom-text">R$ {{variacao_mensal}}</p>
+          </div>
+        </div>
+      </div>
+  </div>
+
+
+<br>
 
 <div class="container">        
     <div class="row">            
         <div class="col-md-6">
-            <p class="lead text-center ">INFORMAÇÕES DA VENDA</p>   
-            <div class="form-group col-md-12">
-                <label for="inputnumerovenda" >Nº da venda</label>
-                <fieldset disabled>
-                    <input type="text" class="form-control" id="inputnumerovenda">
-                </fieldset>
-            </div>
-            <div class="row">
-                <div class="form-group col-md-6">
-                    <label for="inputdatavenda">Data da venda</label>
-                    <input type="date" class="form-control" id="inputdatavenda" value={{data_atual}}>
-                </div>
-                <div class="form-group col-md-6">
-                    <label for="inputdataentrega">Data da entrega</label>
-                    <input type="date" class="form-control" id="inputdataentrega" value={{data_atual}}>
-                </div>
-            </div>        
-            <div class="row">
-                <div class="form-group col-md-6">
-                    <label for="inputmetodopagamento">Método de pagamento</label>
-                    <select id="inputmetodopagamento" class="form-control">
-                        <option selected>Escolher método de pagamento...</option>
-                        <option>Cartão Débito</option>
-                        <option>Cartão Crédito</option>
-                        <option>Dinheiro</option>
-                        <option>PIX</option>
-                        <option>Boleto</option>
-                    </select>
-                </div>
-                <div class="form-group col-md-6">
-                    <label for="inputAddress">Taxa de entrega</label>
-                    <input type="text" class="form-control" id="inputtaxaentrega" autocomplete="off" onkeypress='validate(event)' placeholder="0,00">
-                </div>
-            </div>
+            <a class="nav-link" href="{{url_for('nova_venda')}}">
+            <button type="submit" class="btn btn-outline-primary text-black" value="NOVA VENDA" id="btn_nova_venda">
+                <img class="img_menu" src="../static/nova-venda.png" alt="buttonpng">
+                <p style="font-size: 40px;" class="text-black">NOVA VENDA</p>
+            </button>  
+            </a>          
+        </div>  
             
-            <div class="row">
-                <div class="form-group col-md-6">
-                    <label for="inputstatuspagamento">Status do pagamento</label>
-                    <select id="inputstatuspagamento" class="form-control">
-                        <option selected>Escolher status do pagamento...</option>
-                        <option>Pago</option>
-                        <option>Pendente</option>                            
-                    </select>
-                </div>
-                <div class="form-group col-md-6">
-                    <label for="inputenderecoentrega">Endereço de entrega</label>
-                    <input type="text" class="form-control" id="inputenderecoentrega" autocomplete="off" placeholder="Nome da rua, nº e bairro">
-                </div>
-            </div>               
-        </div>
+        <div class="col-md-6">             
+            <button type="submit" class="btn btn-outline-primary text-black" value="CADASTROS" id="btn_cadastros">
+                <img class="img_menu"  src="../static/register.png" alt="buttonpng">
+                <p style="font-size: 40px;" class="text-black">CADASTROS</p>
+            </button>        
+        </div>  
+    </div>
+</div>
+<br>
+
+<div class="container">        
+    <div class="row">            
+        <div class="col-md-6">  
+            <a class="nav-link" href="{{url_for('consulta_main')}}">         
+                <button type="submit" class="btn btn-outline-primary text-black" value="CONSULTAS" id="btn_consultas">
+                    <img class="img_menu" src="../static/search.png" alt="buttonpng">
+                    <p style="font-size: 40px;" class="text-black">CONSULTAS</p>
+                </button> 
+            </a>         
+        </div>  
         
-        <div class="col-md-6" style="border-left: 1px solid rgb(0, 0, 0);">                
-            <p class="lead text-center">INFORMAÇÕES DO CLIENTE</p>
-            <div class="form-group col-md-12">
-                <label for="inputnome">Nome</label>
-                <input type="text" class="form-control" id="inputnome" autocomplete="off" placeholder="Nome">
-            </div>
-            <div class="form-group col-md-12">
-                <label for="inputendereco">Endereço</label>
-                <input type="text" class="form-control" id="inputendereco" autocomplete="off" placeholder="Nome da rua, nº e bairro">
-            </div>
-            <div class="form-group col-md-12">
-                <label for="inputemail">E-mail</label>
-                <input type="email" class="form-control" id="inputemail" autocomplete="off" placeholder="email@mail.com">
-            </div>
-            <div class="row">
-            <div class="form-group col-md-6">
-                <label for="inputtelefone">Telefone</label>
-                <input type="text" class="form-control" id="inputtelefone" autocomplete="off" placeholder="(99) 99999-9999">
-            </div>
-            <div class="form-group col-md-6">
-                <label for="inputcpfcnpj">CPF/CNPJ</label>
-                <input type="text" class="form-control" id="inputcpfcnpj" autocomplete="off" placeholder="9999999999">
-            </div>
-            </div>
-        </div>
-    </div>
-</div>
-    <br>
-    <hr>
-    <br>
-<div class="container">
-    <div class="row">   
-        <div class="col-md-6">
-            <p class="lead text-center">INFORMAÇÕES DO PRODUTO</p>
-            <div class="form-row">
-                <form method="POST" id="form_product" autocomplete="off">
-                    <div class="form-group col-md-12">
-                        <label for="inputproduto">Produto</label>
-                        <select id="inputproduto" name="inputproduto" class="form-control">
-                            <option selected>Escolher Produto...</option>
-                            <option>Produto 1</option>
-                            <option>Produto 2</option>
-                        </select>
-                    </div>
-                    <div class="form-group col-md-12">
-                        <label for="inputfornecedor">Fornecedor</label>
-                        <input type="text" class="form-control" id="inputfornecedor" placeholder="Fornecedor">
-                    </div>
-                    <div class="form-group col-md-12">
-                        <label for="inputquantidade">Quantidade</label>
-                        <input type="text" class="form-control" id="inputquantidade" name="inputquantidade" onkeypress='validate(event)' placeholder="0">
-                    </div>
-                        <div class="form-group col-md-12">
-                            <label for="inputvalorunitario">Valor unitário</label>
-                            <input type="text" class="form-control" id="inputvalorunitario" name="inputvalorunitario", onkeypress='validate(event)' placeholder="0,00">
-                    </div>
-                    <br>
-                    <div class="d-flex justify-content-center">                        
-                        <button type="submit" class="btn btn-outline-dark">Adicionar produto</button>                        
-                    </div>
-                </form>
-            <br>
-
-            <ul class="list-group" id="main_list">                
-            </ul class="list-group">
-
-
-            </div>
-        </div>
-        <div class="col-md-6" style="border-left: 1px solid rgb(0, 0, 0);">
-            <p class="lead text-center">INFORMAÇÕES ADICIONAIS</p>
-            <div class="form-row">
-                <div class="form-group col-md-12">
-                    <label for="inputquantidade">Desconto</label>
-                    <input type="text" class="form-control" id="inputdesconto" autocomplete="off" placeholder="0,00" onkeypress='validate(event)'>
-                </div>                    
-                <div class="form-group col-md-12">
-                    <label for="inputobservacoes">Observações</label>
-                    <textarea class="form-control" id="inputobservacoes" autocomplete="off" rows="2"></textarea>
-                </div>
-            </div>
-        </div>
+        <div class="col-md-6">             
+            <button type="submit" class="btn btn-outline-primary text-black" value="SUPORTE" id="btn_suporte">
+                <img class="img_menu" src="../static/support.png" alt="buttonpng">
+                <p style="font-size: 40px;" class="text-black">SUPORTE</p>
+            </button>        
+        </div>  
     </div>
 </div>
 
-<hr>
+<style>
+/* #btn_nova_venda, #btn_cadastros, #btn_consultas, #btn_suporte{
+    margin-left: 17%; 
+    float: left; 
+    width: 400px; 
+    height: 300px;    
+    background: rgb(2,0,36);
+    background: linear-gradient(0deg, rgba(2,0,36,1) 0%, rgba(232,221,193,1) 0%, rgba(188,223,237,1) 100%); 
+    border-width: 3px; 
+} */
+
+.img_marlene{
+    align-items: center;
+    float: center;
+    margin-left: 37%;
+    width: 350px;
+    height: 250px;
+    margin-top: -30px;
+    margin-bottom: -80px;
+}
+
+.containers {
+  display: flex;
+  justify-content: space-between;
+  gap: 20px;
+}
+
+.card {
+  background-color: #daf1c2;
+  border: 3px solid #343a37;
+  border-radius: 8px;
+  padding: 10px;
+  width: 30%;
+}
+
+.image-text {
+  display: flex;
+  align-items: flex-start;
+}
+
+img {
+  width: 100px;
+  height: 100px;
+  margin-right: 15px;
+}
+
+.text-container {
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+}
+
+.top-text {
+  font-weight: bold;
+  margin-bottom: 10px;
+  font-size: 20px;
+}
+
+.bottom-text {
+    color: #555;
+    font-size: 18px;
+    margin-bottom: 5px;
+}
 
 
-<form method="POST" id="form_resume_sale">
-    <div class="d-flex justify-content-center">
-        <button type="submit" name="btn-resume-sale" class="btn btn-outline-primary btn-lg">Resumo da venda</button>
-    </div>
-</form>
+/* //////////////////////////////////////////////////////////////////////////////////////////// a */
 
-    <br>
-    
-</div>
-    
-    <br>
 
-<script type="text/javascript">
-    function validate(evt) {
-        var theEvent = evt || window.event;
+#btn_nova_venda, #btn_cadastros, #btn_consultas, #btn_suporte {
+    background: linear-gradient(145deg, #85c786, #71a174); /* Degradê leve */
+    border: none;
+    border-radius: 12px;
+    width: 500px;
+    height: 250px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    margin-left: 55px;
+    box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+    transition: transform 0.3s;
+    cursor: pointer;
+    text-align: center;
+    color: white;
+}
 
-        // Handle paste
-        if (theEvent.type === 'paste') {
-            key = event.clipboardData.getData('text/plain');
-        } else {
-        // Handle key press
-            var key = theEvent.keyCode || theEvent.which;
-            key = String.fromCharCode(key);
-        }
-        var regex = /[0-9,]/;
-        if( !regex.test(key) ) {
-            theEvent.returnValue = false;
-            if(theEvent.preventDefault) theEvent.preventDefault();
-        }
-    }
+.img_menu {
+  width: 150px;
+  height: 150px;
+  margin-top: 30px;
+  
+}
 
-    window.onload = function(){
-        const form_product = document.getElementById("form_product");
-        const main_list = document.getElementById("main_list");
+.btn p {
+  font-size: 15px;
+  font-weight: bold;
+}
 
-        // Função para adicionar produtos
-        form_product.onsubmit = function(event){
-            event.preventDefault();
-            $.ajax({
-                type: 'POST',
-                url: '/add_product',
-                data: {
-                    produto: $("#inputproduto").val(),
-                    quantidade: $("#inputquantidade").val(),
-                    valorunitario: $("#inputvalorunitario").val()
-                }
-            }).then(() => {
-                updateList();
-                // Atualiza a lista após adicionar
-            });
-        }
+.btn:hover {
+  transform: scale(1.05); /* Efeito de hover */
+}
 
-        // Função para remover produtos com AJAX
-        main_list.addEventListener('click', function(event) {
-            if (event.target && event.target.matches("button.btn-danger")) {
-                event.preventDefault();
-                const index = event.target.getAttribute('data-index'); // Pegando o índice
-                $.ajax({
-                    type: 'POST',
-                    url: `/remove/${index}`,
-                }).then(() => {
-                    updateList();
-                    // Atualiza a lista após remoção
-                });
-            }
-        });
 
-        // Função para atualizar a lista de produtos
-        function updateList() {
-            fetch("/list-products", {
-                method: "GET"
-            }).then(response => {
-                return response.text();
-            }).then(html => {
-                main_list.innerHTML = html;
-            });
-        }
-    }
 
-    form_resume_sale.onsubmit = function(event){
-        event.preventDefault();    
-        $.ajax({
-            type: 'POST',
-            url: '/resume-sale',
-            data: {         
-                valortaxa: $("#inputtaxaentrega").val(),
-                valordesconto: $("#inputdesconto").val(),
-                nomecliente: $("#inputnome").val(),
-                datavenda: $("#inputdatavenda").val(),
-                dataentrega: $("#inputdataentrega").val(),
-                metodopagamento: $("#inputmetodopagamento").val(),
-                observacoes: $("#inputobservacoes").val()
-            },
-            success: function(response) {
-                console.log("Success:", response);
-                // Atualize o conteúdo da página aqui diretamente, se necessário
-                $("body").html(response);
-            },
-            error: function(jqXHR, textStatus, errorThrown) {
-                console.log("Error details:", jqXHR, textStatus, errorThrown);
-            }
-        });
-    }
-    document.addEventListener('DOMContentLoaded', function() {
-        // Faz a requisição POST para limpar a lista de produtos quando a página for recarregada
-        fetch('/clear_products', {
-            method: 'POST'            
-        })
-    })
-    
-</script>
+
+
+</style>
+
+
 
 {% endblock conteudo %}

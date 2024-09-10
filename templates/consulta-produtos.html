@@ -1,0 +1,88 @@
+{% extends 'base.html' %}
+
+{% block conteudo %}
+    <h1 class="display-3">CONSULTAR VENDAS</h1>
+    <hr>
+
+<p class="lead text-center ">FILTRO</p>
+
+<div style="display: flex; justify-content: center; align-items: center; flex-direction: column;">
+<input type="text" class="text-center" id="filtro_produto" style="width: 400px;" onkeyup="filtrarProduto()" placeholder="Filtrar por Produto">
+</div>
+
+
+<br>
+<div class="container">        
+    <div class="row">         
+        <div class="table-container"> 
+            <table class="table table-striped" id="tabela">
+                <thead>
+                    <tr>
+                    <th scope="col" class="coluna">Código Produto</th>
+                    <th scope="col">Produto</th>
+                    <th scope="col">Fornecedor</th>
+                    <th scope="col">Quantidade de estoque</th>
+                    <th scope="col">Valor unitário</th>                    
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for produto in produtos_cadastrados %}
+                    <tr>
+                        <th scope="row">{{produto[0]}}</th>
+                        <td>{{produto[1]}}</td>
+                        <td>{{produto[2]}}</td>
+                        <td>{{produto[3]}}</td>                    
+                        <td>{{produto[4]}}</td>                        
+                        <td><input type="button" class="btn btn-info" name="btn_visualizar" id="btn_visualizar" value="Visualizar"></td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<br>
+
+<style>
+.table-container {
+    max-height: 600px; /* Ajuste conforme necessário */
+    overflow-y: auto;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+}
+
+th, td {
+    text-align: center; /* Alinha o texto horizontalmente ao centro */
+}
+
+tbody tr {
+  vertical-align: middle; /* Alinha o texto verticalmente ao centro */
+}
+</style>
+
+<script>
+    function filtrarProduto() {
+      // Obtém o valor do input de filtro
+        var input = document.getElementById("filtro_produto");
+        var filtro = input.value.toLowerCase();
+        var tabela = document.getElementById("tabela");
+        var tr = tabela.getElementsByTagName("tr");
+
+      // Itera sobre todas as linhas da tabela (exceto o cabeçalho)
+    for (var i = 1; i < tr.length; i++) {
+        var td = tr[i].getElementsByTagName("td")[0]; // Filtra pela primeira coluna (Nome do Produto)
+        if (td) {
+        var texto = td.textContent || td.innerText;
+        // Exibe ou oculta a linha com base no filtro
+        if (texto.toLowerCase().indexOf(filtro) > -1) {
+            tr[i].style.display = "";
+        } else {
+            tr[i].style.display = "none";
+            }
+            }
+        }
+    }
+
+</script>
+{% endblock conteudo %}

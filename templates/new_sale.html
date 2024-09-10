@@ -1,0 +1,260 @@
+{% extends 'base.html' %}
+{% block conteudo %}
+    <h1 class="display-3">NOVA VENDA</h1>
+    <hr>
+
+<div class="container">        
+    <div class="row">            
+        <div class="col-md-6">
+            <p class="lead text-center ">INFORMAÇÕES DA VENDA</p>   
+            <div class="form-group col-md-12">
+                <label for="inputnumerovenda" >Nº da venda</label>
+                <fieldset disabled>
+                    <input type="text" class="form-control" id="inputnumerovenda">
+                </fieldset>
+            </div>
+            <div class="row">
+                <div class="form-group col-md-6">
+                    <label for="inputdatavenda">Data da venda</label>
+                    <input type="date" class="form-control" id="inputdatavenda" value={{data_atual}}>
+                </div>
+                <div class="form-group col-md-6">
+                    <label for="inputdataentrega">Data da entrega</label>
+                    <input type="date" class="form-control" id="inputdataentrega" value={{data_atual}}>
+                </div>
+            </div>        
+            <div class="row">
+                <div class="form-group col-md-6">
+                    <label for="inputmetodopagamento">Método de pagamento</label>
+                    <select id="inputmetodopagamento" class="form-control">
+                        <option selected>Escolher método de pagamento...</option>
+                        <option>Cartão Débito</option>
+                        <option>Cartão Crédito</option>
+                        <option>Dinheiro</option>
+                        <option>PIX</option>
+                        <option>Boleto</option>
+                    </select>
+                </div>
+                <div class="form-group col-md-6">
+                    <label for="inputAddress">Taxa de entrega</label>
+                    <input type="text" class="form-control" id="inputtaxaentrega" autocomplete="off" onkeypress='validate(event)' placeholder="0,00">
+                </div>
+            </div>
+            
+            <div class="row">
+                <div class="form-group col-md-6">
+                    <label for="inputstatuspagamento">Status do pagamento</label>
+                    <select id="inputstatuspagamento" class="form-control">
+                        <option selected>Escolher status do pagamento...</option>
+                        <option>Pago</option>
+                        <option>Pendente</option>                            
+                    </select>
+                </div>
+                <div class="form-group col-md-6">
+                    <label for="inputenderecoentrega">Endereço de entrega</label>
+                    <input type="text" class="form-control" id="inputenderecoentrega" autocomplete="off" placeholder="Nome da rua, nº e bairro">
+                </div>
+            </div>               
+        </div>
+        
+        <div class="col-md-6" style="border-left: 1px solid rgb(0, 0, 0);">                
+            <p class="lead text-center">INFORMAÇÕES DO CLIENTE</p>
+            <div class="form-group col-md-12">
+                <label for="inputnome">Nome</label>
+                <input type="text" class="form-control" id="inputnome" autocomplete="off" placeholder="Nome">
+            </div>
+            <div class="form-group col-md-12">
+                <label for="inputendereco">Endereço</label>
+                <input type="text" class="form-control" id="inputendereco" autocomplete="off" placeholder="Nome da rua, nº e bairro">
+            </div>
+            <div class="form-group col-md-12">
+                <label for="inputemail">E-mail</label>
+                <input type="email" class="form-control" id="inputemail" autocomplete="off" placeholder="email@mail.com">
+            </div>
+            <div class="row">
+            <div class="form-group col-md-6">
+                <label for="inputtelefone">Telefone</label>
+                <input type="text" class="form-control" id="inputtelefone" autocomplete="off" placeholder="(99) 99999-9999">
+            </div>
+            <div class="form-group col-md-6">
+                <label for="inputcpfcnpj">CPF/CNPJ</label>
+                <input type="text" class="form-control" id="inputcpfcnpj" autocomplete="off" placeholder="9999999999">
+            </div>
+            </div>
+        </div>
+    </div>
+</div>
+    <br>
+    <hr>
+    <br>
+<div class="container">
+    <div class="row">   
+        <div class="col-md-6">
+            <p class="lead text-center">INFORMAÇÕES DO PRODUTO</p>
+            <div class="form-row">
+                <form method="POST" id="form_product" autocomplete="off">
+                    <div class="form-group col-md-12">
+                        <label for="inputproduto">Produto</label>
+                        <select id="inputproduto" name="inputproduto" class="form-control">
+                            <option selected>Escolher Produto...</option>
+                            <option>Produto 1</option>
+                            <option>Produto 2</option>
+                        </select>
+                    </div>
+                    <div class="form-group col-md-12">
+                        <label for="inputfornecedor">Fornecedor</label>
+                        <input type="text" class="form-control" id="inputfornecedor" placeholder="Fornecedor">
+                    </div>
+                    <div class="form-group col-md-12">
+                        <label for="inputquantidade">Quantidade</label>
+                        <input type="text" class="form-control" id="inputquantidade" name="inputquantidade" onkeypress='validate(event)' placeholder="0">
+                    </div>
+                        <div class="form-group col-md-12">
+                            <label for="inputvalorunitario">Valor unitário</label>
+                            <input type="text" class="form-control" id="inputvalorunitario" name="inputvalorunitario", onkeypress='validate(event)' placeholder="0,00">
+                    </div>
+                    <br>
+                    <div class="d-flex justify-content-center">                        
+                        <button type="submit" class="btn btn-outline-dark">Adicionar produto</button>                        
+                    </div>
+                </form>
+            <br>
+
+            <ul class="list-group" id="main_list">                
+            </ul class="list-group">
+
+
+            </div>
+        </div>
+        <div class="col-md-6" style="border-left: 1px solid rgb(0, 0, 0);">
+            <p class="lead text-center">INFORMAÇÕES ADICIONAIS</p>
+            <div class="form-row">
+                <div class="form-group col-md-12">
+                    <label for="inputquantidade">Desconto</label>
+                    <input type="text" class="form-control" id="inputdesconto" autocomplete="off" placeholder="0,00" onkeypress='validate(event)'>
+                </div>                    
+                <div class="form-group col-md-12">
+                    <label for="inputobservacoes">Observações</label>
+                    <textarea class="form-control" id="inputobservacoes" autocomplete="off" rows="2"></textarea>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<hr>
+
+
+<form method="POST" id="form_resume_sale">
+    <div class="d-flex justify-content-center">
+        <button type="submit" name="btn-resume-sale" class="btn btn-outline-primary btn-lg">Resumo da venda</button>
+    </div>
+</form>
+
+    <br>
+    
+</div>
+    
+    <br>
+
+<script type="text/javascript">
+    function validate(evt) {
+        var theEvent = evt || window.event;
+
+        // Handle paste
+        if (theEvent.type === 'paste') {
+            key = event.clipboardData.getData('text/plain');
+        } else {
+        // Handle key press
+            var key = theEvent.keyCode || theEvent.which;
+            key = String.fromCharCode(key);
+        }
+        var regex = /[0-9,]/;
+        if( !regex.test(key) ) {
+            theEvent.returnValue = false;
+            if(theEvent.preventDefault) theEvent.preventDefault();
+        }
+    }
+
+    window.onload = function(){
+        const form_product = document.getElementById("form_product");
+        const main_list = document.getElementById("main_list");
+
+        // Função para adicionar produtos
+        form_product.onsubmit = function(event){
+            event.preventDefault();
+            $.ajax({
+                type: 'POST',
+                url: '/add_product',
+                data: {
+                    produto: $("#inputproduto").val(),
+                    quantidade: $("#inputquantidade").val(),
+                    valorunitario: $("#inputvalorunitario").val()
+                }
+            }).then(() => {
+                updateList();
+                // Atualiza a lista após adicionar
+            });
+        }
+
+        // Função para remover produtos com AJAX
+        main_list.addEventListener('click', function(event) {
+            if (event.target && event.target.matches("button.btn-danger")) {
+                event.preventDefault();
+                const index = event.target.getAttribute('data-index'); // Pegando o índice
+                $.ajax({
+                    type: 'POST',
+                    url: `/remove/${index}`,
+                }).then(() => {
+                    updateList();
+                    // Atualiza a lista após remoção
+                });
+            }
+        });
+
+        // Função para atualizar a lista de produtos
+        function updateList() {
+            fetch("/list-products", {
+                method: "GET"
+            }).then(response => {
+                return response.text();
+            }).then(html => {
+                main_list.innerHTML = html;
+            });
+        }
+    }
+
+    form_resume_sale.onsubmit = function(event){
+        event.preventDefault();    
+        $.ajax({
+            type: 'POST',
+            url: '/resume-sale',
+            data: {         
+                valortaxa: $("#inputtaxaentrega").val(),
+                valordesconto: $("#inputdesconto").val(),
+                nomecliente: $("#inputnome").val(),
+                datavenda: $("#inputdatavenda").val(),
+                dataentrega: $("#inputdataentrega").val(),
+                metodopagamento: $("#inputmetodopagamento").val(),
+                observacoes: $("#inputobservacoes").val()
+            },
+            success: function(response) {
+                console.log("Success:", response);
+                // Atualize o conteúdo da página aqui diretamente, se necessário
+                $("body").html(response);
+            },
+            error: function(jqXHR, textStatus, errorThrown) {
+                console.log("Error details:", jqXHR, textStatus, errorThrown);
+            }
+        });
+    }
+    document.addEventListener('DOMContentLoaded', function() {
+        // Faz a requisição POST para limpar a lista de produtos quando a página for recarregada
+        fetch('/clear_products', {
+            method: 'POST'            
+        })
+    })
+    
+</script>
+
+{% endblock conteudo %}
