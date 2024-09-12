@@ -3,10 +3,7 @@ from datetime import datetime, date
 import mysql.connector
 import calendar
 
-
 app = Flask(__name__)
-
-
 
 app.config['FLASK_ENV'] = 'development'
 app.config['DEBUG'] = True
@@ -260,5 +257,45 @@ def consulta_fornecedores_geral():
     return myresult
 
 
+@app.route("/cadastro")
+def cadastro_main():
+    return render_template("cadastro.html")
+
+@app.route("/cadastro-produtos")
+def cadastro_produtos():    
+    return render_template("cadastro-produtos.html")
+
+
+@app.route("/salvar-produto", methods=["POST", "GET"])
+def salvar_produtos():    
+    nome_produto = request.form.get("input_nome_produto")
+    marca_produto = request.form.get("input_marca")
+    fornecedor_produto = request.form.get("input_fornecedor")
+    data_validade_produto = request.form.get("input_data_validade")
+    qtd_estoque_produto = request.form.get("input_quantidade")
+    valor_unitario_produto = float(request.form.get("input_valor_unitario"))
+    peso_produto = request.form.get("input_peso")
+    custo_produto = float(request.form.get("input_custo_aquisicao"))
+    foto_produto = request.files.get('imagem_produto')
+
+    if foto_produto:
+        imagem_binaria = foto_produto.read()
+
+    mydb = mysql.connector.connect(
+        host="localhost",
+        user="root",
+        password="root",
+        database="tr-sale-system"
+    )
+
+    cursor = mydb.cursor()
+    cursor.execute("""
+            INSERT INTO produtos (nome, id_fornecedor, qtd_estoque, valor_unitario, marca, data_validade, peso, custo_aquisicao, foto) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)
+        """, (nome_produto, fornecedor_produto, qtd_estoque_produto, valor_unitario_produto, marca_produto, data_validade_produto, peso_produto, custo_produto, imagem_binaria))
+
+    mydb.commit()
+    cursor.close()
+
+    return redirect(url_for('cadastro_produtos'))
 
 app.run(debug=True)

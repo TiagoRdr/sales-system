@@ -1,0 +1,107 @@
+{% extends 'base.html' %}
+
+{% block conteudo %}
+    <h1 class="display-3">CADASTRO DE PRODUTOS</h1>
+    <hr>
+
+<form action="{{url_for('salvar_produtos')}}" method="POST" autocomplete="off" enctype="multipart/form-data" onsubmit="showAlert(event)">
+    <div class="container">
+        <div class="row">
+            <!-- Coluna para os inputs de texto e data -->
+            <div class="col-md-6">
+                <div class="form-group">
+                    <label for="input_nome_produto">Nome do produto:</label>
+                    <input type="text" class="form-control" id="input_nome_produto" name="input_nome_produto" placeholder="Ex. Sabonete Líquido Antibacteriano 200ml">
+                </div>
+                <div class="form-group">
+                    <label for="input_marca">Marca:</label>
+                    <input type="text" class="form-control" id="input_marca" name="input_marca" placeholder="Boticário">
+                </div>
+                <div class="form-group">
+                    <label for="input_fornecedor">Fornecedor:</label>
+                    <input type="text" class="form-control" id="input_fornecedor" name="input_fornecedor" placeholder="Nome do fornecedor">
+                </div>
+                <div class="form-group">
+                    <label for="input_data_validade">Data de validade:</label>
+                    <input type="date" class="form-control" id="input_data_validade" name="input_data_validade" value="{{data_atual}}">
+                </div>
+                <div class="form-group">
+                    <label for="input_quantidade">Quantidade em estoque:</label>
+                    <input type="text" class="form-control" id="input_quantidade" name="input_quantidade" placeholder="Quantidade">
+                </div>
+                <div class="form-group">
+                    <label for="input_valor_unitario">Valor unitário:</label>
+                    <input type="text" class="form-control" id="input_valor_unitario" name="input_valor_unitario" placeholder="0,00">
+                </div>
+                <div class="form-group">
+                    <label for="input_peso">Peso:</label>
+                    <input type="text" class="form-control" id="input_peso" name="input_peso" placeholder="Peso">
+                </div>
+                <div class="form-group">
+                    <label for="input_custo_aquisicao">Custo de aquisição:</label>
+                    <input type="text" class="form-control" id="input_custo_aquisicao" name="input_custo_aquisicao" placeholder="0,00">
+                </div>
+            </div>
+            
+            <!-- Coluna para a imagem -->
+            <div class="col-md-6 d-flex justify-content-center align-items-center">
+                <div>
+                    <label for="imagem_produto">Foto do produto</label><br>
+                    <input type="file" id="imagem_produto" name="imagem_produto" accept="image/*" onchange="mostrarImagem(event)">
+                    <div class="text-center">
+                        <img id="previewImagem" name="previewImagem" src="#" alt="Prévia da imagem" style="max-width: 300px; max-height: 700px; border: 3px solid black; display: none;">
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <br>
+    <div class="d-flex justify-content-center">
+        <button type="submit" name="btn-salvar_produto" class="btn btn-success btn-lg">CADASTRAR PRODUTO</button>
+    </div>
+</div>
+</form>
+
+
+<script type="text/javascript">
+    function validate(evt) {
+        var theEvent = evt || window.event;
+
+        // Handle paste
+        if (theEvent.type === 'paste') {
+            key = event.clipboardData.getData('text/plain');
+        } else {
+        // Handle key press
+            var key = theEvent.keyCode || theEvent.which;
+            key = String.fromCharCode(key);
+        }
+        var regex = /[0-9,]/;
+        if( !regex.test(key) ) {
+            theEvent.returnValue = false;
+            if(theEvent.preventDefault) theEvent.preventDefault();
+        }
+    }
+
+    
+    function mostrarImagem(event) {
+        var input = event.target;
+        var reader = new FileReader();
+        
+        // Quando a leitura do arquivo terminar, mostre a imagem
+        reader.onload = function() {
+            var preview = document.getElementById('previewImagem');
+            preview.src = reader.result;
+            preview.style.display = 'block';
+        }
+
+        // Leia a imagem como uma URL de dados
+        reader.readAsDataURL(input.files[0]);
+    }
+
+    function showAlert() {
+        alert('Produto cadastrado com sucesso!');
+    }
+</script>
+
+{% endblock conteudo %}

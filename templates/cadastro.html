@@ -1,0 +1,75 @@
+{% extends 'base.html' %}
+
+{% block conteudo %}
+    <h1 class="display-3">CADASTROS</h1>
+    <hr>
+
+
+<div class="container">        
+    <div class="row justify-content-center">            
+        <div class="col-md-6 text-center">                           
+            <a class="nav-link" href="{{url_for('cadastro_produtos')}}">
+                <button type="submit" class="btn btn-outline-primary text-black" value="CADASTROS" id="btn_produtos">
+                    <img class="img_menu" src="../static/products.png" alt="buttonpng">
+                    <p style="font-size: 40px;" class="text-black">PRODUTOS</p>
+                </button>        
+            </a>        
+        </div>  
+        <div class="col-md-6 text-center">
+            <a class="nav-link" href="{{url_for('consulta_clientes')}}">         
+                <button type="submit" class="btn btn-outline-primary text-black" value="CONSULTAS" id="btn_clientes">
+                    <img class="img_menu" src="../static/clientes.png" alt="buttonpng">
+                    <p style="font-size: 40px;" class="text-black">CLIENTES</p>
+                </button> 
+            </a>         
+        </div>  
+        <div class="col-md-6 text-center">
+            <a class="nav-link" href="{{url_for('consulta_fornecedores')}}">              
+                <button type="submit" class="btn btn-outline-primary text-black" value="SUPORTE" id="btn_fornecedores" style="margin-top: 40px;">
+                    <img class="img_menu" src="../static/fornecedor.png" alt="buttonpng">
+                    <p style="font-size: 40px;" class="text-black">FORNECEDORES</p>
+                </button> 
+            </a>       
+        </div>  
+    </div>
+</div>
+
+
+<style>
+#btn_produtos, #btn_clientes, #btn_fornecedores {
+background: linear-gradient(145deg, #85c786, #71a174); /* Degradê leve */
+border: none;
+border-radius: 12px;
+width: 500px;
+height: 250px;
+display: flex;
+flex-direction: column;
+justify-content: center;
+align-items: center;
+margin-left: 55px;
+box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+transition: transform 0.3s;
+cursor: pointer;
+text-align: center;
+color: white;
+}
+
+.img_menu {
+    width: 150px;
+    height: 150px;
+    margin-top: 30px;
+
+}
+
+.btn p {
+    font-size: 15px;
+    font-weight: bold;
+}
+
+.btn:hover {
+  transform: scale(1.05); /* Efeito de hover */
+}
+</style>
+
+
+{% endblock conteudo %}
