@@ -1,0 +1,68 @@
+{% extends 'base.html' %}
+
+{% block conteudo %}
+    <h1 class="display-3">CADASTRO DE FORNECEDORES</h1>
+    <hr>
+
+<form action="{{url_for('salvar_fornecedores')}}" method="POST" autocomplete="off" enctype="multipart/form-data" onsubmit="showAlert(event)">
+    <div class="container">
+        <div class="row">
+            <!-- Coluna para os inputs de texto e data -->
+            <div class="col-md-6">
+                <div class="form-group">
+                    <label for="input_nome_fornecedor">Nome</label>
+                    <input type="text" class="form-control" id="input_nome_fornecedor" name="input_nome_fornecedor" placeholder="Diamonds Cosméticos">
+                </div>               
+                <div class="form-group">
+                    <label for="input_cpfcnpj_fornecedor">CPF/CNPJ</label>
+                    <input type="text" class="form-control" id="input_cpfcnpj_fornecedor" name="input_cpfcnpj_fornecedor" placeholder="12.345.678/9012-34">
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="form-group">
+                    <label for="input_email_fornecedor">Email</label>
+                    <input type="email" class="form-control" id="input_email_fornecedor" name="input_email_fornecedor" placeholder="suporte@mail.com.br">
+                </div>
+                <div class="form-group">
+                    <label for="input_telefone_fornecedor">Telefone</label>
+                    <input type="text" class="form-control" id="input_telefone_fornecedor" name="input_telefone_fornecedor" placeholder="99999999999">
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="form-group">
+                    <label for="input_endereco_fornecedor">Endereço</label>
+                    <input type="text" class="form-control" id="input_endereco_fornecedor" name="input_endereco_fornecedor" placeholder="Rua das Flores, 300, Cajamar, SP">
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="form-group">
+                    <label for="input_observacoes_fornecedor">Observações</label>
+                    <textarea class="form-control" id="input_observacoes_fornecedor" name="input_observacoes_fornecedor" autocomplete="off" rows="1" placeholder="Preferências de Comunicação, Política de Devolução, Acordos Especiais e etc."></textarea>
+                </div>
+            </div>
+            </div>
+        </div>
+    </div>
+    
+    <br>
+    <div class="d-flex justify-content-center">
+        <button type="submit" name="btn-salvar_produto" class="btn btn-success btn-lg">CADASTRAR FORNECEDOR</button>
+    </div>
+</div>
+</form>
+
+
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script>
+    function showAlert() {
+        Swal.fire({
+        position: "center",
+        icon: "success",
+        title: "Fornecedor Cadastrado",
+        showConfirmButton: false,
+        timer: 2000
+});
+};
+</script>
+
+{% endblock conteudo %}

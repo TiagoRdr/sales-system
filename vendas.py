@@ -2,6 +2,7 @@ from flask import Flask, render_template, request, redirect, url_for, session, j
 from datetime import datetime, date
 import mysql.connector
 import calendar
+import time
 
 app = Flask(__name__)
 
@@ -9,9 +10,13 @@ app.config['FLASK_ENV'] = 'development'
 app.config['DEBUG'] = True
 app.config['TESTING'] = True
 
+
+############ VARIAVEIS GLOBAIS ##############
 data_atual = date.today().strftime("%Y-%m-%d")
 produtos = []
 
+
+############ TELA INICIAL ##############
 @app.route('/', methods=["GET", "POST"])
 def main():      
     valores_mensal = get_values_main()
@@ -44,6 +49,8 @@ def get_values_main():
 
     return myresult[0]
 
+
+############ NOVA VENDA ##############
 
 
 @app.route('/nova_venda', methods=["GET", "POST"])
@@ -102,7 +109,6 @@ def clear_products():
     return render_template('list-products.html', produtos=produtos)
 
 
-
 @app.route('/list-products')
 def list_products():    
     return render_template('list-products.html', produtos=produtos)
@@ -132,11 +138,13 @@ def resume_sale():
         return jsonify({"error": "Server error"}), 500
 
 
+############ TELA PRINCIPAL DA CONSULTA ##############
+
 @app.route("/consulta")
 def consulta_main():
     return render_template("consulta.html")
 
-
+############ CONSULTA VENDAS ##############
 @app.route("/consulta-vendas")
 def consulta_vendas():
     vendas_mes = consulta_vendas_mes()
@@ -170,6 +178,7 @@ def consulta_vendas_mes():
     return myresult
 
 
+############ CONSULTA PRODUTOS ##############
 
 @app.route("/consulta-produtos")
 def consulta_produtos():
@@ -199,6 +208,8 @@ def consulta_produtos_geral():
     myresult = mycursor.fetchall()
     return myresult
 
+
+############ CONSULTA CLIENTES ##############
 
 @app.route("/consulta-clientes")
 def consulta_clientes():
@@ -234,6 +245,9 @@ def consulta_fornecedores():
     return render_template("consulta-fornecedores.html", fornecedores_cadastrados=fornecedores_cadastrados)
 
 
+############ CONSULTA FORNECEDORES ##############
+
+
 def consulta_fornecedores_geral():
     mydb = mysql.connector.connect(
         host="localhost",
@@ -256,26 +270,65 @@ def consulta_fornecedores_geral():
     myresult = mycursor.fetchall()
     return myresult
 
+############ TELA PRINCIPAL DE CADASTROS ##############
+
 
 @app.route("/cadastro")
 def cadastro_main():
     return render_template("cadastro.html")
 
+
+############ CONSULTA PRODUTOS ##############
+
+
 @app.route("/cadastro-produtos")
 def cadastro_produtos():    
-    return render_template("cadastro-produtos.html")
+    fornecedores,  marcas = busca_fornecedores_marcas()
+    return render_template("cadastro-produtos.html", fornecedores=fornecedores, marcas=marcas)
 
+def busca_fornecedores_marcas():
+    mydb = mysql.connector.connect(
+        host="localhost",
+        user="root",
+        password="root",
+        database="tr-sale-system"
+    )
+    list_forn = []
+    list_marcas = []
+    cursor_fornecedores = mydb.cursor()
+    cursor_marcas = mydb.cursor()
+    cursor_fornecedores.execute(f"""select                            
+                            nome       
+                            from fornecedores f
+                            where nome is not null  
+                            order by id desc
+                    """)
+    myresult = cursor_fornecedores.fetchall()
+
+    cursor_marcas.execute(f"""select 
+                            distinct(marca) 
+                            from produtos p  
+                    """)
+    myresult2 = cursor_marcas.fetchall()
+    print(myresult)
+    for i in range(len(myresult)):
+        list_forn.append(str(myresult[i]).split("'")[1])
+
+    for i in range(len(myresult2)):
+        list_marcas.append(str(myresult2[i]).split("'")[1])
+
+    return list_forn, list_marcas
 
 @app.route("/salvar-produto", methods=["POST", "GET"])
-def salvar_produtos():    
+def salvar_produtos():
     nome_produto = request.form.get("input_nome_produto")
     marca_produto = request.form.get("input_marca")
     fornecedor_produto = request.form.get("input_fornecedor")
     data_validade_produto = request.form.get("input_data_validade")
     qtd_estoque_produto = request.form.get("input_quantidade")
-    valor_unitario_produto = float(request.form.get("input_valor_unitario"))
+    valor_unitario_produto = float(str(request.form.get("input_valor_unitario")).replace(",","."))
     peso_produto = request.form.get("input_peso")
-    custo_produto = float(request.form.get("input_custo_aquisicao"))
+    custo_produto = float(str(request.form.get("input_custo_aquisicao")).replace(",","."))
     foto_produto = request.files.get('imagem_produto')
 
     if foto_produto:
@@ -288,14 +341,101 @@ def salvar_produtos():
         database="tr-sale-system"
     )
 
+    cursor_codigo_fornecedor = mydb.cursor()
+    query = f"""select                            
+                            id                          
+                            from fornecedores f 
+                            where nome = '{fornecedor_produto}'
+                            order by id desc"""
+    
+    cursor_codigo_fornecedor.execute(query)
+    result_cursor_codigo_fornecedor = cursor_codigo_fornecedor.fetchall()
+
+    if len(result_cursor_codigo_fornecedor) > 0:
+        codigo_fornecedor = result_cursor_codigo_fornecedor[0][0]
+    else:
+        codigo_fornecedor = 0
+
     cursor = mydb.cursor()
     cursor.execute("""
             INSERT INTO produtos (nome, id_fornecedor, qtd_estoque, valor_unitario, marca, data_validade, peso, custo_aquisicao, foto) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)
-        """, (nome_produto, fornecedor_produto, qtd_estoque_produto, valor_unitario_produto, marca_produto, data_validade_produto, peso_produto, custo_produto, imagem_binaria))
+        """, (nome_produto, codigo_fornecedor, qtd_estoque_produto, valor_unitario_produto, marca_produto, data_validade_produto, peso_produto, custo_produto, imagem_binaria))
 
     mydb.commit()
     cursor.close()
-
+    time.sleep(2)
     return redirect(url_for('cadastro_produtos'))
+
+
+
+############ CONSULTA FORNECEDORES ##############
+
+
+@app.route("/cadastro-fornecedores")
+def cadastro_fornecedores():    
+    return render_template("cadastro-fornecedores.html")
+
+
+@app.route("/salvar-fornecedores", methods=["POST", "GET"])
+def salvar_fornecedores():
+    nome_fornecedor = request.form.get("input_nome_fornecedor")
+    cpfncpj_fornecedor = request.form.get("input_cpfcnpj_fornecedor")
+    email_fornecedor = request.form.get("input_email_fornecedor")
+    telefone_fornecedor = request.form.get("input_telefone_fornecedor")
+    endereco_fornecedor = request.form.get("input_endereco_fornecedor")
+    observacoes_fornecedor = request.form.get("input_observacoes_fornecedor")
+
+    mydb = mysql.connector.connect(
+        host="localhost",
+        user="root",
+        password="root",
+        database="tr-sale-system"
+    )
+
+    cursor = mydb.cursor()
+    cursor.execute("""
+            INSERT INTO fornecedores (nome, cpf_cnpj, email, telefone, endereco, observacoes) VALUES (%s, %s, %s, %s, %s, %s)
+        """, (nome_fornecedor, cpfncpj_fornecedor, email_fornecedor, telefone_fornecedor, endereco_fornecedor, observacoes_fornecedor))
+
+    mydb.commit()
+    cursor.close()
+    time.sleep(2)
+    return redirect(url_for('cadastro_fornecedores'))
+
+
+############ CONSULTA CLIENTES ##############
+
+
+@app.route("/cadastro-clientes")
+def cadastro_clientes():    
+    return render_template("cadastro-clientes.html")
+
+
+@app.route("/salvar-clientes", methods=["POST", "GET"])
+def salvar_clientes():
+    nome_cliente = request.form.get("input_nome_cliente")
+    cpfncpj_cliente = request.form.get("input_cpfcnpj_cliente")
+    email_cliente = request.form.get("input_email_cliente")
+    telefone_cliente = request.form.get("input_telefone_cliente")
+    endereco_cliente = request.form.get("input_endereco_cliente")
+    observacoes_cliente = request.form.get("input_observacoes_cliente")
+
+    mydb = mysql.connector.connect(
+        host="localhost",
+        user="root",
+        password="root",
+        database="tr-sale-system"
+    )
+
+    cursor = mydb.cursor()
+    cursor.execute("""
+            INSERT INTO clientes (nome, cpf_cnpj, email, telefone, endereco, observacoes) VALUES (%s, %s, %s, %s, %s, %s)
+        """, (nome_cliente, cpfncpj_cliente, email_cliente, telefone_cliente, endereco_cliente, observacoes_cliente))
+
+    mydb.commit()
+    cursor.close()
+    time.sleep(2)
+    return redirect(url_for('cadastro_clientes'))
+
 
 app.run(debug=True)

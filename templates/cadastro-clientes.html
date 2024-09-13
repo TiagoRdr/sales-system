@@ -1,0 +1,68 @@
+{% extends 'base.html' %}
+
+{% block conteudo %}
+    <h1 class="display-3">CADASTRO DE CLIENTES</h1>
+    <hr>
+
+<form action="{{url_for('salvar_clientes')}}" method="POST" autocomplete="off" enctype="multipart/form-data" onsubmit="showAlert(event)">
+    <div class="container">
+        <div class="row">
+            <!-- Coluna para os inputs de texto e data -->
+            <div class="col-md-6">
+                <div class="form-group">
+                    <label for="input_nome_cliente">Nome</label>
+                    <input type="text" class="form-control" id="input_nome_cliente" name="input_nome_cliente" placeholder="Ricardo Oliveira">
+                </div>               
+                <div class="form-group">
+                    <label for="input_cpfcnpj_cliente">CPF/CNPJ</label>
+                    <input type="text" class="form-control" id="input_cpfcnpj_cliente" name="input_cpfcnpj_cliente" placeholder="999.999.999-99">
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="form-group">
+                    <label for="input_email_cliente">Email</label>
+                    <input type="email" class="form-control" id="input_email_cliente" name="input_email_cliente" placeholder="ricardo.oliveira@mail.com.br">
+                </div>
+                <div class="form-group">
+                    <label for="input_telefone_cliente">Telefone</label>
+                    <input type="text" class="form-control" id="input_telefone_cliente" name="input_telefone_cliente" placeholder="99999999999">
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="form-group">
+                    <label for="input_endereco_cliente">Endereço</label>
+                    <input type="text" class="form-control" id="input_endereco_cliente" name="input_endereco_cliente" placeholder="Rua das Flores, 300, Cajamar, SP">
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="form-group">
+                    <label for="input_observacoes_cliente">Observações</label>
+                    <textarea class="form-control" id="input_observacoes_cliente" name="input_observacoes_cliente" autocomplete="off" rows="1" placeholder="Preferências de Comunicação, Política de Devolução, Acordos Especiais e etc."></textarea>
+                </div>
+            </div>
+            </div>
+        </div>
+    </div>
+    
+    <br>
+    <div class="d-flex justify-content-center">
+        <button type="submit" name="btn-salvar_produto" class="btn btn-success btn-lg">CADASTRAR CLIENTE</button>
+    </div>
+</div>
+</form>
+
+
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script>
+    function showAlert() {
+        Swal.fire({
+        position: "center",
+        icon: "success",
+        title: "Cliente Cadastrado",
+        showConfirmButton: false,
+        timer: 2000
+});
+};
+</script>
+
+{% endblock conteudo %}
