@@ -1,6 +1,6 @@
 {% for produto in produtos %}
     <li class="list-group-item list-group-item-success">
-        {{ produto[0] }} - Quantidade: {{ produto[1] }} - Valor unitário: {{ produto[2] }}
+        {{ produto[1] }} - Quantidade: {{ produto[2] }} - Valor unitário: {{ produto[3] }}
         <button class="btn btn-danger" data-index="{{ loop.index0 }}" style="float: right;">Remover</button>
     </li>
 {% endfor %}

@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nota Fiscal</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #f4f4f4;
+        }
+
+        .invoice-box {
+            max-width: 800px;
+            margin: auto;
+            padding: 20px;
+            border: 1px solid #eee;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.15);
+            background-color: white;
+        }
+
+        .title {
+            font-size: 45px;
+            font-weight: bold;
+            text-align: center;
+            color: #333;
+            margin-bottom: 20px;
+        }
+
+        .invoice-header, .invoice-footer {
+            text-align: center;
+            padding: 10px 0;
+            background-color: #f0f0f0;
+            border-top: 1px solid #ddd;
+        }
+
+        .invoice-details {
+            margin-bottom: 20px;
+        }
+
+        .invoice-details p {
+            margin: 5px 0;
+        }
+
+        .invoice-items {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 20px;
+        }
+
+        .invoice-items th, .invoice-items td {
+            padding: 10px;
+            border: 1px solid #ddd;
+            text-align: left;
+        }
+
+        .invoice-items th {
+            background-color: #f0f0f0;
+        }
+
+        .total {
+            text-align: right;
+            padding-right: 20px;
+            font-size: 20px;
+            font-weight: bold;
+        }
+
+        .center {
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="invoice-box">
+        <!-- Título do software -->
+        <div class="title">Sistema de Vendas XYZ</div>
+
+        <!-- Informações da Venda -->
+        <div class="invoice-header">
+            <p>Nota Fiscal Nº: <strong>#12345</strong></p>
+            <p>Data da Venda: <strong>15/09/2024</strong></p>
+        </div>
+
+        <!-- Detalhes do Cliente -->
+        <div class="invoice-details">
+            <p><strong>Cliente:</strong> João da Silva</p>
+            <p><strong>CPF:</strong> 123.456.789-00</p>
+            <p><strong>Telefone:</strong> (11) 99999-9999</p>
+        </div>
+
+        <!-- Lista de Produtos -->
+        <table class="invoice-items">
+            <thead>
+                <tr>
+                    <th>Produto</th>
+                    <th>Quantidade</th>
+                    <th>Valor Unitário</th>
+                    <th>Total</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>Produto A</td>
+                    <td>2</td>
+                    <td>R$ 50,00</td>
+                    <td>R$ 100,00</td>
+                </tr>
+                <tr>
+                    <td>Produto B</td>
+                    <td>1</td>
+                    <td>R$ 30,00</td>
+                    <td>R$ 30,00</td>
+                </tr>
+                <tr>
+                    <td>Produto C</td>
+                    <td>5</td>
+                    <td>R$ 10,00</td>
+                    <td>R$ 50,00</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <!-- Total Final -->
+        <p class="total">Total: R$ 180,00</p>
+
+        <!-- Rodapé da Nota -->
+        <div class="invoice-footer">
+            <p>Obrigado por comprar conosco!</p>
+            <p>Sistema de Vendas XYZ - www.exemplo.com</p>
+        </div>
+    </div>
+
+</body>
+</html>

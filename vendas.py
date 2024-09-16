@@ -56,19 +56,95 @@ def get_values_main():
 @app.route('/nova_venda', methods=["GET", "POST"])
 def nova_venda():  
     # Se estiver fora da função
-    total_prods = total_produtos()    
-    return render_template("new_sale.html", data_atual=data_atual, produtos=produtos, total_prods=total_prods)
+    total_prods = total_produtos()
+    lista_produtos, nvenda = consulta_produtos_nvenda()    
+    return render_template("new_sale.html", data_atual=data_atual, produtos=produtos, total_prods=total_prods, lista_produtos=lista_produtos, nvenda=nvenda)
+
+
+def consulta_produtos_nvenda():
+    mydb = mysql.connector.connect(
+        host="localhost",
+        user="root",
+        password="root",
+        database="tr-sale-system"
+    )
+
+    mycursor_produtos = mydb.cursor()
+    mycursor_produtos.execute(f"""select                           
+                            p.nome                           
+                            from produtos p                            
+                            ORDER BY p.id desc
+                    """)
+    myresult_produtos = mycursor_produtos.fetchall()
+
+    mycursor_nvenda = mydb.cursor()
+    mycursor_nvenda.execute(f"""select                           
+                                    (max(id) + 1) as proximo_id 
+                                    from vendas v         
+                                """)
+    myresult_nvenda = mycursor_nvenda.fetchall()
+
+    return myresult_produtos, myresult_nvenda
+
+
+@app.route('/buscar_cliente/<cpf>', methods=['GET'])
+def buscar_cliente(cpf):
+    mydb = mysql.connector.connect(
+        host="localhost",
+        user="root",
+        password="root",
+        database="tr-sale-system"
+    )
+
+    mycursor_clientes = mydb.cursor()
+    mycursor_clientes.execute(f"""select 
+                                        id,
+                                        nome, 
+                                        telefone 
+                                    from clientes c
+                                    where cpf_cnpj = '{cpf}'
+                    """)
+    myresult = mycursor_clientes.fetchall()
+
+    if len(myresult) > 0:
+        
+        return jsonify(success=True, idcliente=myresult[0][0], nome=myresult[0][1], telefone=myresult[0][2])
+    else:
+        return jsonify(success=True, idcliente='0', nome='', telefone='')
+    
+@app.route('/buscar_valor_unitario/<nome>', methods=['GET'])
+def buscar_valor_unitario(nome):
+    mydb = mysql.connector.connect(
+        host="localhost",
+        user="root",
+        password="root",
+        database="tr-sale-system"
+    )
+
+    mycursor_clientes = mydb.cursor()
+    mycursor_clientes.execute(f"""select
+                            id,
+                            REPLACE(FORMAT(valor_unitario  , 2), '.', ',') AS campo_formatado   
+                            from produtos
+                            where nome = '{nome}'
+                    """)
+    myresult = mycursor_clientes.fetchall()
+    
+    if len(myresult) > 0:   
+        return jsonify(success=True, id_produto=myresult[0][0], valor_unitario=myresult[0][1])
+    else:
+        return jsonify(success=True, id_produto='0', valor_unitario='0,00')
 
 def total_produtos():
     total_prods = 0
     try:
         for i in range(len(produtos)):
-            total_prods += round((int(produtos[i][1]) * float(str(produtos[i][2]).replace(",","."))),2)
+            total_prods += round((int(produtos[i][2]) * float(str(produtos[i][3]).replace(",","."))),2)
     except Exception as e:
         print(e)
         total_prods = 0
 
-    return total_prods
+    return format(total_prods, '.2f')
 
 def total_vendas(taxaentrega, desconto):
     total_venda = 0
@@ -78,19 +154,20 @@ def total_vendas(taxaentrega, desconto):
     except Exception as e:
         print(e)
         total_venda = 0
-    return total_venda
+    return format(total_venda, '.2f')
 
 
 @app.route('/add_product', methods=['POST'])
 def add_product():    
+    product_id = request.form.get('idproduto')
     product_name = request.form.get('produto')
     product_qtd = request.form.get('quantidade')
     product_valor_unit = request.form.get('valorunitario')
     print(product_name, product_qtd, product_valor_unit)
     
     if product_name and product_qtd and product_valor_unit:
-        produtos.append([product_name, product_qtd, product_valor_unit])
-
+        produtos.append([product_id, product_name, product_qtd, product_valor_unit])
+    print(produtos)
     return redirect(url_for('nova_venda'))
 
 
@@ -118,25 +195,76 @@ def list_products():
 def resume_sale():
     try:
         total_prods = total_produtos()
-        product_taxa = request.form.get('valortaxa') 
-        product_desconto = request.form.get('valordesconto')
-        nomecliente = request.form.get('nomecliente') if len(request.form.get('nomecliente')) > 1 else '-'
-        datavenda = datetime.strptime(request.form.get('datavenda'), '%Y-%m-%d').date().strftime('%d/%m/%Y')
-        dataentrega = datetime.strptime(request.form.get('dataentrega'), '%Y-%m-%d').date().strftime('%d/%m/%Y')       
-        metodopagamento = request.form.get('metodopagamento')
-        observacoes = request.form.get('observacoes') if len(request.form.get('observacoes')) > 1 else '-'
+        product_taxa = format(float(request.form.get('valortaxa')), '.2f')
+        product_desconto = format(float(request.form.get('valordesconto')), '.2f')
 
         if not product_taxa or not product_desconto:
             return jsonify({"error": "Missing values"}), 400  # Retorna erro 400 se valores ausentes
 
         total_venda = total_vendas(product_taxa, product_desconto)
-        return render_template('/resume-sale.html', total_prods=str(total_prods).replace(".",","), total_venda=str(total_venda).replace(".",","), taxaentrega=str(product_taxa).replace(".",","), desconto=str(product_desconto).replace(".",","), nomecliente=nomecliente, datavenda=datavenda, dataentrega=dataentrega, metodopagamento=metodopagamento, observacoes=observacoes, produtos=produtos)
+        return render_template('/resume-sale.html', total_prods=str(total_prods).replace(".",","), total_venda=str(total_venda).replace(".",","), taxaentrega=str(product_taxa).replace(".",","), desconto=str(product_desconto).replace(".",","), produtos=produtos)
 
     
     except Exception as e:
         print("Erro no processamento:", str(e))
         return jsonify({"error": "Server error"}), 500
 
+
+@app.route("/salvar-venda", methods=["POST", "GET"])
+def salvar_venda():
+    data_venda = request.form.get("data_venda")
+    data_entrega = request.form.get("data_entrega")
+    metodo_pagamento = request.form.get("metodo_pagamento")
+    endereco_entrega = request.form.get("endereco_entrega")
+    taxa_entrega = request.form.get("taxa_entrega")
+    desconto = request.form.get("desconto")
+    observacoes = request.form.get("observacoes")
+    idcliente = request.form.get("idcliente")
+    nome = request.form.get("nome")
+    cpfcnpj = request.form.get("cpfcnpj")
+    telefone = request.form.get("telefone")
+    total_venda = total_vendas(taxa_entrega, desconto)
+
+    mydb = mysql.connector.connect(
+        host="localhost",
+        user="root",
+        password="root",
+        database="tr-sale-system"
+    )
+
+    if idcliente == '0':
+        cursor_salvar_cliente = mydb.cursor()
+        cursor_salvar_cliente.execute("""
+            INSERT INTO clientes (nome, cpf_cnpj, telefone) VALUES (%s, %s, %s)
+        """, (nome, cpfcnpj, telefone))
+
+        ultimo_id_cliente = cursor_salvar_cliente.lastrowid
+    else:
+        ultimo_id_cliente = idcliente
+
+    cursor_salvar_venda = mydb.cursor()
+    cursor_salvar_venda.execute("""
+            INSERT INTO `tr-sale-system`.vendas
+            (data_venda, data_entrega, forma_pagamento, taxa_entrega, endereco_entrega, id_cliente, desconto, observacoes, total_venda)
+            VALUES(%s, %s, %s, %s, %s, %s, %s, %s, %s);
+        """, (data_venda, data_entrega, metodo_pagamento, taxa_entrega, endereco_entrega, ultimo_id_cliente, desconto, observacoes, total_venda))
+
+    mydb.commit()
+    ultimo_id = cursor_salvar_venda.lastrowid
+    cursor_salvar_venda.close()
+
+    for produto in produtos:
+        cursor_salvar_venda_produtos = mydb.cursor()
+        cursor_salvar_venda_produtos.execute("""
+                INSERT INTO `tr-sale-system`.vendas_produtos
+                (id_produto, nome_produto, quantidade, valor_unitario, id_venda)
+                VALUES(%s, %s, %s, %s, %s);
+            """, (produto[0], produto[1], produto[2], float(str(produto[3]).replace(",",".")), ultimo_id))
+
+        mydb.commit()
+    cursor_salvar_venda_produtos.close()
+
+    return redirect(url_for('nova_venda'))
 
 ############ TELA PRINCIPAL DA CONSULTA ##############
 
