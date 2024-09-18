@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Redirecionando...</title>
+</head>
+<body>
+    <form id="redirectForm" method="POST" action="/nova-pagina">
+        <input type="hidden" name="nvenda" value="{{ nvenda }}">
+        <input type="hidden" name="data_venda" value="{{ data_venda }}">
+        <input type="hidden" name="nome_cliente" value="{{ nome_cliente }}">
+        <input type="hidden" name="forma_pagamento" value="{{ forma_pagamento }}">
+        <input type="hidden" name="endereco_entrega" value="{{ endereco_entrega }}">
+        <input type="hidden" name="total_prods" value="{{ total_prods }}">
+        <input type="hidden" name="taxaentrega" value="{{ taxaentrega }}">
+        <input type="hidden" name="desconto" value="{{ desconto }}">
+        <input type="hidden" name="total_venda" value="{{ total_venda }}">
+    </form>
+
+    <script type="text/javascript">
+        // Submete automaticamente o formulário oculto
+        document.getElementById("redirectForm").submit();
+    </script>
+</body>
+</html>

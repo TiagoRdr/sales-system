@@ -162,11 +162,12 @@ def add_product():
     product_id = request.form.get('idproduto')
     product_name = request.form.get('produto')
     product_qtd = request.form.get('quantidade')
-    product_valor_unit = request.form.get('valorunitario')
+    product_valor_unit = str(request.form.get('valorunitario').replace(",","."))
+    total_unitario = str(format(float(request.form.get('total_unitario')), '.2f')).replace(".",",")
     print(product_name, product_qtd, product_valor_unit)
     
     if product_name and product_qtd and product_valor_unit:
-        produtos.append([product_id, product_name, product_qtd, product_valor_unit])
+        produtos.append([product_id, product_name, product_qtd, product_valor_unit, total_unitario])
     print(produtos)
     return redirect(url_for('nova_venda'))
 
@@ -191,20 +192,122 @@ def list_products():
     return render_template('list-products.html', produtos=produtos)
 
 
+# @app.route('/resume-sale', methods=['POST', 'GET'])
+# def resume_sale():
+#     try:
+#         total_prods = total_produtos()
+#         product_taxa = format(float(request.form.get('valortaxa')), '.2f')
+#         product_desconto = format(float(request.form.get('valordesconto')), '.2f')
+
+#         if not product_taxa or not product_desconto:
+#             return jsonify({"error": "Missing values"}), 400  # Retorna erro 400 se valores ausentes
+
+#         total_venda = total_vendas(product_taxa, product_desconto)
+#         return render_template('/resume-sale.html', total_prods=str(total_prods).replace(".",","), total_venda=str(total_venda).replace(".",","), taxaentrega=str(product_taxa).replace(".",","), desconto=str(product_desconto).replace(".",","), produtos=produtos)
+
+    
+#     except Exception as e:
+#         print("Erro no processamento:", str(e))
+#         return jsonify({"error": "Server error"}), 500
+    
+
 @app.route('/resume-sale', methods=['POST', 'GET'])
 def resume_sale():
     try:
-        total_prods = total_produtos()
+        lista_produtos, nvenda = consulta_produtos_nvenda()
+        
+        total_prods = total_produtos()        
         product_taxa = format(float(request.form.get('valortaxa')), '.2f')
-        product_desconto = format(float(request.form.get('valordesconto')), '.2f')
+        product_desconto = format(float(request.form.get('valordesconto')), '.2f')        
+        data_venda = request.form.get("data_venda")        
+        nome_cliente = request.form.get("nome_cliente")
+        forma_pagamento = request.form.get("forma_pagamento")
+        endereco_entrega = request.form.get("endereco_entrega")
 
+        id_cliente = request.form.get("id_cliente")
+        cpf_cnpj = request.form.get("cpf_cnpj")
+        telefone = request.form.get("telefone")
+        observacoes = request.form.get("observacoes")
+        data_entrega = request.form.get("data_entrega")
+        
         if not product_taxa or not product_desconto:
             return jsonify({"error": "Missing values"}), 400  # Retorna erro 400 se valores ausentes
 
         total_venda = total_vendas(product_taxa, product_desconto)
-        return render_template('/resume-sale.html', total_prods=str(total_prods).replace(".",","), total_venda=str(total_venda).replace(".",","), taxaentrega=str(product_taxa).replace(".",","), desconto=str(product_desconto).replace(".",","), produtos=produtos)
+        print(total_venda)
+        return jsonify({
+            'nvenda': nvenda[0][0],
+            'data_venda': data_venda,
+            'nome_cliente': nome_cliente,
+            'forma_pagamento': forma_pagamento,
+            'endereco_entrega': endereco_entrega,
+            'total_prods': str(total_prods).replace(".",","),
+            'product_taxa': str(product_taxa).replace(".",","),
+            'product_desconto': str(product_desconto).replace(".",","),
+            'total_venda': str(total_venda).replace(".",","),
+            'id_cliente': id_cliente,
+            'cpf_cnpj': cpf_cnpj,
+            'telefone': telefone,
+            'observacoes': observacoes,
+            'data_entrega': data_entrega
+        })
 
-    
+    except Exception as e:
+        print("Erro no processamento:", str(e))
+        return jsonify({"error": "Server error"}), 500
+
+
+list_test = []
+@app.route('/nova-pagina', methods=['POST', 'GET'])
+def nova_pagina():
+    try:
+        if request.method == 'POST':
+            # Receber e processar os dados enviados via POST
+            nvenda = request.form.get('nvenda')
+            data_venda = request.form.get('data_venda')
+            nome_cliente = request.form.get('nome_cliente')
+            forma_pagamento = request.form.get('forma_pagamento')
+            endereco_entrega = request.form.get('endereco_entrega')
+            total_prods = request.form.get('total_prods')
+            taxaentrega = request.form.get('product_taxa')
+            desconto = request.form.get('product_desconto')
+            total_venda = request.form.get('total_venda')
+            id_cliente = request.form.get('id_cliente')
+            cpf_cnpj = request.form.get('cpf_cnpj')
+            telefone = request.form.get('telefone')
+            observacoes = request.form.get('observacoes')
+            data_entrega = request.form.get('data_entrega')
+            list_test.clear()
+            list_test.append([nvenda, datetime.strptime(data_venda, '%Y-%m-%d').strftime("%d/%m/%Y"), nome_cliente, forma_pagamento, endereco_entrega, total_prods, taxaentrega, desconto, total_venda, id_cliente, cpf_cnpj, telefone, observacoes, data_entrega])
+            # Print para verificação
+            print(data_venda)
+            # Armazenar dados em sessão ou cache, se necessário, para uso na próxima requisição GET
+
+            # Redirecionar para uma página que possa usar os dados processados
+            return redirect('/nova-pagina')
+
+        elif request.method == 'GET':
+            # Receber e exibir dados na página com GET
+            # Para demonstrar, você pode passar dados armazenados em sessão ou variáveis globais
+            print(list_test[0])
+            # Renderiza a nova página após o redirecionamento
+            return render_template('/resume_sale_teste.html', 
+                nvenda=list_test[0][0], 
+                data_venda=list_test[0][1], 
+                nome_cliente=list_test[0][2], 
+                forma_pagamento=list_test[0][3],
+                endereco_entrega=list_test[0][4], 
+                total_prods=list_test[0][5],
+                taxaentrega=list_test[0][6],
+                desconto=list_test[0][7],
+                total_venda=list_test[0][8],
+                id_cliente = list_test[0][9],
+                cpf_cnpj = list_test[0][10],
+                telefone = list_test[0][11],
+                observacoes = list_test[0][12],
+                data_entrega = list_test[0][13],
+                produtos=produtos)
+        
     except Exception as e:
         print("Erro no processamento:", str(e))
         return jsonify({"error": "Server error"}), 500
@@ -212,19 +315,19 @@ def resume_sale():
 
 @app.route("/salvar-venda", methods=["POST", "GET"])
 def salvar_venda():
-    data_venda = request.form.get("data_venda")
+    data_venda = datetime.strptime(request.form.get("data_venda"), '%d/%m/%Y').strftime('%Y-%m-%d')
     data_entrega = request.form.get("data_entrega")
     metodo_pagamento = request.form.get("metodo_pagamento")
     endereco_entrega = request.form.get("endereco_entrega")
-    taxa_entrega = request.form.get("taxa_entrega")
-    desconto = request.form.get("desconto")
+    taxa_entrega = format(float(str(request.form.get("taxa_entrega")).replace(",",".")), '.2f')
+    desconto = format(float(str(request.form.get("desconto")).replace(",",".")), '.2f')
     observacoes = request.form.get("observacoes")
     idcliente = request.form.get("idcliente")
     nome = request.form.get("nome")
     cpfcnpj = request.form.get("cpfcnpj")
     telefone = request.form.get("telefone")
     total_venda = total_vendas(taxa_entrega, desconto)
-
+    
     mydb = mysql.connector.connect(
         host="localhost",
         user="root",
@@ -263,7 +366,6 @@ def salvar_venda():
 
         mydb.commit()
     cursor_salvar_venda_produtos.close()
-
     return redirect(url_for('nova_venda'))
 
 ############ TELA PRINCIPAL DA CONSULTA ##############

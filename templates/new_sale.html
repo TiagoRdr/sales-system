@@ -38,11 +38,11 @@
             <div class="row">
                 <div class="form-group col-md-6">
                     <label for="inputtaxaentrega">Taxa de entrega</label>
-                    <input type="text" class="form-control" id="inputtaxaentrega" autocomplete="off" onkeypress='validate(event)' placeholder="0,00" required>
+                    <input type="text" class="form-control" id="inputtaxaentrega" autocomplete="off" onkeypress='validate(event)' placeholder="0,00" >
                 </div>
                 <div class="form-group col-md-6">
                     <label for="inputdesconto">Desconto</label>
-                    <input type="text" class="form-control" id="inputdesconto" autocomplete="off" placeholder="0,00" onkeypress='validate(event)' required>
+                    <input type="text" class="form-control" id="inputdesconto" autocomplete="off" placeholder="0,00" onkeypress='validate(event)' >
                 </div>
             </div>   
             <div class="form-group col-md-12">
@@ -161,6 +161,12 @@
         form_product.onsubmit = function(event){
             event.preventDefault();
             document.getElementById("resumoVenda").style.display = "none";
+            var quantidade = parseInt($("#inputquantidade").val(), 10);
+            let valorunitario_replace = $("#inputvalorunitario").val().replace(",", ".");
+            var valorunitario = parseFloat(valorunitario_replace);
+            console.log(quantidade)
+            console.log(valorunitario)
+            console.log(valorunitario * quantidade)
             $.ajax({
                 type: 'POST',
                 url: '/add_product',
@@ -168,7 +174,9 @@
                     idproduto: $("#idproduto").val(),
                     produto: $("#inputproduto").val(),
                     quantidade: $("#inputquantidade").val(),
-                    valorunitario: $("#inputvalorunitario").val()
+                    valorunitario: $("#inputvalorunitario").val(),
+                    total_unitario: quantidade * valorunitario
+                    
                 }
             }).then(() => {
                 updateList();
@@ -204,26 +212,45 @@
     }
 
     form_resume_sale.onsubmit = function(event) {
-    event.preventDefault();    
+    event.preventDefault();
 
     $.ajax({
+    type: 'POST',
+    url: '/resume-sale',
+    data: {                  
+        valortaxa: $("#inputtaxaentrega").val(),
+        valordesconto: $("#inputdesconto").val(),
+        data_venda: $("#inputdatavenda").val(),
+        nome_cliente: $("#inputnome").val(),
+        forma_pagamento: $("#inputmetodopagamento").val(),
+        endereco_entrega: $("#inputenderecoentrega").val(),
+        id_cliente: $("#idcliente").val(),
+        cpf_cnpj: $("#inputcpfcnpj").val(),
+        telefone: $("#inputtelefone").val(),
+        observacoes: $("#inputobservacoes").val(),
+        data_entrega: $("#inputdataentrega").val()
+    },
+    success: function(response) {
+        console.log(response);
+        // Enviar dados via POST para a nova página
+        $.ajax({
         type: 'POST',
-        url: '/resume-sale',
-        data: {                  
-            valortaxa: $("#inputtaxaentrega").val(),
-            valordesconto: $("#inputdesconto").val()
-        },
-        success: function(response) {
-            // Atualize apenas a div de resumo com o conteúdo retornado
-            var resumoDiv = document.getElementById("resumoVenda");
-            resumoDiv.style.display = "block";
-            resumoDiv.innerHTML = response;
+        url: '/nova-pagina',
+        data: response,        
+        success: function() {
+            // Redirecionar após o sucesso
+            window.location.assign('/nova-pagina');
         },
         error: function(jqXHR, textStatus, errorThrown) {
             console.log("Error details:", jqXHR, textStatus, errorThrown);
         }
-    });
+        });
+    },
+    error: function(jqXHR, textStatus, errorThrown) {
+        console.log("Error details:", jqXHR, textStatus, errorThrown);
     }
+    });
+}
 
     form_save_sale.onsubmit = function(event) {
     event.preventDefault();  
@@ -302,9 +329,6 @@
         .catch(error => console.error('Erro:', error));
     }
 
-
-
-    
 
     document.getElementById("inputtaxaentrega").oninput = function() {
     document.getElementById("resumoVenda").style.display = "none";

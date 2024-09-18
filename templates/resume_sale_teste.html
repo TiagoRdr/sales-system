@@ -1,60 +1,217 @@
 {% extends 'base.html' %}
 {% block conteudo %}
-<div style="background-color: rgb(236, 236, 219); border: 2px solid rgb(0, 0, 0); width: 520px; margin: 10px auto;  display: block;">
-    <div class="justify-content-center" style="border-bottom: 2px solid rgb(0, 0, 0); background-color: rgb(245, 245, 220);">
-    <p class="lead text-center" style="font-weight: bold; margin-bottom: 3px; font-size: 25PX;" >RESUMO DA VENDA</p>
-    </div>
-    <div >
-        <div class="justify-content-center row" style="border-bottom: 2px solid rgb(0, 0, 0); background-color: rgb(235, 235, 220); margin: auto;">
-            <p class="lead text-center" style="font-weight: bold; margin-left: 10px; font-size: 17px;">INFORMAÇÕES GERAIS</p>        
-            <label for="nomecliente" id="nomecliente" style="margin-left: 10px;  font-size: 15px;">NOME DO CLIENTE: <div style="float: right; font-size: 17px;">{{nomecliente}}</div></label>
-            <label for="datavenda" id="datavenda" style="margin-left: 10px;  font-size: 15px;">DATA DA VENDA: <div style="float: right; font-size: 17px;">{{datavenda}}</div></label>
-            <label for="dataentrega" id="dataentrega" style="margin-left: 10px;  font-size: 15px;">DATA DA ENTREGA: <div style="float: right; font-size: 17px;">{{dataentrega}}</div></label>
-            <label for="metodopagamento" id="metodopagamento" style="margin-left: 10px;  font-size: 15px;">MÉTODO DE PAGAMENTO: <div style="float: right; font-size: 17px;">{{metodopagamento}}</div></label>
-            <label for="observacoes" id="observacoes" style="margin-left: 10px;  font-size: 15px; margin-bottom: 10px;">OBSERVAÇÕES: <div style="float: right; font-size: 17px;">{{observacoes}}</div></label>   
-        </div>
-        <div>
-            <div class="justify-content-center row" style="border-bottom: 2px solid rgb(0, 0, 0); background-color: rgb(226, 226, 211); margin: auto;">
-                <p class="lead text-center" style="font-weight: bold;margin-left: 10px; font-size: 17px;" >PRODUTOS</p>
-                <ul class="list-group list-group-flush">        
-                {% for produto in produtos %}   
-                <details>
-                    <summary style="margin-left: 10px;  font-size: 15px; margin-bottom: 10px; font-size: 17px;">{{produto[0]}}</summary>
-                    <p style="margin-left: 20px;  font-size: 15px; margin-bottom: 10px; font-size: 17px;"> 
-                        Quantidade: {{ produto[1] }} <br>
-                        Valor unitário: {{ produto[2] }}
-                    </p>
-                    <!-- <li class="list-group-item">
-                        {{ produto[0] }} - Quantidade: {{ produto[1] }} - Valor unitário: {{ produto[2] }}
-                    </li>   -->
-                </details>
-                {% endfor %}
-                
-                </ul> 
-            </div>
-        </div>
-        <div>
-            <div class="justify-content-center row" style="border-bottom: 2px solid rgb(0, 0, 0); background-color: rgb(226, 226, 211); margin: auto;">
-                <p class="lead text-center" style="font-weight: bold;margin-left: 10px; font-size: 17px;" >VALORES FINAIS</p>         
-                <label for="lbldesconto" id="lbldesconto" style="margin-left: 10px;  font-size: 15px;">DESCONTO TOTAL: <div style="float: right; color: red; font-size: 17px;">R$ {{desconto}}</div></label>
-                <label for="lbltaxaentrega" id="lbltaxaentrega" style="margin-left: 10px; font-size: 15px;">TAXA DE ENTREGA: <div style="float: right; color: green; font-size: 17px;">R$ {{taxaentrega}}</div></label>
-                <label for="lvlvalorprodutos" id="lbltotalprodutos" style="margin-left: 10px; font-size: 15px; margin-bottom: 10px;">VALOR TOTAL DE PRODUTOS: <div style="float: right; color: green; font-size: 17px;">R$ {{total_prods}}</div></label>
-            </div>
-        </div>
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Resumo da venda</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            
+            background-color: #f4f4f4;
+        }
+
+        .invoice-box {
+            max-width: 800px;
+            margin: auto;
+            padding: 20px;
+            border: 1px solid #eee;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.15);
+            background-color: white;
+        }
+
+        .title {
+            font-size: 45px;
+            font-weight: bold;
+            text-align: center;
+            color: #333;
+            margin-bottom: 20px;
+        }
+
+        .invoice-header, .invoice-footer {
+            text-align: center;
+            padding: 10px 0;
+            background-color: #f0f0f0;
+            border-top: 1px solid #ddd;
+            font-size: 25px;
+        }
+
+        .invoice-details {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr); /* Cria 4 colunas de tamanhos iguais */
+            column-gap: 20px; /* Espaçamento entre colunas */
+            row-gap: 10px; /* Espaçamento entre linhas */
+            text-align: center; /* Alinha o texto centralizado */
+        }
+
+        .invoice-details p {
+            margin: 0;
+            padding: 10px;
+            display: flex;
+            flex-direction: column; /* Chave em cima, valor embaixo */
+        }
+
+        .invoice-details strong {
+            display: block;
+            font-weight: bold;
+            margin-bottom: 5px; /* Pequeno espaço entre a chave e o valor */
+        }
+
+        .invoice-details span {
+            font-size: 14px;
+            color: #333;
+        }
+
+        .invoice-items {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 20px;
+        }
+
+        .invoice-items th, .invoice-items td {
+            padding: 10px;
+            border: 1px solid #ddd;
+            text-align: left;
+        }
+
+        .invoice-items th {
+            background-color: #f0f0f0;
+        }
+
+        .total {
+            text-align: right;
+            padding-right: 20px;
+            font-size: 20px;
+            font-weight: bold;
+        }
+
+        .center {
+            text-align: center;
+        }
+
+        .total, .discount, .tax{
+            text-align: right;
+            padding-right: 20px;
+            font-size: 20px;
+            font-weight: bold;
+        }
+
+        .final-total{
+            text-align: center;
+            padding-right: 20px;
+            font-size: 30px;
+            font-weight: bold;
+            background-color: rgb(255, 255, 255);
+        }
+
+        .discount {
+            color: red;
+        }
+
+        .tax, .final-total {
+            color: green;
+        }
         
-        <div>
-            <div class="justify-content-center row" style="background-color: rgb(214, 214, 197); margin: auto;">
-                <label for="lbltotalvenda" id="lbltotalvenda" style="margin-left: 10px; margin-bottom: 25px; font-weight: bold; font-size: 25px;">TOTAL DA VENDA: <div style="float: right; color: green;">R$ {{total_venda}}</div></label>
-            </div>
+        img{
+            width: 100px;
+            height: 100px;
+        }
+    </style>
+</head>
+<body>
+    <br>
+    <div class="invoice-box">
+        <!-- Título do software -->
+        <div class="title"> <img src="../static/tr-software-white.jpg" alt=""></div>
+
+        <!-- Informações da Venda -->
+        <div class="invoice-header">
+            <p><strong>RESUMO DA VENDA #{{nvenda}}</strong></p>            
         </div>
 
-        
-        <!-- <hr style="margin-left: 20px; width: 480px; margin-bottom: 10px;"> -->
-    </div>
-    <form>
-        <div class="d-flex justify-content-center" style="background-color: rgb(214, 214, 197); margin: auto;">
-            <button type="submit" name="add-venda" class="btn btn-success btn-lg" style="width: 250px; margin-bottom: 10px;">Finalizar Venda</button>
+        <!-- Detalhes do Cliente -->
+        <div class="invoice-details">
+            <p><strong>Data da Venda</strong> <span>{{data_venda}}</span></p>
+            <p><strong>Cliente</strong> <span>{{nome_cliente}}</span></p>
+            <p><strong>Pagamento</strong> <span>{{forma_pagamento}}</span></p>
+            <p><strong>Endereço</strong> <span>{{endereco_entrega}}</span></p>
         </div>
-    </form>
-</div>
+
+        <!-- Lista de Produtos -->
+        <table class="invoice-items">
+            <thead>
+                <tr>
+                    <th>Produto</th>
+                    <th>Quantidade</th>
+                    <th>Valor Unitário</th>
+                    <th>Total</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for produto in produtos %}
+                <tr>
+                    <td>{{produto[1]}}</td>
+                    <td>{{produto[2]}}</td>
+                    <td>R$ {{produto[3]}}</td>
+                    <td>R$ {{produto[4]}}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+
+        <!-- Desconto -->
+        <p class="discount">Desconto: - R$ {{desconto}}</p>
+
+        <!-- Taxa de Entrega -->
+        <p class="tax">Taxa de Entrega: R$ {{taxaentrega}}</p>
+        <hr>
+        <!-- Total Final -->
+        <p class="final-total">Total da venda: R$ {{total_venda}}</p>
+
+        <!-- Rodapé da Nota -->
+        <form action="{{url_for('salvar_venda')}}" method="POST" id="form" autocomplete="off" enctype="multipart/form-data" onsubmit="showAlert(event)">
+            <input type="hidden" name="data_venda" id="data_venda" value="{{data_venda}}">
+            <input type="hidden" name="nome" id="nome" value="{{nome_cliente}}">
+            <input type="hidden" name="metodo_pagamento" id="metodo_pagamento" value="{{forma_pagamento}}">
+            <input type="hidden" name="endereco_entrega" id="endereco_entrega" value="{{endereco_entrega}}">
+            <input type="hidden" name="total_prods" id="total_prods" value="{{total_prods}}">
+            <input type="hidden" name="taxa_entrega" id="taxa_entrega" value="{{taxaentrega}}">
+            <input type="hidden" name="desconto" id="desconto" value="{{desconto}}">
+            <input type="hidden" name="total_venda" id="total_venda" value="{{total_venda}}">
+            <input type="hidden" name="idcliente" id="idcliente" value="{{id_cliente}}">
+            <input type="hidden" name="cpfcnpj" id="cpfcnpj" value="{{cpf_cnpj}}">
+            <input type="hidden" name="telefone" id="telefone" value="{{telefone}}">
+            <input type="hidden" name="observacoes" id="observacoes" value="{{observacoes}}">
+            <input type="hidden" name="data_entrega" id="data_entrega" value="{{data_entrega}}">
+            
+            <div class="d-flex justify-content-center" style="margin: auto;">
+                <button type="submit" name="add-venda" class="btn btn-success btn-lg" style="width: 250px; margin-bottom: 10px;">Finalizar Venda</button>
+            </div>            
+        </form>
+    </div>
+
+
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script>
+    document.getElementById('form').onsubmit = function(event) {
+    event.preventDefault(); // Previne o envio imediato do formulário
+    Swal.fire({
+        position: "center",
+        icon: "success",
+        title: "Venda finalizada",
+        showConfirmButton: false,
+        timer: 3500
+        });
+    // Atrasar o envio em 2 segundos (2000 milissegundos)
+    setTimeout(function() {
+        document.getElementById('form').submit(); // Enviar o formulário após o atraso
+    }, 3500); // 2000 milissegundos = 2 segundos
+}
+</script>
+</body>
+</html>
+
 {% endblock conteudo %}

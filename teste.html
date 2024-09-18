@@ -60,11 +60,27 @@
             background-color: #f0f0f0;
         }
 
-        .total {
+        .total, .discount, .tax{
             text-align: right;
             padding-right: 20px;
             font-size: 20px;
             font-weight: bold;
+        }
+
+        .final-total{
+            text-align: center;
+            padding-right: 20px;
+            font-size: 30px;
+            font-weight: bold;
+            background-color: rgb(255, 255, 255);
+        }
+
+        .discount {
+            color: red;
+        }
+
+        .tax, .final-total {
+            color: green;
         }
 
         .center {
@@ -123,8 +139,14 @@
             </tbody>
         </table>
 
+        <!-- Desconto -->
+        <p class="discount">Desconto: -R$ 20,00</p>
+
+        <!-- Taxa de Entrega -->
+        <p class="tax">Taxa de Entrega: R$ 10,00</p>
+        <hr>
         <!-- Total Final -->
-        <p class="total">Total: R$ 180,00</p>
+        <p class="final-total">Total da venda: R$ 170,00</p>
 
         <!-- Rodapé da Nota -->
         <div class="invoice-footer">
