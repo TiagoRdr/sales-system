@@ -1,8 +1,9 @@
-from flask import Flask, render_template, request, redirect, url_for, session, jsonify
+from flask import Flask, render_template, request, redirect, url_for, session, jsonify, send_file
 from datetime import datetime, date
 import mysql.connector
 import calendar
 import time
+import os
 
 app = Flask(__name__)
 
@@ -192,33 +193,27 @@ def list_products():
     return render_template('list-products.html', produtos=produtos)
 
 
-# @app.route('/resume-sale', methods=['POST', 'GET'])
-# def resume_sale():
-#     try:
-#         total_prods = total_produtos()
-#         product_taxa = format(float(request.form.get('valortaxa')), '.2f')
-#         product_desconto = format(float(request.form.get('valordesconto')), '.2f')
-
-#         if not product_taxa or not product_desconto:
-#             return jsonify({"error": "Missing values"}), 400  # Retorna erro 400 se valores ausentes
-
-#         total_venda = total_vendas(product_taxa, product_desconto)
-#         return render_template('/resume-sale.html', total_prods=str(total_prods).replace(".",","), total_venda=str(total_venda).replace(".",","), taxaentrega=str(product_taxa).replace(".",","), desconto=str(product_desconto).replace(".",","), produtos=produtos)
-
-    
-#     except Exception as e:
-#         print("Erro no processamento:", str(e))
-#         return jsonify({"error": "Server error"}), 500
-    
 
 @app.route('/resume-sale', methods=['POST', 'GET'])
 def resume_sale():
     try:
         lista_produtos, nvenda = consulta_produtos_nvenda()
         
-        total_prods = total_produtos()        
-        product_taxa = format(float(request.form.get('valortaxa')), '.2f')
-        product_desconto = format(float(request.form.get('valordesconto')), '.2f')        
+        total_prods = total_produtos()
+
+        product_taxa = request.form.get('valortaxa')
+        product_desconto = request.form.get('valordesconto')
+
+        try:            
+            product_desconto = format(float(request.form.get('valordesconto')), '.2f')
+        except:            
+            product_desconto = 0
+
+        try:
+            product_taxa = format(float(request.form.get('valortaxa')), '.2f')
+        except:
+            product_taxa = 0
+
         data_venda = request.form.get("data_venda")        
         nome_cliente = request.form.get("nome_cliente")
         forma_pagamento = request.form.get("forma_pagamento")
@@ -230,11 +225,7 @@ def resume_sale():
         observacoes = request.form.get("observacoes")
         data_entrega = request.form.get("data_entrega")
         
-        if not product_taxa or not product_desconto:
-            return jsonify({"error": "Missing values"}), 400  # Retorna erro 400 se valores ausentes
-
         total_venda = total_vendas(product_taxa, product_desconto)
-        print(total_venda)
         return jsonify({
             'nvenda': nvenda[0][0],
             'data_venda': data_venda,
@@ -358,13 +349,21 @@ def salvar_venda():
 
     for produto in produtos:
         cursor_salvar_venda_produtos = mydb.cursor()
+        cursor_atualiza_estoque_produto = mydb.cursor()
+
         cursor_salvar_venda_produtos.execute("""
                 INSERT INTO `tr-sale-system`.vendas_produtos
                 (id_produto, nome_produto, quantidade, valor_unitario, id_venda)
                 VALUES(%s, %s, %s, %s, %s);
             """, (produto[0], produto[1], produto[2], float(str(produto[3]).replace(",",".")), ultimo_id))
-
+        
+        cursor_atualiza_estoque_produto.execute(f"""
+                UPDATE `tr-sale-system`.produtos
+                SET qtd_estoque= qtd_estoque - {produto[2]}
+                WHERE id={produto[0]};                
+            """)
         mydb.commit()
+    cursor_atualiza_estoque_produto.close()
     cursor_salvar_venda_produtos.close()
     return redirect(url_for('nova_venda'))
 
@@ -563,6 +562,10 @@ def salvar_produtos():
 
     if foto_produto:
         imagem_binaria = foto_produto.read()
+    else:
+        caminho_imagem = os.path.join(os.getcwd(), 'static', 'no-photo.png')
+        with open(caminho_imagem, 'rb') as file:        
+            imagem_binaria = file.read()
 
     mydb = mysql.connector.connect(
         host="localhost",
@@ -666,6 +669,148 @@ def salvar_clientes():
     cursor.close()
     time.sleep(2)
     return redirect(url_for('cadastro_clientes'))
+
+
+
+@app.route("/atualizar-produtos-main", methods=["POST", "GET"])
+def atualizar_produtos_main():
+    try:
+        codigo_produto = request.form.get("codigo")
+        info_produto = get_product_info(codigo_produto)
+        
+        fornecedores, marcas = busca_fornecedores_marcas()
+
+        return render_template("atualiza-produtos.html", info_produto=info_produto, fornecedores=fornecedores, marcas=marcas)
+    
+    except Exception as e:
+        print(e)
+        return "Ocorreu um erro ao atualizar o produto.", 500  # Retornar uma mensagem de erro
+    
+
+@app.route('/imagem/<int:id>')
+def get_image(id):
+    mydb = mysql.connector.connect(
+        host="localhost",
+        user="root",
+        password="root",
+        database="tr-sale-system"
+    )
+    cursor = mydb.cursor()
+    cursor.execute("SELECT foto FROM produtos WHERE id = %s", (id,))
+    imagem = cursor.fetchone()
+    
+    if imagem is None:
+        return "Imagem não encontrada.", 404  # Retorna uma mensagem se não encontrar a imagem
+
+    imagem = imagem[0]
+    cursor.close()
+    return imagem, 200, {'Content-Type': 'image/jpeg'}
+
+
+@app.route('/removeProduct/<int:idproduto>', methods=["POST"])
+def remover_produto(idproduto):
+    mydb = mysql.connector.connect(
+        host="localhost",
+        user="root",
+        password="root",
+        database="tr-sale-system"
+    )
+    print(idproduto)
+    cursor = mydb.cursor()
+    query = "DELETE FROM `tr-sale-system`.produtos WHERE id= %s"
+    cursor.execute(query, (idproduto,))
+
+    mydb.commit()
+
+    cursor.close()
+    return redirect(url_for('consulta_produtos'))
+
+
+def get_product_info(codigo_produto):
+    mydb = mysql.connector.connect(
+        host="localhost",
+        user="root",
+        password="root",
+        database="tr-sale-system"
+    )
+
+    mycursor = mydb.cursor()
+    mycursor.execute(f"""select
+                            p.id,
+                            p.nome,
+                            f.nome as fornecedor,
+                            p.qtd_estoque,
+                            REPLACE(FORMAT(p.valor_unitario  , 2), '.', ',') AS valorunitario,
+                            p.marca,
+                            p.data_validade,
+                            p.peso,
+                            REPLACE(FORMAT(p.custo_aquisicao , 2), '.', ',') AS custoaquisicao,
+                            p.foto 
+                            from produtos p
+                            left join fornecedores f on f.id = p.id_fornecedor
+                            where p.id = {codigo_produto}
+                    """)
+    myresult = mycursor.fetchall()
+    return myresult[0]
+
+@app.route("/atualizar-produtos", methods=["POST", "GET"])
+def atualizar_produto():
+    id_produto = request.form.get("idproduto")
+    nome_produto = request.form.get("input_nome_produto")
+    marca_produto = request.form.get("input_marca")
+    fornecedor_produto = request.form.get("input_fornecedor")
+    data_validade_produto = request.form.get("input_data_validade")
+    qtd_estoque_produto = request.form.get("input_quantidade")
+    valor_unitario_produto = float(str(request.form.get("input_valor_unitario")).replace(",","."))
+    peso_produto = request.form.get("input_peso")
+    custo_produto = float(str(request.form.get("input_custo_aquisicao")).replace(",","."))
+    foto_produto = request.files.get('imagem_produto')
+
+    mydb = mysql.connector.connect(
+        host="localhost",
+        user="root",
+        password="root",
+        database="tr-sale-system"
+    )
+
+    cursor_codigo_fornecedor = mydb.cursor()
+    query = f"""select                            
+                            id                          
+                            from fornecedores f 
+                            where nome = '{fornecedor_produto}'
+                            order by id desc"""
+    
+    cursor_codigo_fornecedor.execute(query)
+    result_cursor_codigo_fornecedor = cursor_codigo_fornecedor.fetchall()
+
+    if len(result_cursor_codigo_fornecedor) > 0:
+        codigo_fornecedor = result_cursor_codigo_fornecedor[0][0]
+    else:
+        codigo_fornecedor = 0
+
+    cursor = mydb.cursor()
+
+    if foto_produto:
+        imagem_binaria = foto_produto.read()
+        query = """UPDATE `tr-sale-system`.produtos
+        SET nome = %s, id_fornecedor = %s, qtd_estoque = %s, valor_unitario = %s, marca = %s, data_validade = %s, peso = %s, custo_aquisicao = %s, foto = %s
+        WHERE id = %s;"""
+
+    # Execute a query com os valores como parâmetros
+        cursor.execute(query, (nome_produto, codigo_fornecedor, qtd_estoque_produto, valor_unitario_produto, marca_produto, data_validade_produto, peso_produto, custo_produto, imagem_binaria, id_produto))
+    else:
+        query = """
+                UPDATE `tr-sale-system`.produtos
+                SET nome = %s, id_fornecedor = %s, qtd_estoque = %s, valor_unitario = %s, marca = %s, data_validade = %s, peso = %s, custo_aquisicao = %s
+                WHERE id = %s;
+                    """
+        cursor.execute(query, (nome_produto, codigo_fornecedor, qtd_estoque_produto, valor_unitario_produto, marca_produto, data_validade_produto, peso_produto, custo_produto, id_produto))
+
+
+    mydb.commit()
+    cursor.close()
+    time.sleep(2)
+    return redirect(url_for('consulta_produtos'))
 
 
 app.run(debug=True)

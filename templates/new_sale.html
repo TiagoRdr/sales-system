@@ -53,22 +53,22 @@
         
         <div class="col-md-6" style="border-left: 1px solid rgb(0, 0, 0);">                
             <p class="lead text-center">INFORMAÇÕES DO CLIENTE</p>
-            <div class="form-group col-md-12">
-                <label for="inputnome">Nome</label>
-                <input type="text" class="form-control" id="inputnome" autocomplete="off" placeholder="Nome">
-            </div>
-            <input type="hidden" name="idcliente" id="idcliente">
             <div class="row">
                 <div class="form-group col-md-6">
                     <label for="inputcpfcnpj">CPF/CNPJ</label>
                     <input type="text" class="form-control" id="inputcpfcnpj" onkeyup="buscarCliente()" autocomplete="off" placeholder="9999999999">
-                    
-                </div>
+                </div>                
+            <input type="hidden" name="idcliente" id="idcliente">            
                 <div class="form-group col-md-6">
                     <label for="inputtelefone">Telefone</label>
                     <input type="text" class="form-control" id="inputtelefone" autocomplete="off" placeholder="(99) 99999-9999">
                 </div>
             </div>
+                
+                <div class="form-group col-md-12">
+                    <label for="inputnome">Nome</label>
+                    <input type="text" class="form-control" id="inputnome" autocomplete="off" placeholder="Nome">
+                </div>
             <br>
             <div class="row">   
                 <div class="col-md-12">
@@ -181,6 +181,11 @@
             }).then(() => {
                 updateList();
                 // Atualiza a lista após adicionar
+            }).then(() =>{
+                document.getElementById("inputproduto").value = ''
+                document.getElementById("inputquantidade").value = ''
+                document.getElementById("inputvalorunitario").value = ''
+                document.getElementById("idproduto").value = ''
             });
         }
 
@@ -295,21 +300,22 @@
     function buscarCliente() {
     var cpf = document.getElementById("inputcpfcnpj").value;    
     
-    fetch(`/buscar_cliente/${cpf}`)
-        .then(response => response.json())
-        .then(data => {
-        if (data.success) {
-            console.log(data.idcliente)
-            document.getElementById("idcliente").value = data.idcliente;
-            document.getElementById("inputnome").value = data.nome;
-            document.getElementById("inputtelefone").value = data.telefone;
-        } else {
-            console.log("Cliente não encontrado!");
+    if (cpf.length === 14 || cpf.length === 11){
+        fetch(`/buscar_cliente/${cpf}`)
+            .then(response => response.json())
+            .then(data => {
+            if (data.success) {
+                console.log(data.idcliente)
+                document.getElementById("idcliente").value = data.idcliente;
+                document.getElementById("inputnome").value = data.nome;
+                document.getElementById("inputtelefone").value = data.telefone;
+            } else {
+                console.log("Cliente não encontrado!");
+            }
+            })
+            .catch(error => console.error('Erro:', error));
         }
-        })
-        .catch(error => console.error('Erro:', error));
     }
-    
 
 
     function buscarValorUnitario() {

@@ -1,0 +1,152 @@
+{% extends 'base.html' %}
+
+{% block conteudo %}
+    <h1 class="display-3">ATUALIZAR PRODUTO</h1>
+    <hr>
+
+<form action="{{url_for('atualizar_produto')}}" method="POST" autocomplete="off" enctype="multipart/form-data" onsubmit="showAlert(event)">
+    <div class="container">
+        <div class="row">
+            <!-- Coluna para os inputs de texto e data -->
+            <div class="col-md-6">
+                <input type="hidden" name="idproduto" id="idproduto" value="{{info_produto[0]}}">
+                <div class="form-group">
+                    <label for="input_nome_produto">Nome do produto</label>
+                    <input type="text" class="form-control" id="input_nome_produto" name="input_nome_produto" value="{{info_produto[1]}}" placeholder="Ex. Sabonete Líquido Antibacteriano 200ml">
+                </div>
+                <div class="form-group">
+                    <label for="input_marca">Marca</label>
+                    <input list="options" id="input_marca" value="{{info_produto[5]}}" name="input_marca" class="form-control" placeholder="Avon"/>
+                    <datalist id="options">
+                        {% for marca in marcas %}
+                        <option value="{{ marca }}"></option>
+                        {% endfor %}
+                    </datalist>
+                </div>
+                <div class="form-group">
+                    <label for="input_fornecedor">Fornecedor</label>
+                    <input list="options" id="input_fornecedor" name="input_fornecedor" value="{{info_produto[2]}}" class="form-control" placeholder="Diamonds Cosméticos"/>
+                    <datalist id="options">
+                        {% for fornecedor in fornecedores %}
+                        <option value="{{ fornecedor }}">{{ fornecedor }}</option>
+                        {% endfor %}
+                    </datalist>
+                </div>
+                <div class="form-group">
+                    <label for="input_data_validade">Data de validade</label>
+                    <input type="date" class="form-control" id="input_data_validade" name="input_data_validade" value="{{info_produto[6]}}">
+                </div>
+                <div class="form-group">
+                    <label for="input_quantidade">Quantidade em estoque</label>
+                    <input type="text" class="form-control" id="input_quantidade" name="input_quantidade" value="{{info_produto[3]}}" onkeypress='validate(event)' placeholder="Quantidade">
+                </div>
+                <div class="form-group">
+                    <label for="input_valor_unitario">Valor unitário</label>
+                    <input type="text" class="form-control" id="input_valor_unitario" name="input_valor_unitario" value="{{info_produto[4]}}" onkeypress='validate(event)' placeholder="0,00">
+                </div>
+                <div class="form-group">
+                    <label for="input_peso">Peso</label>
+                    <input type="text" class="form-control" id="input_peso" name="input_peso" placeholder="Peso" value="{{info_produto[7]}}">
+                </div>
+                <div class="form-group">
+                    <label for="input_custo_aquisicao">Custo de aquisição</label>
+                    <input type="text" class="form-control" id="input_custo_aquisicao" name="input_custo_aquisicao" value="{{info_produto[8]}}" onkeypress='validate(event)' placeholder="0,00">
+                </div>
+            </div>
+            
+            <!-- Coluna para a imagem -->
+            <div class="col-md-6 d-flex justify-content-center align-items-center">
+                <div>
+                    <label for="imagem_produto">Foto do produto</label><br>
+                    <input type="file" id="imagem_produto" name="imagem_produto" accept="image/*" onchange="mostrarImagem(event)">
+                    <div class="text-center">
+                        <img id="previewImagem" name="previewImagem" alt="Prévia da imagem" style="max-width: 300px; max-height: 700px; border: 3px solid black;">
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <br>
+    <div class="d-flex justify-content-center">
+        <button type="submit" name="btn-atualizar_produto" style="width: 250px;" class="btn btn-success btn-lg">ATUALIZAR PRODUTO</button>
+    </div>
+</div>
+</form>
+
+
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script type="text/javascript">
+    function validate(evt) {
+        var theEvent = evt || window.event;
+
+        // Handle paste
+        if (theEvent.type === 'paste') {
+            key = event.clipboardData.getData('text/plain');
+        } else {
+        // Handle key press
+            var key = theEvent.keyCode || theEvent.which;
+            key = String.fromCharCode(key);
+        }
+        var regex = /[0-9,]/;
+        if( !regex.test(key) ) {
+            theEvent.returnValue = false;
+            if(theEvent.preventDefault) theEvent.preventDefault();
+        }
+    }
+
+    function buscarImagem() {
+    var xhr = new XMLHttpRequest();
+    xhr.open('GET', '/imagem/{{info_produto[0]}}', true); // ID da imagem
+    xhr.responseType = 'blob';
+
+    xhr.onload = function() {
+        if (xhr.status === 200) {
+            var url = URL.createObjectURL(xhr.response);
+            console.log(url)
+            document.getElementById('previewImagem').src = url;
+            document.getElementById('previewImagem').display = 'block';
+        } else {
+            console.error('Erro ao buscar imagem:', xhr.status);
+            // Você pode exibir uma mensagem de erro ao usuário, se desejar
+        }
+    };
+
+    xhr.send();
+}
+
+    // Chama a função para buscar a imagem quando a página carregar
+    document.addEventListener("DOMContentLoaded", function() {
+    buscarImagem();
+    });
+
+    function mostrarImagem(event) {
+        var input = event.target;
+        var reader = new FileReader();
+        
+        // Quando a leitura do arquivo terminar, mostre a imagem
+        reader.onload = function() {
+            var preview = document.getElementById('previewImagem');
+            preview.src = reader.result;
+            preview.style.display = 'block';
+        }
+
+        // Leia a imagem como uma URL de dados
+        reader.readAsDataURL(input.files[0]);
+    }
+
+    
+
+    function showAlert() {
+        Swal.fire({
+        position: "center",
+        icon: "success",
+        title: "Produto Atualizado",
+        showConfirmButton: false,
+        timer: 2000
+});
+};
+
+</script>
+
+{% endblock conteudo %}
