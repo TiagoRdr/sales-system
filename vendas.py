@@ -58,11 +58,11 @@ def get_values_main():
 def nova_venda():  
     # Se estiver fora da função
     total_prods = total_produtos()
-    lista_produtos, nvenda = consulta_produtos_nvenda()    
-    return render_template("new_sale.html", data_atual=data_atual, produtos=produtos, total_prods=total_prods, lista_produtos=lista_produtos, nvenda=nvenda)
+    lista_produtos, nvenda, clientes = consulta_produtos_nvenda_clientes()    
+    return render_template("new_sale.html", data_atual=data_atual, produtos=produtos, total_prods=total_prods, lista_produtos=lista_produtos, nvenda=nvenda, clientes=clientes)
 
 
-def consulta_produtos_nvenda():
+def consulta_produtos_nvenda_clientes():
     mydb = mysql.connector.connect(
         host="localhost",
         user="root",
@@ -85,34 +85,43 @@ def consulta_produtos_nvenda():
                                 """)
     myresult_nvenda = mycursor_nvenda.fetchall()
 
-    return myresult_produtos, myresult_nvenda
+    mycursor_clientes = mydb.cursor()
+    mycursor_clientes.execute(f"""select                           
+                                    nome
+                                    from clientes         
+                                """)
+    myresult_clientes = mycursor_clientes.fetchall()
+
+    return myresult_produtos, myresult_nvenda, myresult_clientes
 
 
-@app.route('/buscar_cliente/<cpf>', methods=['GET'])
-def buscar_cliente(cpf):
+@app.route('/buscar_cliente/<nome>', methods=['GET'])
+def buscar_cliente(nome):
     mydb = mysql.connector.connect(
         host="localhost",
         user="root",
         password="root",
         database="tr-sale-system"
     )
-
+    query = f"""select 
+                id,
+                cpf_cnpj, 
+                telefone 
+                from clientes c
+                where nome = '{nome}'
+            """
+        
+    
     mycursor_clientes = mydb.cursor()
-    mycursor_clientes.execute(f"""select 
-                                        id,
-                                        nome, 
-                                        telefone 
-                                    from clientes c
-                                    where cpf_cnpj = '{cpf}'
-                    """)
+    mycursor_clientes.execute(query)
     myresult = mycursor_clientes.fetchall()
 
-    if len(myresult) > 0:
-        
-        return jsonify(success=True, idcliente=myresult[0][0], nome=myresult[0][1], telefone=myresult[0][2])
-    else:
-        return jsonify(success=True, idcliente='0', nome='', telefone='')
-    
+    if len(myresult) > 0:        
+        return jsonify(success=True, idcliente=myresult[0][0], cpfcnpj=myresult[0][1], telefone=myresult[0][2])
+    else:       
+        return jsonify(success=True, idcliente='0', cpfcnpj='', telefone='')
+
+
 @app.route('/buscar_valor_unitario/<nome>', methods=['GET'])
 def buscar_valor_unitario(nome):
     mydb = mysql.connector.connect(
@@ -134,7 +143,7 @@ def buscar_valor_unitario(nome):
     if len(myresult) > 0:   
         return jsonify(success=True, id_produto=myresult[0][0], valor_unitario=myresult[0][1])
     else:
-        return jsonify(success=True, id_produto='0', valor_unitario='0,00')
+        return jsonify(success=True, id_produto='0', valor_unitario='')
 
 def total_produtos():
     total_prods = 0
@@ -163,7 +172,7 @@ def add_product():
     product_id = request.form.get('idproduto')
     product_name = request.form.get('produto')
     product_qtd = request.form.get('quantidade')
-    product_valor_unit = str(request.form.get('valorunitario').replace(",","."))
+    product_valor_unit = request.form.get('valorunitario')
     total_unitario = str(format(float(request.form.get('total_unitario')), '.2f')).replace(".",",")
     print(product_name, product_qtd, product_valor_unit)
     
@@ -197,7 +206,7 @@ def list_products():
 @app.route('/resume-sale', methods=['POST', 'GET'])
 def resume_sale():
     try:
-        lista_produtos, nvenda = consulta_produtos_nvenda()
+        lista_produtos, nvenda, clientes = consulta_produtos_nvenda_clientes()
         
         total_prods = total_produtos()
 
@@ -205,12 +214,12 @@ def resume_sale():
         product_desconto = request.form.get('valordesconto')
 
         try:            
-            product_desconto = format(float(request.form.get('valordesconto')), '.2f')
+            product_desconto = format(float(str(request.form.get('valordesconto').replace(",","."))), '.2f')
         except:            
             product_desconto = 0
 
         try:
-            product_taxa = format(float(request.form.get('valortaxa')), '.2f')
+            product_taxa = format(float(str(request.form.get('valortaxa').replace(",","."))), '.2f')
         except:
             product_taxa = 0
 
@@ -270,11 +279,7 @@ def nova_pagina():
             data_entrega = request.form.get('data_entrega')
             list_test.clear()
             list_test.append([nvenda, datetime.strptime(data_venda, '%Y-%m-%d').strftime("%d/%m/%Y"), nome_cliente, forma_pagamento, endereco_entrega, total_prods, taxaentrega, desconto, total_venda, id_cliente, cpf_cnpj, telefone, observacoes, data_entrega])
-            # Print para verificação
-            print(data_venda)
-            # Armazenar dados em sessão ou cache, se necessário, para uso na próxima requisição GET
 
-            # Redirecionar para uma página que possa usar os dados processados
             return redirect('/nova-pagina')
 
         elif request.method == 'GET':
@@ -282,6 +287,7 @@ def nova_pagina():
             # Para demonstrar, você pode passar dados armazenados em sessão ou variáveis globais
             print(list_test[0])
             # Renderiza a nova página após o redirecionamento
+            print(produtos)
             return render_template('/resume_sale_teste.html', 
                 nvenda=list_test[0][0], 
                 data_venda=list_test[0][1], 
@@ -318,6 +324,7 @@ def salvar_venda():
     cpfcnpj = request.form.get("cpfcnpj")
     telefone = request.form.get("telefone")
     total_venda = total_vendas(taxa_entrega, desconto)
+    status_venda = '✅ Finalizada'
     
     mydb = mysql.connector.connect(
         host="localhost",
@@ -339,30 +346,45 @@ def salvar_venda():
     cursor_salvar_venda = mydb.cursor()
     cursor_salvar_venda.execute("""
             INSERT INTO `tr-sale-system`.vendas
-            (data_venda, data_entrega, forma_pagamento, taxa_entrega, endereco_entrega, id_cliente, desconto, observacoes, total_venda)
-            VALUES(%s, %s, %s, %s, %s, %s, %s, %s, %s);
-        """, (data_venda, data_entrega, metodo_pagamento, taxa_entrega, endereco_entrega, ultimo_id_cliente, desconto, observacoes, total_venda))
+            (data_venda, data_entrega, forma_pagamento, taxa_entrega, endereco_entrega, id_cliente, desconto, observacoes, total_venda, status_venda)
+            VALUES(%s, %s, %s, %s, %s, %s, %s, %s, %s, %s);
+        """, (data_venda, data_entrega, metodo_pagamento, taxa_entrega, endereco_entrega, ultimo_id_cliente, desconto, observacoes, total_venda, status_venda))
 
     mydb.commit()
-    ultimo_id = cursor_salvar_venda.lastrowid
+    ultimo_id_venda = cursor_salvar_venda.lastrowid
     cursor_salvar_venda.close()
 
     for produto in produtos:
         cursor_salvar_venda_produtos = mydb.cursor()
         cursor_atualiza_estoque_produto = mydb.cursor()
+        cursor_cadastrar_produto = mydb.cursor()
+        id_produto = 0
+        if produto[0] == '0':
+            caminho_imagem = os.path.join(os.getcwd(), 'static', 'no-photo.png')
+            with open(caminho_imagem, 'rb') as file:        
+                imagem_binaria = file.read()
+            query = """INSERT INTO `tr-sale-system`.produtos
+                (nome, id_fornecedor, qtd_estoque, valor_unitario, foto, data_validade)
+                VALUES(%s, %s, %s, %s, %s , %s);"""
+            cursor_cadastrar_produto.execute(query, (produto[1], 0, 1000, float(str(produto[3]).replace(",",".")), imagem_binaria, datetime.strptime('2025-12-31', '%Y-%m-%d')))
+            id_produto = cursor_cadastrar_produto.lastrowid
+        else:
+            id_produto = produto[0]
 
         cursor_salvar_venda_produtos.execute("""
                 INSERT INTO `tr-sale-system`.vendas_produtos
                 (id_produto, nome_produto, quantidade, valor_unitario, id_venda)
                 VALUES(%s, %s, %s, %s, %s);
-            """, (produto[0], produto[1], produto[2], float(str(produto[3]).replace(",",".")), ultimo_id))
+            """, (id_produto, produto[1], produto[2], float(str(produto[3]).replace(",",".")), ultimo_id_venda))
         
         cursor_atualiza_estoque_produto.execute(f"""
                 UPDATE `tr-sale-system`.produtos
                 SET qtd_estoque= qtd_estoque - {produto[2]}
-                WHERE id={produto[0]};                
+                WHERE id={id_produto};                
             """)
         mydb.commit()
+
+    cursor_cadastrar_produto.close()
     cursor_atualiza_estoque_produto.close()
     cursor_salvar_venda_produtos.close()
     return redirect(url_for('nova_venda'))
@@ -395,9 +417,9 @@ def consulta_vendas_mes():
                             v.id,
                             DATE_FORMAT(v.data_venda, '%d/%m/%Y') AS data_formatada,
                             v.forma_pagamento,
-                            v.taxa_entrega,
                             c2.nome,
-                            REPLACE(FORMAT(v.total_venda , 2), '.', ',') AS campo_formatado 
+                            REPLACE(FORMAT(v.total_venda , 2), '.', ',') AS campo_formatado,
+                            status_venda
                             from vendas v 
                             left join clientes c2 on v.id_cliente  = c2.id
                             where data_venda between '{date.today().year}-{date.today().month}-01' and '{date.today().year}-{date.today().month}-{ultimo_dia_mes}'
@@ -427,7 +449,7 @@ def consulta_produtos_geral():
     mycursor.execute(f"""select
                             p.id,
                             p.nome,
-                            f.nome,
+                            coalesce(f.nome, ''),
                             p.qtd_estoque, 
                             REPLACE(FORMAT(p.valor_unitario  , 2), '.', ',') AS campo_formatado                            
                             from produtos p
@@ -535,11 +557,13 @@ def busca_fornecedores_marcas():
     myresult = cursor_fornecedores.fetchall()
 
     cursor_marcas.execute(f"""select 
-                            distinct(marca) 
+                            distinct(marca)
                             from produtos p  
+                            where marca is not null 
+                            
                     """)
     myresult2 = cursor_marcas.fetchall()
-    print(myresult)
+
     for i in range(len(myresult)):
         list_forn.append(str(myresult[i]).split("'")[1])
 
@@ -677,7 +701,6 @@ def atualizar_produtos_main():
     try:
         codigo_produto = request.form.get("codigo")
         info_produto = get_product_info(codigo_produto)
-        
         fornecedores, marcas = busca_fornecedores_marcas()
 
         return render_template("atualiza-produtos.html", info_produto=info_produto, fornecedores=fornecedores, marcas=marcas)
@@ -738,13 +761,13 @@ def get_product_info(codigo_produto):
     mycursor.execute(f"""select
                             p.id,
                             p.nome,
-                            f.nome as fornecedor,
+                            coalesce(f.nome, '') as fornecedor,
                             p.qtd_estoque,
                             REPLACE(FORMAT(p.valor_unitario  , 2), '.', ',') AS valorunitario,
-                            p.marca,
+                            coalesce(p.marca,''),
                             p.data_validade,
-                            p.peso,
-                            REPLACE(FORMAT(p.custo_aquisicao , 2), '.', ',') AS custoaquisicao,
+                            coalesce(p.peso, ''),
+                            coalesce(REPLACE(FORMAT(p.custo_aquisicao , 2), '.', ','),'') AS custoaquisicao,
                             p.foto 
                             from produtos p
                             left join fornecedores f on f.id = p.id_fornecedor
@@ -763,7 +786,7 @@ def atualizar_produto():
     qtd_estoque_produto = request.form.get("input_quantidade")
     valor_unitario_produto = float(str(request.form.get("input_valor_unitario")).replace(",","."))
     peso_produto = request.form.get("input_peso")
-    custo_produto = float(str(request.form.get("input_custo_aquisicao")).replace(",","."))
+    custo_produto = float(str(request.form.get("input_custo_aquisicao")).replace(",",".")) if request.form.get("input_custo_aquisicao") else 0
     foto_produto = request.files.get('imagem_produto')
 
     mydb = mysql.connector.connect(
@@ -812,5 +835,250 @@ def atualizar_produto():
     time.sleep(2)
     return redirect(url_for('consulta_produtos'))
 
+
+@app.route("/atualizar-cliente-main", methods=["POST", "GET"])
+def atualizar_clientes_main():
+    try:
+        codigo_cliente = request.form.get("codigo")
+        info_cliente = get_cliente_info(codigo_cliente)
+        return render_template("atualiza-cliente.html", info_cliente=info_cliente)
+    
+    except Exception as e:
+        print(e)
+        return "Ocorreu um erro ao atualizar o produto.", 500  # Retornar uma mensagem de erro
+    
+
+
+def get_cliente_info(codigo_cliente):
+    mydb = mysql.connector.connect(
+        host="localhost",
+        user="root",
+        password="root",
+        database="tr-sale-system"
+    )
+
+    mycursor = mydb.cursor()
+    query = f"""SELECT id, 
+                        coalesce(nome,''), 
+                        coalesce(email,''), 
+                        coalesce(telefone,''), 
+                        coalesce(cpf_cnpj,''), 
+                        coalesce(observacoes,''), 
+                        coalesce(endereco, '')
+                        FROM `tr-sale-system`.clientes
+                        where id = {codigo_cliente}
+                    """
+    mycursor.execute(query)
+    myresult = mycursor.fetchall()
+    return myresult[0]
+
+@app.route("/atualizar-cliente", methods=["POST", "GET"])
+def atualizar_cliente():
+    id_cliente = request.form.get("codigo")
+    nome_cliente = request.form.get("input_nome_cliente")
+    cpf_cnpj = request.form.get("input_cpfcnpj_cliente")
+    email = request.form.get("input_email_cliente")
+    telefone = request.form.get("input_telefone_cliente")
+    endereco = request.form.get("input_endereco_cliente")
+    observacoes = request.form.get("input_observacoes_cliente")
+
+    mydb = mysql.connector.connect(
+        host="localhost",
+        user="root",
+        password="root",
+        database="tr-sale-system"
+    )
+
+    cursor = mydb.cursor()
+    query = """UPDATE `tr-sale-system`.clientes
+    SET nome=%s, cpf_cnpj=%s, email=%s, telefone=%s, endereco=%s, observacoes=%s
+    WHERE id=%s;
+        """
+    print(id_cliente, endereco)
+    # Execute a query com os valores como parâmetros
+    cursor.execute(query, (nome_cliente, cpf_cnpj, email, telefone, endereco, observacoes, id_cliente))
+    mydb.commit()
+    time.sleep(2)
+    return redirect(url_for('consulta_clientes'))
+
+
+@app.route('/removeCliente/<int:idcliente>', methods=["POST"])
+def remover_cliente(idcliente):
+    mydb = mysql.connector.connect(
+        host="localhost",
+        user="root",
+        password="root",
+        database="tr-sale-system"
+    )
+    cursor = mydb.cursor()
+    query = "DELETE FROM `tr-sale-system`.clientes WHERE id= %s"
+    cursor.execute(query, (idcliente,))
+
+    mydb.commit()
+
+    cursor.close()
+    return redirect(url_for('consulta_clientes'))
+
+##############################################################################
+
+
+@app.route("/atualizar-fornecedor-main", methods=["POST", "GET"])
+def atualizar_fornecedor_main():
+    try:
+        codigo_fornecedor = request.form.get("codigo")
+        
+        info_fornecedor = get_fornecedor_info(codigo_fornecedor)
+        print(info_fornecedor)
+        return render_template("atualiza-fornecedor.html", info_fornecedor=info_fornecedor)
+    
+    except Exception as e:
+        print(e)
+        return "Ocorreu um erro ao atualizar o produto.", 500  # Retornar uma mensagem de erro
+    
+
+
+def get_fornecedor_info(codigo_fornecedor):
+    mydb = mysql.connector.connect(
+        host="localhost",
+        user="root",
+        password="root",
+        database="tr-sale-system"
+    )
+
+    mycursor = mydb.cursor()
+    query = f"""SELECT id, 
+                        coalesce(nome,''), 
+                        coalesce(cpf_cnpj,''), 
+                        coalesce(email,''), 
+                        coalesce(telefone,''), 
+                        coalesce(endereco,''), 
+                        coalesce(observacoes,'')
+                        FROM `tr-sale-system`.fornecedores
+                        where id = {codigo_fornecedor}
+                    """
+    mycursor.execute(query)
+    myresult = mycursor.fetchall()
+    print(myresult[0])
+    return myresult[0]
+
+@app.route("/atualizar-fornecedor", methods=["POST", "GET"])
+def atualizar_fornecedor():
+    id_fornecedor = request.form.get("codigo")
+    nome_fornecedor = request.form.get("input_nome_fornecedor")
+    cpf_cnpj = request.form.get("input_cpfcnpj_fornecedor")
+    email = request.form.get("input_email_fornecedor")
+    telefone = request.form.get("input_telefone_fornecedor")
+    endereco = request.form.get("input_endereco_fornecedor")
+    observacoes = request.form.get("input_observacoes_fornecedor")
+
+    mydb = mysql.connector.connect(
+        host="localhost",
+        user="root",
+        password="root",
+        database="tr-sale-system"
+    )
+
+    cursor = mydb.cursor()
+    query = """UPDATE `tr-sale-system`.fornecedores
+                SET nome=%s, cpf_cnpj=%s, email=%s, telefone=%s, endereco=%s, observacoes=%s
+                WHERE id=%s;
+        """
+    # Execute a query com os valores como parâmetros
+    cursor.execute(query, (nome_fornecedor, cpf_cnpj, email, telefone, endereco, observacoes, id_fornecedor))
+    mydb.commit()
+    time.sleep(2)
+    return redirect(url_for('consulta_fornecedores'))
+
+
+@app.route('/removeFornecedor/<int:idfornecedor>', methods=["POST"])
+def remover_fornecedor(idfornecedor):
+    mydb = mysql.connector.connect(
+        host="localhost",
+        user="root",
+        password="root",
+        database="tr-sale-system"
+    )
+    cursor = mydb.cursor()
+    query = "DELETE FROM `tr-sale-system`.fornecedores WHERE id= %s"
+    cursor.execute(query, (idfornecedor,))
+
+    mydb.commit()
+
+    cursor.close()
+    return redirect(url_for('consulta_fornecedores'))
+
+
+@app.route("/visualizar-venda-main", methods=["POST", "GET"])
+def visualizar_venda_main():
+    try:
+        codigo_venda = request.form.get("codigo")        
+        info_venda, info_produtos = get_venda_info(codigo_venda)
+
+        return render_template("visualizar-venda.html", info_venda=info_venda, info_produtos=info_produtos)
+    
+    except Exception as e:
+        print(e)
+        return "Ocorreu um erro ao atualizar o produto.", 500  # Retornar uma mensagem de erro
+
+def get_venda_info(codigo_venda):
+    mydb = mysql.connector.connect(
+        host="localhost",
+        user="root",
+        password="root",
+        database="tr-sale-system"
+    )
+
+    mycursor = mydb.cursor()
+    query = f"""SELECT 
+                v.id,
+                DATE_FORMAT(v.data_venda, '%d/%m/%Y'),
+                DATE_FORMAT(v.data_entrega, '%d/%m/%Y'),
+                v.forma_pagamento, 
+                v.taxa_entrega, 
+                v.endereco_entrega, 
+                c.nome, 
+                v.desconto, 
+                v.observacoes,
+                REPLACE(FORMAT(v.total_venda  , 2), '.', ','),
+                v.status_venda                
+                FROM `tr-sale-system`.vendas v
+                left join clientes c on c.id = v.id_cliente 
+                where v.id = {codigo_venda};
+                    """
+    
+    query_produtos = f"""SELECT 
+                        nome_produto, 
+                        quantidade, 
+                        REPLACE(FORMAT(valor_unitario  , 2), '.', ',') AS campo_formatado,
+                        REPLACE(FORMAT(quantidade * valor_unitario , 2), '.', ',') AS campo_formatado2
+                        FROM `tr-sale-system`.vendas_produtos
+                        where id_venda = {codigo_venda}
+                    """
+
+    mycursor.execute(query)
+    myresult1 = mycursor.fetchall()
+
+    mycursor.execute(query_produtos)
+    myresult2 = mycursor.fetchall()
+
+    return myresult1[0], myresult2
+
+
+@app.route('/cancelaVenda/<int:idvenda>', methods=["POST"])
+def cancelar_venda(idvenda):
+    mydb = mysql.connector.connect(
+        host="localhost",
+        user="root",
+        password="root",
+        database="tr-sale-system"
+    )
+    status_venda = '❌ Cancelada'
+    cursor = mydb.cursor()
+    query = "UPDATE `tr-sale-system`.vendas set status_venda = %s WHERE id= %s"
+    cursor.execute(query, (status_venda, idvenda ))
+
+    mydb.commit()
+    cursor.close()
+    return redirect(url_for('consulta_vendas'))
 
 app.run(debug=True)

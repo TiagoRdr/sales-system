@@ -53,10 +53,19 @@
         
         <div class="col-md-6" style="border-left: 1px solid rgb(0, 0, 0);">                
             <p class="lead text-center">INFORMAÇÕES DO CLIENTE</p>
+            <div class="form-group col-md-12">
+                <label for="inputnome">Nome</label>
+                <input list="options_clientes" id="inputnome" autocomplete="off" name="inputnome" oninput="buscarCliente()" onkeyup="buscarCliente()" class="form-control" placeholder="Digite para exibir sugestões"/>
+                    <datalist id="options_clientes">
+                        {% for cliente in clientes %}
+                        <option>{{ cliente[0] }}</option>
+                        {% endfor %}
+                    </datalist>
+            </div>
             <div class="row">
                 <div class="form-group col-md-6">
                     <label for="inputcpfcnpj">CPF/CNPJ</label>
-                    <input type="text" class="form-control" id="inputcpfcnpj" onkeyup="buscarCliente()" autocomplete="off" placeholder="9999999999">
+                    <input type="text" class="form-control" id="inputcpfcnpj" autocomplete="off" placeholder="9999999999">
                 </div>                
             <input type="hidden" name="idcliente" id="idcliente">            
                 <div class="form-group col-md-6">
@@ -64,11 +73,6 @@
                     <input type="text" class="form-control" id="inputtelefone" autocomplete="off" placeholder="(99) 99999-9999">
                 </div>
             </div>
-                
-                <div class="form-group col-md-12">
-                    <label for="inputnome">Nome</label>
-                    <input type="text" class="form-control" id="inputnome" autocomplete="off" placeholder="Nome">
-                </div>
             <br>
             <div class="row">   
                 <div class="col-md-12">
@@ -77,7 +81,7 @@
                         <form method="POST" id="form_product" autocomplete="off">
                             <div class="form-group col-md-12">
                                 <label for="inputproduto">Produto</label>
-                                <input list="options" id="inputproduto" name="inputproduto" oninput="buscarValorUnitario()" class="form-control" placeholder="Clique para selecionar ou digite para exibir sugestões"/>
+                                <input list="options" id="inputproduto" name="inputproduto" oninput="buscarValorUnitario()" class="form-control" placeholder="Digite para exibir sugestões"/>
                                     <datalist id="options">
                                         {% for produto in lista_produtos %}
                                         <option>{{ produto[0] }}</option>
@@ -135,6 +139,35 @@
 
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script type="text/javascript">
+
+function handleDatalist(inputId, datalistId) {
+    const input = document.getElementById(inputId);
+    const datalist = document.getElementById(datalistId);
+    const allOptions = datalist.innerHTML;  // Guarda todas as opções geradas pelo Jinja
+
+    // Inicialmente remove todas as opções do datalist
+    datalist.innerHTML = '';
+
+    // Quando o usuário começar a digitar
+    input.addEventListener('input', function() {
+        // Adiciona as opções novamente quando houver entrada
+        if (input.value.length > 0) {
+            datalist.innerHTML = allOptions;
+        } else {
+            // Remove as opções se o campo de entrada estiver vazio
+            datalist.innerHTML = '';
+        }
+    });
+}
+
+// Aplicar a função para o primeiro input e datalist
+    handleDatalist('inputproduto', 'options');
+
+    // Aplicar a função para o segundo input e datalist
+    handleDatalist('inputnome', 'options_clientes');
+
+
+
     function validate(evt) {
         var theEvent = evt || window.event;
 
@@ -257,38 +290,6 @@
     });
 }
 
-    form_save_sale.onsubmit = function(event) {
-    event.preventDefault();  
-    $.ajax({
-        type: 'POST',
-        url: '/salvar-venda',
-        data: {
-            data_venda: $("#inputdatavenda").val(),
-            data_entrega: $("#inputdataentrega").val(),
-            metodo_pagamento: $("#inputmetodopagamento").val(),
-            endereco_entrega: $("#inputenderecoentrega").val(),
-            taxa_entrega: $("#inputtaxaentrega").val(),
-            desconto: $("#inputdesconto").val(),
-            observacoes: $("#inputobservacoes").val(),
-            idcliente: $("#idcliente").val(),                  
-            nome: $("#inputnome").val(),
-            cpfcnpj: $("#inputcpfcnpj").val(),
-            telefone: $("#inputtelefone").val()
-        },
-        success: function(response) {
-            // Atualize apenas a div de resumo com o conteúdo retornado
-            showAlert();
-            setTimeout(function() {
-            window.location.href = "/nova_venda";
-            }, 2000);  // 2 segundos
-        },
-        error: function(jqXHR, textStatus, errorThrown) {
-            console.log("Error details:", jqXHR, textStatus, errorThrown);
-        }
-    });
-    }
-
-
     document.addEventListener('DOMContentLoaded', function() {
         // Faz a requisição POST para limpar a lista de produtos quando a página for recarregada
         fetch('/clear_products', {
@@ -298,23 +299,24 @@
     
 
     function buscarCliente() {
+    var nome = document.getElementById("inputnome").value;  
     var cpf = document.getElementById("inputcpfcnpj").value;    
     
-    if (cpf.length === 14 || cpf.length === 11){
-        fetch(`/buscar_cliente/${cpf}`)
-            .then(response => response.json())
-            .then(data => {
-            if (data.success) {
-                console.log(data.idcliente)
-                document.getElementById("idcliente").value = data.idcliente;
-                document.getElementById("inputnome").value = data.nome;
-                document.getElementById("inputtelefone").value = data.telefone;
-            } else {
-                console.log("Cliente não encontrado!");
+    if (nome.length > 0){
+        fetch(`/buscar_cliente/${nome}`)
+                .then(response => response.json())
+                .then(data => {
+                if (data.success) {
+                    console.log(data.idcliente)
+                    document.getElementById("idcliente").value = data.idcliente;
+                    document.getElementById("inputcpfcnpj").value = data.cpfcnpj;
+                    document.getElementById("inputtelefone").value = data.telefone;
+                } else {
+                    console.log("Cliente não encontrado!");
+                }
+                })
+                .catch(error => console.error('Erro:', error));
             }
-            })
-            .catch(error => console.error('Erro:', error));
-        }
     }
 
 

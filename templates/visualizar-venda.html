@@ -1,0 +1,272 @@
+{% extends 'base.html' %}
+{% block conteudo %}
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Resumo da venda</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            
+            background-color: #f4f4f4;
+        }
+
+        .invoice-box {
+            max-width: 1000px;
+            margin: auto;
+            padding: 10px;
+            border: 1px solid #eee;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.15);
+            background-color: white;
+        }
+
+        .title {
+            font-size: 45px;
+            font-weight: bold;
+            text-align: center;
+            color: #333;
+            margin-bottom: 20px;
+        }
+
+        .invoice-header, .invoice-footer {
+            text-align: center;
+            padding: 10px 0;
+            background-color: #f0f0f0;
+            border-top: 1px solid #ddd;
+            font-size: 25px;
+        }
+
+        .invoice-details {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr); /* Cria 4 colunas de tamanhos iguais */
+            column-gap: 10px; /* Espaçamento entre colunas */
+            row-gap: 10px; /* Espaçamento entre linhas */
+            text-align: center; /* Alinha o texto centralizado */
+        }
+
+        .invoice-details p {
+            margin: 0;
+            padding: 10px;
+            display: flex;
+            flex-direction: column; /* Chave em cima, valor embaixo */
+        }
+
+        .invoice-details strong {
+            display: block;
+            font-weight: bold;
+            margin-bottom: 5px; /* Pequeno espaço entre a chave e o valor */
+        }
+
+        .invoice-details span {
+            font-size: 14px;
+            color: #333;
+        }
+
+        .invoice-items {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 20px;
+        }
+
+        .invoice-items th, .invoice-items td {
+            padding: 10px;
+            border: 1px solid #ddd;
+            text-align: left;
+        }
+
+        .invoice-items th {
+            background-color: #f0f0f0;
+        }
+
+        .total {
+            text-align: right;
+            padding-right: 20px;
+            font-size: 20px;
+            font-weight: bold;
+        }
+
+        .center {
+            text-align: center;
+        }
+
+        .total, .discount, .tax{
+            text-align: right;
+            padding-right: 20px;
+            font-size: 20px;
+            font-weight: bold;
+        }
+
+        .final-total{
+            text-align: center;
+            padding-right: 20px;
+            font-size: 30px;
+            font-weight: bold;
+            background-color: rgb(255, 255, 255);
+        }
+
+        .discount {
+            color: red;
+        }
+
+        .tax, .final-total {
+            color: green;
+        }
+        
+        img{
+            width: 100px;
+            height: 100px;
+        }
+    </style>
+</head>
+<body>
+    <br>
+    <div class="invoice-box" id="invoice">
+        <!-- Título do software -->
+        <div class="title"> <img src="../static/tr-software-white.jpg" alt=""></div>
+
+        <!-- Informações da Venda -->
+        <div class="invoice-header">
+            <p><strong>RESUMO DA VENDA #{{info_venda[0]}}</strong></p>            
+        </div>
+
+        <!-- Detalhes do Cliente -->
+        <div class="invoice-details">
+            <p><strong>Data da Venda</strong> <span>{{info_venda[1]}}</span></p>
+            <p><strong>Cliente</strong> <span>{{info_venda[6]}}</span></p>
+            <p><strong>Pagamento</strong> <span>{{info_venda[3]}}</span></p>
+            <p><strong>Endereço</strong> <span>{{info_venda[5]}}</span></p>
+            <p><strong>Observações</strong> <span>{{info_venda[8]}}</span></p>
+        </div>
+
+        <!-- Lista de Produtos -->
+        <table class="invoice-items">
+            <thead>
+                <tr>
+                    <th>Produto</th>
+                    <th>Quantidade</th>
+                    <th>Valor Unitário</th>
+                    <th>Total</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for produto in info_produtos %}
+                <tr>
+                    <td>{{produto[0]}}</td>
+                    <td>{{produto[1]}}</td>
+                    <td>R$ {{produto[2]}}</td>
+                    <td>R$ {{produto[3]}}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+
+        <!-- Desconto -->
+        <p class="discount">Desconto: - R$ {{info_venda[7]}}</p>
+
+        <!-- Taxa de Entrega -->
+        <p class="tax">Taxa de Entrega: R$ {{info_venda[4]}}</p>
+        <hr>
+        <!-- Total Final -->
+        <p class="final-total">Total da venda: R$ {{info_venda[9]}}</p>
+        <input type="hidden" name="status" id="status" value="{{info_venda[10]}}">
+        <!-- Rodapé da Nota -->
+        <div class="d-flex justify-content-center" style="margin: auto;">
+            <button id="exportar-pdf" class="btn btn-primary btn-lg btn-exportar" onclick="ExportarPdf()" style="width: 250px; margin-bottom: 10px;">Exportar para PDF</button>
+        </div>
+        <form id="cancelarvenda" method="POST" id="form" autocomplete="off" enctype="multipart/form-data" onsubmit="showAlert(event)">
+            <input type="hidden" name="idvenda" id="idvenda" value="{{info_venda[0]}}">            
+            
+            <div class="d-flex justify-content-center" style="margin: auto;">
+                <button type="submit" name="cancelar-venda" id="cancelar-venda" class="btn btn-danger btn-lg" style="width: 250px; margin-bottom: 10px;">Cancelar venda</button>
+            </div>
+
+            
+        </form>
+    </div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.9.3/html2pdf.bundle.min.js" ></script>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script>
+
+    const status = document.getElementById('status').value;
+    const botao_cancelar = document.getElementById('cancelar-venda');
+    const botao_exportar = document.getElementById('exportar-pdf');
+
+    // Condição para esconder o botão com base no texto vindo do backend
+    if (status.includes('Cancelada')) {
+        botao_cancelar.style.display = 'none';  // Esconde o botão
+    }
+
+    
+    function ExportarPdf() {
+    // Defina o comportamento de exportar PDF uma vez
+    const botaoExportar = document.querySelector('.btn-exportar');
+
+    botaoExportar.addEventListener('click', function(event) {
+        event.preventDefault();
+        botao_cancelar.style.display = 'none';
+        botaoExportar.style.display = 'none';
+
+        // Elemento a ser exportado
+        var element = document.getElementById('invoice');
+
+        // Configurações do html2pdf
+        var opt = {
+            margin: 1,
+            filename: 'ResumoVenda-' + "{{info_venda[0]}}" + '.pdf',
+            image: { type: 'jpeg', quality: 0.98 },
+            html2canvas: { scale: 2 },
+            jsPDF: { unit: 'in', format: 'letter', orientation: 'portrait' }
+        };
+
+        // Gera o PDF
+        html2pdf().set(opt).from(element).save().then(() => {
+            botaoExportar.style.display = 'block';
+            botao_cancelar.style.display = 'block';
+        });
+    }, { once: true });  // O evento de clique será vinculado apenas uma vez
+    }   
+    
+
+    cancelarvenda.onsubmit = function(event){
+        event.preventDefault();
+        codigo = document.getElementById("idvenda").value; 
+
+        console.log(codigo)
+        Swal.fire({
+            title: "Confirme o cancelamento da venda",
+            text: "Não será possível reverter após o cancelamento",
+            icon: "warning",
+            showCancelButton: true,
+            cancelButtonText: `Fechar`,
+            confirmButtonColor: "#3085d6",
+            cancelButtonColor: "#d33",
+            confirmButtonText: "Confirmar"
+            }).then((result) => {
+            if (result.isConfirmed) {
+                $.ajax({
+                type: 'POST',
+                url: `/cancelaVenda/${codigo}`
+                }).then(() => {
+                    Swal.fire({
+                    title: "Cancelado!",
+                    text: "Venda cancelada com sucesso!",
+                    icon: "success",
+                    timer: 2000
+                });
+                setTimeout(function() {
+                    window.location.reload();
+                }, 3000); // 2000 milissegundos = 2 segundos    
+            })
+            }
+        });       
+        
+    }
+</script>
+</body>
+</html>
+
+{% endblock conteudo %}

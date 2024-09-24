@@ -24,9 +24,9 @@
                     <th scope="col" class="coluna">Código Venda</th>
                     <th scope="col">Data da venda</th>
                     <th scope="col">Forma Pagamento</th>
-                    <th scope="col">Taxa de entrega</th>
                     <th scope="col">Cliente</th>
                     <th scope="col">Total da venda</th>
+                    <th scope="col">Status da venda</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -35,10 +35,15 @@
                         <th scope="row">{{venda[0]}}</th>
                         <td>{{venda[1]}}</td>
                         <td>{{venda[2]}}</td>
-                        <td>{{venda[3]}}</td>                    
+                        <td>{{venda[3]}}</td>
                         <td>{{venda[4]}}</td>
                         <td>{{venda[5]}}</td>
-                        <td><input type="button" class="btn btn-info" name="btn_visualizar" id="btn_visualizar" value="Visualizar"></td>
+                        <td>
+                            <form action="{{url_for('visualizar_venda_main')}}" method="POST" autocomplete="off" enctype="multipart/form-data" style="display:inline-block;">
+                                <input type="hidden" name="codigo" id="codigo" value="{{ venda[0] }}">
+                                <button type="submit" class="btn btn-info">Visualizar</button>
+                            </form>
+                        </td>
                     </tr>
                     {% endfor %}
                 </tbody>

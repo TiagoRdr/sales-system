@@ -35,13 +35,11 @@
                             <td>{{produto[3]}}</td>                    
                             <td>{{produto[4]}}</td>                        
                             <td>
-                                <!-- Form de visualizar -->
                                 <form action="{{url_for('atualizar_produtos_main')}}" method="POST" autocomplete="off" enctype="multipart/form-data" style="display:inline-block;">
                                     <input type="hidden" name="codigo" id="codigo" value="{{ produto[0] }}">
                                     <button type="submit" class="btn btn-info">Visualizar</button>
                                 </form>
                         
-                                <!-- Form de remover -->
                                 <form id="removeproduct" method="POST" autocomplete="off" enctype="multipart/form-data" style="display:inline-block;">
                                     <input type="hidden" name="codigoremove" id="codigoremove" value="{{ produto[0] }}">
                                     <button type="submit" class="btn btn-danger">Remover</button>
@@ -128,14 +126,13 @@ tbody tr {
                         icon: "success",
                         timer: 2000
                     })
-                })
+                });
+                    setTimeout(function() {
+                        window.location.reload();
+                    }, 3000); // 2000 milissegundos = 2 segundos    
                 }
-            });       
-            setTimeout(function() {
-            window.location.reload();
-        }, 3000); // 2000 milissegundos = 2 segundos    
+            });     
         }
         
-    
 </script>
 {% endblock conteudo %}

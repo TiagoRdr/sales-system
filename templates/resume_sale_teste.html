@@ -15,9 +15,9 @@
         }
 
         .invoice-box {
-            max-width: 800px;
+            max-width: 1000px;
             margin: auto;
-            padding: 20px;
+            padding: 10px;
             border: 1px solid #eee;
             box-shadow: 0 0 10px rgba(0, 0, 0, 0.15);
             background-color: white;
@@ -41,8 +41,8 @@
 
         .invoice-details {
             display: grid;
-            grid-template-columns: repeat(4, 1fr); /* Cria 4 colunas de tamanhos iguais */
-            column-gap: 20px; /* Espaçamento entre colunas */
+            grid-template-columns: repeat(5, 1fr); /* Cria 4 colunas de tamanhos iguais */
+            column-gap: 10px; /* Espaçamento entre colunas */
             row-gap: 10px; /* Espaçamento entre linhas */
             text-align: center; /* Alinha o texto centralizado */
         }
@@ -138,6 +138,7 @@
             <p><strong>Cliente</strong> <span>{{nome_cliente}}</span></p>
             <p><strong>Pagamento</strong> <span>{{forma_pagamento}}</span></p>
             <p><strong>Endereço</strong> <span>{{endereco_entrega}}</span></p>
+            <p><strong>Observações</strong> <span>{{observacoes}}</span></p>
         </div>
 
         <!-- Lista de Produtos -->

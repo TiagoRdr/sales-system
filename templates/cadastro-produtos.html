@@ -11,7 +11,7 @@
             <div class="col-md-6">
                 <div class="form-group">
                     <label for="input_nome_produto">Nome do produto</label>
-                    <input type="text" class="form-control" id="input_nome_produto" name="input_nome_produto" placeholder="Ex. Sabonete Líquido Antibacteriano 200ml">
+                    <input type="text" class="form-control" id="input_nome_produto" name="input_nome_produto" placeholder="Ex. Sabonete Líquido Antibacteriano 200ml" required>
                 </div>
                 <div class="form-group">
                     <label for="input_marca">Marca</label>
@@ -33,15 +33,15 @@
                 </div>
                 <div class="form-group">
                     <label for="input_data_validade">Data de validade</label>
-                    <input type="date" class="form-control" id="input_data_validade" name="input_data_validade" value="{{data_atual}}">
+                    <input type="date" class="form-control" id="input_data_validade" name="input_data_validade" value="{{data_atual}}" required>
                 </div>
                 <div class="form-group">
                     <label for="input_quantidade">Quantidade em estoque</label>
-                    <input type="text" class="form-control" id="input_quantidade" name="input_quantidade" onkeypress='validate(event)' placeholder="Quantidade">
+                    <input type="text" class="form-control" id="input_quantidade" name="input_quantidade" onkeypress='validate(event)' placeholder="Quantidade" required>
                 </div>
                 <div class="form-group">
                     <label for="input_valor_unitario">Valor unitário</label>
-                    <input type="text" class="form-control" id="input_valor_unitario" name="input_valor_unitario" onkeypress='validate(event)' placeholder="0,00">
+                    <input type="text" class="form-control" id="input_valor_unitario" name="input_valor_unitario" onkeypress='validate(event)' placeholder="0,00" required>
                 </div>
                 <div class="form-group">
                     <label for="input_peso">Peso</label>
