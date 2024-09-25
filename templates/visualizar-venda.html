@@ -231,40 +231,94 @@
     }   
     
 
-    cancelarvenda.onsubmit = function(event){
-        event.preventDefault();
-        codigo = document.getElementById("idvenda").value; 
+    // cancelarvenda.onsubmit = function(event){
+    //     event.preventDefault();
+    //     codigo = document.getElementById("idvenda").value; 
 
-        console.log(codigo)
-        Swal.fire({
-            title: "Confirme o cancelamento da venda",
-            text: "Não será possível reverter após o cancelamento",
-            icon: "warning",
-            showCancelButton: true,
-            cancelButtonText: `Fechar`,
-            confirmButtonColor: "#3085d6",
-            cancelButtonColor: "#d33",
-            confirmButtonText: "Confirmar"
-            }).then((result) => {
-            if (result.isConfirmed) {
-                $.ajax({
-                type: 'POST',
-                url: `/cancelaVenda/${codigo}`
-                }).then(() => {
-                    Swal.fire({
-                    title: "Cancelado!",
-                    text: "Venda cancelada com sucesso!",
-                    icon: "success",
-                    timer: 2000
-                });
-                setTimeout(function() {
-                    window.location.reload();
-                }, 3000); // 2000 milissegundos = 2 segundos    
-            })
-            }
-        });       
+    //     console.log(codigo)
+    //     Swal.fire({
+    //         title: "Confirme o cancelamento da venda",
+    //         text: "Não será possível reverter após o cancelamento",
+    //         icon: "warning",
+    //         showCancelButton: true,
+    //         cancelButtonText: `Fechar`,
+    //         confirmButtonColor: "#3085d6",
+    //         cancelButtonColor: "#d33",
+    //         confirmButtonText: "Confirmar"
+    //         }).then((result) => {
+    //         if (result.isConfirmed) {
+    //             $.ajax({
+    //             type: 'POST',
+    //             url: `/cancelaVenda/${codigo}`
+    //             }).then(() => {
+    //                 Swal.fire({
+    //                 title: "Cancelado!",
+    //                 text: "Venda cancelada com sucesso!",
+    //                 icon: "success",
+    //                 timer: 2000
+    //             });
+    //             setTimeout(function() {
+    //                 window.location.reload();
+    //             }, 3000); // 2000 milissegundos = 2 segundos    
+    //         })
+    //         }
+    //     });       
         
+    // }
+
+    cancelarvenda.onsubmit = async function(event) {
+    event.preventDefault();
+    let codigo = document.getElementById("idvenda").value; 
+
+    const motivoOptions = {
+        erro_registro: "Erro no registro da venda",
+        produto_indisponivel: "Produto Indisponível",
+        solicitacao_cliente: "Solicitação do Cliente",
+        problemas_pagamento: "Problemas de Pagamento",
+        venda_duplicada: "Venda Duplicada",
+        alteracao_pedido: "Alteração no Pedido",
+        falha_sistema: "Falha no Sistema",
+        outro: "Outro"
+    };
+
+    const { value: motivo } = await Swal.fire({
+        title: "Selecione o motivo do cancelamento",
+        input: "select",
+        inputOptions: motivoOptions,
+        inputPlaceholder: "Selecione",
+        showCancelButton: true,
+        inputValidator: (value) => {
+            return new Promise((resolve) => {
+                if (value) {
+                    resolve();
+                } else {
+                    resolve("Selecione um motivo válido");
+                }
+            });
+        }
+    });
+
+    // Checa se o usuário clicou em "Cancelar"
+    if (motivo) {
+        let motivoTexto = motivoOptions[motivo]; // Mapeia o valor para o texto legível
+        
+        $.ajax({
+            type: 'POST',
+            url: `/cancelaVenda/${codigo}/${motivoTexto}`  // Envia o texto legível
+        }).then(() => {
+            Swal.fire({
+                title: "Cancelado!",
+                text: "Venda cancelada com sucesso!",
+                icon: "success",
+                timer: 2000
+            });
+            setTimeout(function() {
+                window.location.reload();
+            }, 3000);
+        });
     }
+}
+
 </script>
 </body>
 </html>

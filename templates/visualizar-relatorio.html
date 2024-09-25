@@ -1,0 +1,55 @@
+{% extends 'base.html' %}
+
+{% block conteudo %}
+
+
+<style>
+    .relatorio-card {
+        background-color: #f8f9fa; /* Fundo claro */
+        border: 1px solid #dee2e6; /* Borda suave */
+        border-radius: 10px; /* Cantos arredondados */
+        padding: 20px; /* Espaçamento interno */
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Sombra */
+        margin: 20px; /* Margem ao redor do cartão */
+    }
+    .titulo {
+        font-size: 1.5rem; /* Tamanho do título */
+        font-weight: bold; /* Negrito */
+    }
+    .valor {
+        font-size: 1.25rem; /* Tamanho do valor */
+        color: #007bff; /* Cor do valor */
+    }
+    .info {
+        font-size: 1rem; /* Tamanho da informação */
+        color: #6c757d; /* Cor da informação */
+    }
+</style>
+</head>
+<body>
+
+<div class="container">
+<div class="relatorio-card">
+    <h4>VENDAS POR PERÍODO</h4>
+    <p class="info">Período Consultado: <strong>{{data_inicio}} a {{data_fim}}</strong></p>
+    <p class="info">Total de Vendas: <span class="valor">R$ {{total_vendas}}</span></p>
+    <p class="info">Total de Produtos Vendidos: <span class="valor">{{total_produtos}}</span></p>
+    <p class="info">Ticket Médio: <span class="valor">R$ {{ticket_medio}}</span></p>
+    <p class="info">Total de Transações: <span class="valor">{{total_transacoes}}</span></p>
+</div>
+</div>
+
+
+
+<div class="my-4">
+    {{ grafico_html|safe }}
+</div>
+
+
+
+
+<script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.2/dist/umd/popper.min.js"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+
+{% endblock conteudo %}
