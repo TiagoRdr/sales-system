@@ -9,6 +9,9 @@ import plotly.express as px
 import plotly.io as pio
 import plotly.graph_objects as go
 
+
+import reports
+
 app = Flask(__name__)
 
 app.config['FLASK_ENV'] = 'development'
@@ -425,10 +428,10 @@ def consulta_vendas_mes():
                             REPLACE(FORMAT(v.total_venda , 2), '.', ',') AS campo_formatado,
                             status_venda
                             from vendas v 
-                            left join clientes c2 on v.id_cliente  = c2.id
-                            where data_venda between '{date.today().year}-{date.today().month}-01' and '{date.today().year}-{date.today().month}-{ultimo_dia_mes}'
+                            left join clientes c2 on v.id_cliente  = c2.id                            
                             ORDER BY v.id desc
                     """)
+
     myresult = mycursor.fetchall()
     return myresult
 
@@ -1097,62 +1100,36 @@ def relatorios_main():
         print(e)
         return "Ocorreu um erro ao atualizar o produto.", 500  # Retornar uma mensagem de erro
 
+
 @app.route("/visualizar-relatorio", methods=["POST", "GET"])
 def visualiza_relatorio():
     try:
-        mydb = mysql.connector.connect(
-        host="localhost",
-        user="root",
-        password="root",
-        database="tr-sale-system"
-        )
-        
-        tipo_relatorio = request.form.get("tipoRelatorio")
         data_inicio = request.form.get("dataInicio")
         data_fim = request.form.get("dataFim")
+        if request.form.get("tipoRelatorio") == "Vendas por Período":           
 
-        if tipo_relatorio == "Vendas por Período":
-            data_inicios = datetime(int(data_inicio[0:4]), int(data_inicio[5:7]), int(data_inicio[8:10]))
-            data_fims = datetime(int(data_fim[0:4]), int(data_fim[5:7]), int(data_fim[8:10]))
+            grafico_html, data_inicio, data_fim, total_vendas, total_produtos, ticket_medio, total_transacoes, vendas_periodo = reports.visualiza_relatorio_vendas_periodo(data_inicio, data_fim)
 
-            diferenca = data_fims - data_inicios
-            print(diferenca)
+            return render_template("visualizar-relatorio-vendas-periodo.html", grafico_html=grafico_html, data_inicio=data_inicio, data_fim=data_fim, total_vendas=total_vendas, total_produtos=total_produtos, ticket_medio=ticket_medio, total_transacoes=total_transacoes, vendas_periodo=vendas_periodo)  
 
-            if diferenca.days < 365:
-                query = f"""SELECT
-                                data_venda AS Data,
-                                FORMAT(SUM(total_venda), 2) AS Totais,
-                                CAST((SELECT SUM(total_venda) FROM vendas WHERE data_venda BETWEEN '{data_inicio}' AND '{data_fim}' AND status_venda NOT LIKE '%Cancelada%') AS FLOAT) AS soma_total,
-                                (SELECT COUNT(vp.id_produto) FROM vendas_produtos vp LEFT JOIN vendas v ON v.id = vp.id_venda WHERE v.data_venda BETWEEN '{data_inicio}' AND '{data_fim}' AND v.status_venda NOT LIKE '%Cancelada%') AS qtd_produtos,
-                                CAST((SELECT AVG(total_venda) FROM vendas WHERE data_venda BETWEEN '{data_inicio}' AND '{data_fim}' AND status_venda NOT LIKE '%Cancelada%') AS FLOAT) AS ticket_medio,
-                                (SELECT COUNT(id) FROM vendas WHERE data_venda BETWEEN '{data_inicio}' AND '{data_fim}' AND status_venda NOT LIKE '%Cancelada%') AS total_transacoes
-                            FROM vendas
-                            WHERE data_venda BETWEEN '{data_inicio}' AND '{data_fim}'
-                            AND status_venda NOT LIKE '%Cancelada%'
-                            GROUP BY data_venda
-                            ORDER BY data_venda ASC;  -- Ordenar pela data em ordem crescente
-                        """
+        elif request.form.get("tipoRelatorio") == "Produtos Mais Vendidos":
+            grafico_html, data_inicio, data_fim, quantidade_total, total_produtos, tabela_produtos = reports.visualiza_relatorio_produtos_mais_vendidos(data_inicio, data_fim)
 
-                df = pd.read_sql(query, mydb)
+            return render_template("visualizar-relatorio-produtos-mais-vendidos.html", grafico_html=grafico_html, data_inicio=data_inicio, data_fim=data_fim,quantidade_total=quantidade_total, total_produtos=total_produtos, tabela_produtos=tabela_produtos)  
+        
+        elif request.form.get("tipoRelatorio") == "Estoque Crítico":
+            grafico_html, quantidade_produtos_critico, list_items = reports.visualiza_relatorio_estoque_critico()
 
-                # Certifique-se de que o DataFrame está ordenado pela Data
-                df['Data'] = pd.to_datetime(df['Data'])  # Converte a coluna Data para datetime, se necessário
-                df = df.sort_values(by=['Data','Totais'])  # Ordena o DataFrame pela coluna Data
+            return render_template("visualizar-relatorio-estoque-critico.html", grafico_html=grafico_html, quantidade_produtos_critico=quantidade_produtos_critico, tabela_produtos=list_items)  
+        
+        elif request.form.get("tipoRelatorio") == "Vendas por Cliente":
+            grafico_html, data_inicio, data_fim, nome_clientes, vendas_periodo, quantidade_clientes = reports.visualiza_relatorio_vendas_clientes(data_inicio, data_fim)
 
-                # Gera o gráfico com os dados ordenados
-                fig = px.line(df, x='Data', y="Totais", labels={'Data': 'Período da venda', 'Totais': 'Total da venda'})
-                grafico_html = pio.to_html(fig, full_html=False)
-
-                # Obtenha os valores necessários
-                total_vendas = str(round(df['soma_total'][1], 2)).replace(".", ",")
-                total_produtos = df['qtd_produtos'].iloc[0]  # Altere o índice para 0, pois df[1] pode não existir
-                ticket_medio = str(round(df['ticket_medio'].iloc[0], 2)).replace(".", ",")  # Altere o índice para 0
-                total_transacoes = df['total_transacoes'].iloc[0]  # Altere o índice para 0
-
-        return render_template("visualizar-relatorio.html", grafico_html=grafico_html, data_inicio=datetime.strptime(data_inicio, '%Y-%m-%d').strftime("%d/%m/%Y"), data_fim=datetime.strptime(data_fim, '%Y-%m-%d').strftime("%d/%m/%Y"), total_vendas=total_vendas, total_produtos=total_produtos, ticket_medio=ticket_medio, total_transacoes=total_transacoes)    
+            return render_template("visualizar-relatorio-vendas-clientes.html", grafico_html=grafico_html, data_inicio=data_inicio, data_fim=data_fim, nome_clientes=nome_clientes, vendas_periodo=vendas_periodo, quantidade_clientes=quantidade_clientes)  
+            
     except Exception as e:
-        print(e)
+        print('eeeeeeeeeeeee', e)
         return "Ocorreu um erro ao atualizar o produto.", 500  # Retornar uma mensagem de erro
-
+    
 
 app.run(debug=True)

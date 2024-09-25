@@ -1,0 +1,100 @@
+{% extends 'base.html' %}
+
+{% block conteudo %}
+
+
+<style>
+    .relatorio-card {
+        background-color: #f8f9fa; /* Fundo claro */
+        border: 1px solid #dee2e6; /* Borda suave */
+        border-radius: 10px; /* Cantos arredondados */
+        padding: 20px; /* Espaçamento interno */
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Sombra */
+        margin-top: 60px; /* Margem ao redor do cartão */
+        width: 400px;
+        height: 350px;
+    }
+    .titulo {
+        font-size: 1.5rem; /* Tamanho do título */
+        font-weight: bold; /* Negrito */
+    }
+    .valor {
+        font-size: 1.25rem; /* Tamanho do valor */
+        color: #007bff; /* Cor do valor */
+    }
+    .info {
+        font-size: 1rem; /* Tamanho da informação */
+        color: #6c757d; /* Cor da informação */
+    }
+    .my-4{
+        width: 890px;
+    }
+</style>
+</head>
+<body>
+
+<div class="container">
+    <div class="row">
+        <div class="relatorio-card">
+            <h4>ESTOQUE CRÍTICO DE PRODUTOS</h4>
+            <p class="info">Quantidade de produtos com estoque crítico: <span class="valor">{{quantidade_produtos_critico}}</span></p>
+            <h3>Necessário Reposição!</h3>
+        </div>
+        <div class="my-4">
+            {{ grafico_html|safe }}
+        </div>
+    </div>
+</div>
+
+
+<br>
+
+<div class="container-vendas">        
+    <div class="row">         
+        <div class="table-container"> 
+            <table class="table table-striped" id="tabela">
+                <thead>
+                    <tr>
+                    <th scope="col">Produto</th>
+                    <th scope="col">Fornecedor</th>
+                    <th scope="col">Quantidade em estoque</th>                   
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for produto in tabela_produtos %}
+                    <tr>
+                        <th>{{produto[0]}}</th>
+                        <td>{{produto[1]}}</td>
+                        <td style="color: red; font-weight: bold;">{{produto[2]}}</td>                        
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<br><br>
+
+<style>
+    .table-container {
+        max-height: 700px; /* Ajuste conforme necessário */
+        overflow-y: auto;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+    }
+    
+    th, td {
+        text-align: center; /* Alinha o texto horizontalmente ao centro */
+    }
+    
+    tbody tr {
+      vertical-align: middle; /* Alinha o texto verticalmente ao centro */
+    }
+    </style>
+
+<script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.2/dist/umd/popper.min.js"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+
+{% endblock conteudo %}
