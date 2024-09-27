@@ -36,9 +36,10 @@
 <div class="container">
     <div class="row">
         <div class="relatorio-card">
-            <h4>VENDAS POR CLIENTES</h4>
+            <h4>VENDAS CANCELADAS</h4>
             <p class="info">Período Consultado: <strong>{{data_inicio}} a {{data_fim}}</strong></p>
-            <p class="info">Total de Clientes no Período: <span class="valor"> {{quantidade_clientes}}</span></p>
+            <p class="info">Quantidade de Vendas Canceladas: <span class="valor"> {{quantidade_cancelamentos}}</span></p>
+            <p class="info">Total de Vendas Canceladas: <span class="valor">R$ {{total_cancelado}}</span></p>
         </div>
         <div class="my-4">
             {{ grafico_html|safe }}
@@ -55,17 +56,21 @@
             <table class="table table-striped" id="tabela">
                 <thead>
                     <tr>
-                    <th scope="col" class="coluna">Cliente</th>
-                    <th scope="col">Produtos Comprados</th>
-                    <th scope="col">Lucro Total</th>                    
+                    <th scope="col" class="coluna">Código Venda</th>
+                    <th scope="col">Data da venda</th>
+                    <th scope="col">Cliente</th>
+                    <th scope="col">Total da Venda</th>
+                    <th scope="col">Motivo do Cancelamento</th>
                     </tr>
                 </thead>
                 <tbody>
-                    {% for cliente in list_clientes %}
+                    {% for cancelamento in tabela_canceladas %}
                     <tr>
-                        <th scope="row">{{cliente[0]}}</th>
-                        <td>{{cliente[1]}}</td>
-                        <td style="color: green; font-weight: bold;">{{cliente[2]}}</td>                        
+                        <th scope="row">{{cancelamento[0]}}</th>
+                        <td>{{cancelamento[1]}}</td>
+                        <td>{{cancelamento[2]}}</td>
+                        <td>{{cancelamento[3]}}</td>
+                        <td>{{cancelamento[4]}}</td>                     
                     </tr>
                     {% endfor %}
                 </tbody>

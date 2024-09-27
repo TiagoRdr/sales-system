@@ -1123,9 +1123,25 @@ def visualiza_relatorio():
             return render_template("visualizar-relatorio-estoque-critico.html", grafico_html=grafico_html, quantidade_produtos_critico=quantidade_produtos_critico, tabela_produtos=list_items)  
         
         elif request.form.get("tipoRelatorio") == "Vendas por Cliente":
-            grafico_html, data_inicio, data_fim, nome_clientes, vendas_periodo, quantidade_clientes = reports.visualiza_relatorio_vendas_clientes(data_inicio, data_fim)
+            grafico_html, data_inicio, data_fim, quantidade_clientes, lucro_total, list_items = reports.visualiza_relatorio_vendas_clientes(data_inicio, data_fim)
 
-            return render_template("visualizar-relatorio-vendas-clientes.html", grafico_html=grafico_html, data_inicio=data_inicio, data_fim=data_fim, nome_clientes=nome_clientes, vendas_periodo=vendas_periodo, quantidade_clientes=quantidade_clientes)  
+            return render_template("visualizar-relatorio-vendas-clientes.html", grafico_html=grafico_html, data_inicio=data_inicio, data_fim=data_fim, quantidade_clientes=quantidade_clientes, lucro_total=lucro_total, list_clientes=list_items)  
+            
+        elif request.form.get("tipoRelatorio") == "Lucro por Produto":
+            grafico_html, data_inicio, data_fim, quantidade_produtos_vendidos, receita_total, custo_total, lucro_bruto_total, list_items = reports.visualiza_relatorio_lucro_produtos(data_inicio, data_fim)
+
+            return render_template("visualizar-relatorio-lucro-produto.html", grafico_html=grafico_html, data_inicio=data_inicio, data_fim=data_fim, quantidade_produtos_vendidos=quantidade_produtos_vendidos, receita_total=receita_total, custo_total=custo_total, lucro_bruto_total=lucro_bruto_total, tabela_produtos=list_items) 
+
+        elif request.form.get("tipoRelatorio") == "Vendas por Fornecedor":
+            grafico_html, data_inicio, data_fim, quantidade_fornecedores, lucro_total, list_items = reports.visualiza_relatorio_vendas_fornecedor(data_inicio, data_fim)
+
+            return render_template("visualizar-relatorio-vendas-fornecedores.html", grafico_html=grafico_html, data_inicio=data_inicio, data_fim=data_fim, quantidade_fornecedores=quantidade_fornecedores, lucro_total=lucro_total, tabela_fornecedores=list_items)
+
+        elif request.form.get("tipoRelatorio") == "Relatório de Cancelamentos":
+            print(reports.visualiza_relatorio_vendas_cancelamentos(data_inicio, data_fim))
+            grafico_html, data_inicio, data_fim, quantidade_cancelamentos, total_cancelado, list_items = reports.visualiza_relatorio_vendas_cancelamentos(data_inicio, data_fim)
+
+            return render_template("visualizar-relatorio-vendas-canceladas.html", grafico_html=grafico_html, data_inicio=data_inicio, data_fim=data_fim, quantidade_cancelamentos=quantidade_cancelamentos, total_cancelado=total_cancelado, tabela_canceladas=list_items)  
             
     except Exception as e:
         print('eeeeeeeeeeeee', e)

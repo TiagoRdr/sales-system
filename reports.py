@@ -104,6 +104,12 @@ def visualiza_relatorio_produtos_mais_vendidos(data_inicio, data_fim):
             go.Bar(x=df['nome_produto'], y=df['quantidade'], text=df['quantidade'], textposition='auto')
         ])
 
+        fig.update_layout(
+            yaxis_title='Produtos mais vendidos',  # Título do eixo Y
+            title='Quantidade vendida',  # Título do gráfico
+            title_x=0.5  # Centraliza o título
+        )
+
         # Salvando o gráfico em formato HTML
         grafico_html = pio.to_html(fig, full_html=False)
         # Obtenha os valores necessários
@@ -146,6 +152,12 @@ def visualiza_relatorio_estoque_critico():
             go.Bar(x=df['nome_produto'], y=df['qtd_estoque'], text=df['qtd_estoque'], textposition='auto')
         ])
         
+        fig.update_layout(
+            yaxis_title='Estoque Crítico',  # Título do eixo Y
+            title='Quantidade em Estoque',  # Título do gráfico
+            title_x=0.5  # Centraliza o título
+        )
+
         # Salvando o gráfico em formato HTML
         grafico_html = pio.to_html(fig, full_html=False)
 
@@ -167,37 +179,185 @@ def visualiza_relatorio_estoque_critico():
 def visualiza_relatorio_vendas_clientes(data_inicio, data_fim):
     try:
         conn = conexao()
-        query = f"""select 
-                    max(c.nome) as nome_cliente,
-                    (select count(v.id_cliente) from vendas v2 left join clientes c on v.id_cliente = c.id WHERE data_venda BETWEEN '{data_inicio}' AND '{data_fim}' AND status_venda NOT LIKE '%Cancelada%' GROUP BY v.id_cliente) as total_vendas_cliente                    
-                    from vendas v 
-                    left join clientes c on v.id_cliente = c.id 
-                    WHERE data_venda BETWEEN '{data_inicio}' AND '{data_fim}' 
-                    AND status_venda NOT LIKE '%Cancelada%'
-                    GROUP BY v.id_cliente 
-                    ORDER BY total_vendas_cliente desc
-                    limit 15; 
+        query = f"""SELECT c.nome AS nome_cliente, 
+                        SUM(vp.quantidade) AS total_produtos_comprados, 
+                        SUM(vp.quantidade * (vp.valor_unitario - p.custo_aquisicao)) AS lucro_total
+                        FROM `tr-sale-system`.clientes c
+                        JOIN `tr-sale-system`.vendas v ON c.id = v.id_cliente
+                        JOIN `tr-sale-system`.vendas_produtos vp ON v.id = vp.id_venda
+                        JOIN `tr-sale-system`.produtos p ON vp.id_produto = p.id
+                        WHERE v.status_venda NOT LIKE '%Cancelada%'
+                        and v.data_venda BETWEEN '{data_inicio}' AND '{data_fim}'
+                        GROUP BY c.nome
+                        ORDER BY lucro_total DESC; 
                 """
 
         df = pd.read_sql(query, conn)
 
         # Criando o gráfico de linha com Plotly
         fig = go.Figure(data=[
-            go.Bar(x=df['nome_cliente'], y=df['total_vendas_cliente'], text=df['total_vendas_cliente'], textposition='auto')
+            go.Bar(x=df['nome_cliente'], y=df['total_produtos_comprados'], text=df['total_produtos_comprados'], textposition='auto')
         ])
+
+        fig.update_layout(
+            yaxis_title='Total por Cliente',  # Título do eixo Y
+            title='Vendas por Cliente',  # Título do gráfico
+            title_x=0.5  # Centraliza o título
+        )
 
         # Salvando o gráfico em formato HTML
         grafico_html = pio.to_html(fig, full_html=False)
-        vendas_periodo = consulta_vendas_mes(data_inicio, data_fim)
         # Obtenha os valores necessários
-        nome_clientes = df['nome_cliente'].iloc[0]
-
         quantidade_clientes = len(df)
+        lucro_total = df['lucro_total'].sum()
+        list_items = df.values.tolist()
 
         
-        return grafico_html, datetime.strptime(data_inicio, '%Y-%m-%d').strftime("%d/%m/%Y"), datetime.strptime(data_fim, '%Y-%m-%d').strftime("%d/%m/%Y"), nome_clientes, vendas_periodo, quantidade_clientes
+        return grafico_html, datetime.strptime(data_inicio, '%Y-%m-%d').strftime("%d/%m/%Y"), datetime.strptime(data_fim, '%Y-%m-%d').strftime("%d/%m/%Y"), quantidade_clientes, lucro_total, list_items
 
     except Exception as e:
         print(e)
         return "Ocorreu um erro ao atualizar o produto.", 500  # Retornar uma mensagem de erro
     
+#############################################################################################################################
+
+def visualiza_relatorio_lucro_produtos(data_inicio, data_fim):
+    try:
+        conn = conexao()
+        query = f"""select 
+                        max(p.nome) as nome_produto,
+                        sum(vp.quantidade) as quantidade_vendida,
+                        max(p.valor_unitario) as valor_unitario,
+                        sum(vp.quantidade * vp.valor_unitario) as receita_total,
+                        sum(vp.quantidade * p.custo_aquisicao) as custo_total,
+                        (SUM(vp.quantidade * vp.valor_unitario) - sum(vp.quantidade * p.custo_aquisicao)) as lucro_bruto
+                        from vendas_produtos vp 
+                        join vendas v on v.id = vp.id_venda
+                        join produtos p on p.id = vp.id_produto
+                        WHERE data_venda BETWEEN '{data_inicio}' AND '{data_fim}'
+                        AND status_venda NOT LIKE '%Cancelada%'
+                        group by vp.id_produto
+                        order by lucro_bruto desc;
+                """
+
+        df = pd.read_sql(query, conn)
+
+        # # Criando o gráfico de linha com Plotly
+        # fig = px.bar(df, x='nome_produto', y='quantidade', title="Vendas por Produto",
+        #                 labels={"nome_produto": "Produto", "quantidade": "Quantidade vendida"})
+
+        fig = go.Figure(data=[
+            go.Bar(x=df['nome_produto'], y=df['lucro_bruto'], text=df['lucro_bruto'], textposition='auto')
+        ])
+
+
+        fig.update_layout(
+            yaxis_title='Lucro Bruto',  # Título do eixo Y
+            title='Lucro por Produto',  # Título do gráfico
+            title_x=0.5  # Centraliza o título
+        )
+
+        # Salvando o gráfico em formato HTML
+        grafico_html = pio.to_html(fig, full_html=False)
+        # Obtenha os valores necessários
+
+        quantidade_produtos_vendidos = df['quantidade_vendida'].sum()
+        receita_total = df['receita_total'].sum()
+        custo_total = df['custo_total'].sum()
+        lucro_bruto_total = df['lucro_bruto'].sum()
+
+        list_items = df.values.tolist()
+        
+        return grafico_html, datetime.strptime(data_inicio, '%Y-%m-%d').strftime("%d/%m/%Y"), datetime.strptime(data_fim, '%Y-%m-%d').strftime("%d/%m/%Y"), quantidade_produtos_vendidos, receita_total, custo_total, lucro_bruto_total, list_items
+    
+    except Exception as e:
+        print(e)
+        return "Ocorreu um erro ao atualizar o produto.", 500  # Retornar uma mensagem de erro
+    
+#########################################################################################################################################################
+
+def visualiza_relatorio_vendas_fornecedor(data_inicio, data_fim):
+    try:
+        conn = conexao()
+        query = f"""SELECT f.nome AS nome_fornecedor, 
+                        SUM(vp.quantidade) AS total_produtos_vendidos,
+                        SUM(vp.quantidade * (vp.valor_unitario - p.custo_aquisicao)) AS lucro_total
+                        FROM `tr-sale-system`.fornecedores f
+                        JOIN `tr-sale-system`.produtos p ON f.id = p.id_fornecedor
+                        JOIN `tr-sale-system`.vendas_produtos vp ON p.id = vp.id_produto
+                        JOIN `tr-sale-system`.vendas v ON vp.id_venda = v.id
+                        WHERE v.status_venda NOT LIKE '%Cancelada%'
+                        and v.data_venda BETWEEN '{data_inicio}' AND '{data_fim}'
+                        GROUP BY f.nome
+                        ORDER BY total_produtos_vendidos DESC;
+                """
+
+        df = pd.read_sql(query, conn)
+
+        # Criando o gráfico de linha com Plotly
+        fig = go.Figure(data=[
+            go.Bar(x=df['nome_fornecedor'], y=df['total_produtos_vendidos'], text=df['total_produtos_vendidos'], textposition='auto')
+        ])
+
+
+        # Adicionando o label ao eixo Y
+        fig.update_layout(
+            yaxis_title='Total de Produtos Vendidos',  # Título do eixo Y
+            title='Vendas por Fornecedor',  # Título do gráfico
+            title_x=0.5  # Centraliza o título
+        )
+
+        # Salvando o gráfico em formato HTML
+        grafico_html = pio.to_html(fig, full_html=False)
+        # Obtenha os valores necessários
+
+        quantidade_fornecedores = len(df)
+        lucro_total = df['lucro_total'].sum()
+        list_items = df.values.tolist()
+
+        return grafico_html, datetime.strptime(data_inicio, '%Y-%m-%d').strftime("%d/%m/%Y"), datetime.strptime(data_fim, '%Y-%m-%d').strftime("%d/%m/%Y"), quantidade_fornecedores, lucro_total, list_items
+
+    except Exception as e:
+        print(e)
+        return "Ocorreu um erro ao atualizar o produto.", 500  # Retornar uma mensagem de erro
+    
+
+######################################################################################################################################
+    
+def visualiza_relatorio_vendas_cancelamentos(data_inicio, data_fim):
+    try:
+        conn = conexao()
+        query = f"""select
+                        v.id as id_venda,
+                        v.data_venda as data_venda,
+                        c.nome as nome_cliente,
+                        v.total_venda as total_venda,
+                        v.motivo_cancelamento,
+                        (select count(id) from vendas v where status_venda not like '%Cancelada%') as quantidade_vendas
+                        from vendas v 
+                        join clientes c on v.id_cliente = c.id 
+                        where v.status_venda like '%Cancelada%'
+                        and v.data_venda BETWEEN '{data_inicio}' AND '{data_fim}'
+                """
+
+        df = pd.read_sql(query, conn)
+
+        df['data_venda'] = pd.to_datetime(df['data_venda'])
+
+        cancelamento_counts = df['motivo_cancelamento'].value_counts()
+        # Criando o gráfico de linha com Plotly
+        fig = px.pie(cancelamento_counts, values=cancelamento_counts.values, names=cancelamento_counts.index)
+
+        # Salvando o gráfico em formato HTML
+        grafico_html = pio.to_html(fig, full_html=False)
+
+        quantidade_cancelamentos = len(df)
+        total_cancelado = df['total_venda'].sum()
+        # Obtenha os valores necessários
+
+        list_items = df.values.tolist()
+        return grafico_html, datetime.strptime(data_inicio, '%Y-%m-%d').strftime("%d/%m/%Y"), datetime.strptime(data_fim, '%Y-%m-%d').strftime("%d/%m/%Y"), quantidade_cancelamentos, total_cancelado, list_items    
+
+    except Exception as e:
+        print(e)
+        return "Ocorreu um erro ao atualizar o produto.", 500  # Retornar uma mensagem de erro
