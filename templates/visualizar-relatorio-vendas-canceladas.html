@@ -27,7 +27,10 @@
         color: #6c757d; /* Cor da informação */
     }
     .my-4{
-        width: 890px;
+        width: 465px;
+    }
+    .my-5{
+        width: 425px;
     }
 </style>
 </head>
@@ -38,11 +41,14 @@
         <div class="relatorio-card">
             <h4>VENDAS CANCELADAS</h4>
             <p class="info">Período Consultado: <strong>{{data_inicio}} a {{data_fim}}</strong></p>
-            <p class="info">Quantidade de Vendas Canceladas: <span class="valor"> {{quantidade_cancelamentos}}</span></p>
-            <p class="info">Total de Vendas Canceladas: <span class="valor">R$ {{total_cancelado}}</span></p>
+            <p class="info">Quantidade de Vendas Canceladas: <span class="valor" style="color: red;"> {{quantidade_cancelamentos}}</span></p>
+            <p class="info">Total de Vendas Canceladas: <span class="valor" style="color: red;">R$ {{total_cancelado}}</span></p>
         </div>
         <div class="my-4">
             {{ grafico_html|safe }}
+        </div>
+        <div class="my-5">
+            {{ grafico_html2|safe }}
         </div>
     </div>
 </div>
@@ -70,7 +76,13 @@
                         <td>{{cancelamento[1]}}</td>
                         <td>{{cancelamento[2]}}</td>
                         <td>{{cancelamento[3]}}</td>
-                        <td>{{cancelamento[4]}}</td>                     
+                        <td>{{cancelamento[4]}}</td>    
+                        <td>
+                            <form action="{{url_for('visualizar_venda_main')}}" method="POST" autocomplete="off" enctype="multipart/form-data" style="display:inline-block;">
+                                <input type="hidden" name="codigo" id="codigo" value="{{ cancelamento[0] }}">
+                                <button type="submit" class="btn btn-info">Visualizar</button>
+                            </form>
+                        </td>                 
                     </tr>
                     {% endfor %}
                 </tbody>

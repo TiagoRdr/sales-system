@@ -1139,9 +1139,9 @@ def visualiza_relatorio():
 
         elif request.form.get("tipoRelatorio") == "Relatório de Cancelamentos":
             print(reports.visualiza_relatorio_vendas_cancelamentos(data_inicio, data_fim))
-            grafico_html, data_inicio, data_fim, quantidade_cancelamentos, total_cancelado, list_items = reports.visualiza_relatorio_vendas_cancelamentos(data_inicio, data_fim)
+            grafico_html, data_inicio, data_fim, quantidade_cancelamentos, total_cancelado, list_items, grafico_html2 = reports.visualiza_relatorio_vendas_cancelamentos(data_inicio, data_fim)
 
-            return render_template("visualizar-relatorio-vendas-canceladas.html", grafico_html=grafico_html, data_inicio=data_inicio, data_fim=data_fim, quantidade_cancelamentos=quantidade_cancelamentos, total_cancelado=total_cancelado, tabela_canceladas=list_items)  
+            return render_template("visualizar-relatorio-vendas-canceladas.html", grafico_html=grafico_html, data_inicio=data_inicio, data_fim=data_fim, quantidade_cancelamentos=quantidade_cancelamentos, total_cancelado=total_cancelado, tabela_canceladas=list_items, grafico_html2=grafico_html2)  
             
     except Exception as e:
         print('eeeeeeeeeeeee', e)

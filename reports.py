@@ -66,9 +66,9 @@ def visualiza_relatorio_vendas_periodo(data_inicio, data_fim):
         grafico_html = pio.to_html(fig, full_html=False)
         vendas_periodo = consulta_vendas_mes(data_inicio, data_fim)
         # Obtenha os valores necessários
-        total_vendas = str(round(df['soma_total'][1], 2)).replace(".", ",")
-        total_produtos = df['qtd_produtos'].iloc[0]  # Altere o índice para 0, pois df[1] pode não existir
-        ticket_medio = str(round(df['ticket_medio'].iloc[0], 2)).replace(".", ",")  # Altere o índice para 0
+        total_vendas = str(format(df['soma_total'][1], '.2f')).replace(".", ",")
+        total_produtos = int(df['qtd_produtos'].iloc[0])  # Altere o índice para 0, pois df[1] pode não existir
+        ticket_medio = str(format(df['ticket_medio'].iloc[0], '.2f')).replace(".", ",")  # Altere o índice para 0
         total_transacoes = df['total_transacoes'].iloc[0]  # Altere o índice para 0
 
         return grafico_html, datetime.strptime(data_inicio, '%Y-%m-%d').strftime("%d/%m/%Y"), datetime.strptime(data_fim, '%Y-%m-%d').strftime("%d/%m/%Y"), total_vendas, total_produtos, ticket_medio, total_transacoes, vendas_periodo    
@@ -93,7 +93,7 @@ def visualiza_relatorio_produtos_mais_vendidos(data_inicio, data_fim):
                     group by vp.id_produto, quantidade
                     order by quantidade desc;
                 """
-
+        print(query)
         df = pd.read_sql(query, conn)
 
         # # Criando o gráfico de linha com Plotly
@@ -114,9 +114,13 @@ def visualiza_relatorio_produtos_mais_vendidos(data_inicio, data_fim):
         grafico_html = pio.to_html(fig, full_html=False)
         # Obtenha os valores necessários
         quantidade_total = df['quantidade_total'].astype(int).iloc[0]
-        total_produtos = str(round(df['total_vendido'].sum(), 2)).replace(".", ",")  # Altere o índice para 0, pois df[1] pode não existir
-        list_items = df.values.tolist()
+        total_produtos = str(format(df['total_vendido'].sum(), '.2f')).replace(".", ",")  # Altere o índice para 0, pois df[1] pode não existir
         
+        df['quantidade'] = df['quantidade'].astype(int)
+        df['total_vendido'] = df['total_vendido'].apply(lambda x: f"{x:.2f}".replace('.', ','))
+
+        list_items = df.values.tolist()
+
         return grafico_html, datetime.strptime(data_inicio, '%Y-%m-%d').strftime("%d/%m/%Y"), datetime.strptime(data_fim, '%Y-%m-%d').strftime("%d/%m/%Y"), quantidade_total, total_produtos, list_items
     
     except Exception as e:
@@ -131,6 +135,7 @@ def visualiza_relatorio_estoque_critico():
     try:
         conn = conexao()
         query = f"""select
+                    max(p.id),
                     max(p.nome) as nome_produto,
                     max(f.nome) as fornecedor,  
                     max(p.qtd_estoque) as qtd_estoque,
@@ -210,6 +215,11 @@ def visualiza_relatorio_vendas_clientes(data_inicio, data_fim):
         # Obtenha os valores necessários
         quantidade_clientes = len(df)
         lucro_total = df['lucro_total'].sum()
+
+        df['total_produtos_comprados'] = df['total_produtos_comprados'].astype(int)
+        df['lucro_total'] = df['lucro_total'].apply(lambda x: f"{x:.2f}".replace('.', ','))
+
+
         list_items = df.values.tolist()
 
         
@@ -242,10 +252,6 @@ def visualiza_relatorio_lucro_produtos(data_inicio, data_fim):
 
         df = pd.read_sql(query, conn)
 
-        # # Criando o gráfico de linha com Plotly
-        # fig = px.bar(df, x='nome_produto', y='quantidade', title="Vendas por Produto",
-        #                 labels={"nome_produto": "Produto", "quantidade": "Quantidade vendida"})
-
         fig = go.Figure(data=[
             go.Bar(x=df['nome_produto'], y=df['lucro_bruto'], text=df['lucro_bruto'], textposition='auto')
         ])
@@ -261,10 +267,17 @@ def visualiza_relatorio_lucro_produtos(data_inicio, data_fim):
         grafico_html = pio.to_html(fig, full_html=False)
         # Obtenha os valores necessários
 
-        quantidade_produtos_vendidos = df['quantidade_vendida'].sum()
-        receita_total = df['receita_total'].sum()
-        custo_total = df['custo_total'].sum()
-        lucro_bruto_total = df['lucro_bruto'].sum()
+        quantidade_produtos_vendidos = int(df['quantidade_vendida'].sum())
+        receita_total = str(format(df['receita_total'].sum(), '.2f')).replace(".", ",")
+        custo_total = str(format(df['custo_total'].sum(), '.2f')).replace(".", ",")
+        lucro_bruto_total = str(format(df['lucro_bruto'].sum(), '.2f')).replace(".", ",")
+
+
+        df['quantidade_vendida'] = df['quantidade_vendida'].astype(int)
+        df['valor_unitario'] = df['valor_unitario'].apply(lambda x: f"{x:.2f}".replace('.', ','))
+        df['receita_total'] = df['receita_total'].apply(lambda x: f"{x:.2f}".replace('.', ','))
+        df['custo_total'] = df['custo_total'].apply(lambda x: f"{x:.2f}".replace('.', ','))
+        df['lucro_bruto'] = df['lucro_bruto'].apply(lambda x: f"{x:.2f}".replace('.', ','))
 
         list_items = df.values.tolist()
         
@@ -313,6 +326,10 @@ def visualiza_relatorio_vendas_fornecedor(data_inicio, data_fim):
 
         quantidade_fornecedores = len(df)
         lucro_total = df['lucro_total'].sum()
+
+        df['total_produtos_vendidos'] = df['total_produtos_vendidos'].astype(int)
+        df['lucro_total'] = df['lucro_total'].apply(lambda x: f"{x:.2f}".replace('.', ','))
+
         list_items = df.values.tolist()
 
         return grafico_html, datetime.strptime(data_inicio, '%Y-%m-%d').strftime("%d/%m/%Y"), datetime.strptime(data_fim, '%Y-%m-%d').strftime("%d/%m/%Y"), quantidade_fornecedores, lucro_total, list_items
@@ -329,11 +346,11 @@ def visualiza_relatorio_vendas_cancelamentos(data_inicio, data_fim):
         conn = conexao()
         query = f"""select
                         v.id as id_venda,
-                        v.data_venda as data_venda,
+                        DATE_FORMAT(data_venda, '%d/%m/%Y') as data_venda,
                         c.nome as nome_cliente,
                         v.total_venda as total_venda,
                         v.motivo_cancelamento,
-                        (select count(id) from vendas v where status_venda not like '%Cancelada%') as quantidade_vendas
+                        (select count(id) from vendas v where status_venda not like '%Cancelada%') as quantidade_vendas_nao_canceladas
                         from vendas v 
                         join clientes c on v.id_cliente = c.id 
                         where v.status_venda like '%Cancelada%'
@@ -342,21 +359,34 @@ def visualiza_relatorio_vendas_cancelamentos(data_inicio, data_fim):
 
         df = pd.read_sql(query, conn)
 
-        df['data_venda'] = pd.to_datetime(df['data_venda'])
-
+        #Somando as quantidades de diferentes tipos de cancelamentos
         cancelamento_counts = df['motivo_cancelamento'].value_counts()
-        # Criando o gráfico de linha com Plotly
-        fig = px.pie(cancelamento_counts, values=cancelamento_counts.values, names=cancelamento_counts.index)
+        df_cancelamentos = cancelamento_counts.reset_index()
+        df_cancelamentos.columns = ['Motivo Cancelamento', 'Total']
 
-        # Salvando o gráfico em formato HTML
+        #Tratando os  campos
+        quantidade_vendas_nao_canceladas = df['quantidade_vendas_nao_canceladas'].iloc[0] # Altere o índice para 0
+        quantidade_cancelamentos = len(df)
+        total_cancelado = str(format(df['total_venda'].sum(), '.2f')).replace(".",",")
+
+        #Porcentagens para o segundo grafico
+        porcentagem_cancelamentos = round((quantidade_cancelamentos * 100) / (quantidade_vendas_nao_canceladas + quantidade_cancelamentos),2)        
+        porcentagens = [["Vendas Canceladas", porcentagem_cancelamentos], ["Vendas Finalizadas", round((100 - porcentagem_cancelamentos),2)]]
+        df2 = pd.DataFrame(porcentagens, columns=["Tipo de Venda", "Porcentagem"])
+
+        #Ajusta do total da venda
+        df['total_venda'] = df['total_venda'].apply(lambda x: f"{x:.2f}".replace('.', ','))
+        list_items = df.values.tolist()
+
+        #Gerando Graficos
+        fig = px.pie(df_cancelamentos, values=df_cancelamentos['Total'], names=df_cancelamentos['Motivo Cancelamento'], hole=.3)
         grafico_html = pio.to_html(fig, full_html=False)
 
-        quantidade_cancelamentos = len(df)
-        total_cancelado = df['total_venda'].sum()
-        # Obtenha os valores necessários
+        fig2 = px.pie(df2, values=df2['Porcentagem'], names=df2['Tipo de Venda'], hole=.3)
+        grafico_html2 = pio.to_html(fig2, full_html=False)
 
-        list_items = df.values.tolist()
-        return grafico_html, datetime.strptime(data_inicio, '%Y-%m-%d').strftime("%d/%m/%Y"), datetime.strptime(data_fim, '%Y-%m-%d').strftime("%d/%m/%Y"), quantidade_cancelamentos, total_cancelado, list_items    
+        
+        return grafico_html, datetime.strptime(data_inicio, '%Y-%m-%d').strftime("%d/%m/%Y"), datetime.strptime(data_fim, '%Y-%m-%d').strftime("%d/%m/%Y"), quantidade_cancelamentos, total_cancelado, list_items, grafico_html2 
 
     except Exception as e:
         print(e)

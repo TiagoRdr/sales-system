@@ -50,7 +50,7 @@
 <form action="{{url_for('visualiza_relatorio')}}" method="POST" autocomplete="off" enctype="multipart/form-data">
     <div class="form-group">
         <label for="tipoRelatorio">Tipo de Relatório</label>
-        <select class="form-control" id="tipoRelatorio" name="tipoRelatorio">
+        <select class="form-control" id="tipoRelatorio" name="tipoRelatorio" onchange="HideDate()">
             <option selected >Vendas por Período</option>
             <option>Produtos Mais Vendidos</option>
             <option>Estoque Crítico</option>
@@ -64,11 +64,11 @@
     <div class="form-row">
         <div class="row">
         <div class="form-group col-md-6">
-            <label for="dataInicio">Data de Início</label>
+            <label for="dataInicio" id="dataIniciolabel">Data de Início</label>
             <input type="date" class="form-control" id="dataInicio" name="dataInicio" required>
         </div>
         <div class="form-group col-md-6">
-            <label for="dataFim">Data de Fim</label>
+            <label for="dataFim" id="dataFimlabel">Data de Fim</label>
             <input type="date" class="form-control" id="dataFim" name="dataFim" required>
         </div>
         </div>
@@ -86,5 +86,32 @@
 <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
 
 
+<script>
+    function HideDate(){
+        var tipoRelatorio = document.getElementById("tipoRelatorio").value;
 
+        var datainicio = document.getElementById("dataInicio")
+        var datafim = document.getElementById("dataFim")
+
+        var datainicio_label = document.getElementById("dataIniciolabel")
+        var datafim_label = document.getElementById("dataFimlabel")
+
+        if (tipoRelatorio === "Estoque Crítico"){
+            datainicio.style.display = 'none'
+            datafim.style.display = 'none'
+            datainicio_label.style.display = 'none'
+            datafim_label.style.display = 'none'
+            datainicio.removeAttribute('required');
+            datafim.removeAttribute('required');
+        }
+        else{
+            datainicio.style.display = 'block'
+            datafim.style.display = 'block'
+            datainicio_label.style.display = 'block'
+            datafim_label.style.display = 'block'
+            datainicio.setAttribute('required', 'required');
+            datafim.setAttribute('required', 'required');
+        }
+    }
+</script>
 {% endblock conteudo %}

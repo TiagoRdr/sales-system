@@ -123,7 +123,7 @@
 </head>
 <body>
     <br>
-    <div class="invoice-box">
+    <div class="invoice-box" id="invoice-box">
         <!-- Título do software -->
         <div class="title"> <img src="../static/tr-software-white.jpg" alt=""></div>
 
@@ -194,7 +194,7 @@
         </form>
     </div>
 
-
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.9.3/html2pdf.bundle.min.js" ></script>
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script>
     document.getElementById('form').onsubmit = function(event) {
@@ -206,11 +206,33 @@
         showConfirmButton: false,
         timer: 3500
         });
+        ExportarPdf();
     // Atrasar o envio em 2 segundos (2000 milissegundos)
     setTimeout(function() {
         document.getElementById('form').submit(); // Enviar o formulário após o atraso
     }, 3500); // 2000 milissegundos = 2 segundos
 }
+
+
+
+function ExportarPdf() {
+
+        // Elemento a ser exportado
+        var element = document.getElementById('invoice-box');
+
+        // Configurações do html2pdf
+        var opt = {
+            margin: 1,
+            filename: 'ResumoVenda-' + "{{nvenda}}" + '.pdf',
+            image: { type: 'jpeg', quality: 0.98 },
+            html2canvas: { scale: 2 },
+            jsPDF: { unit: 'in', format: 'letter', orientation: 'portrait' }
+        };
+
+        // Gera o PDF
+        html2pdf().set(opt).from(element).save()
+    }; // O evento de clique será vinculado apenas uma vez
+
 </script>
 </body>
 </html>

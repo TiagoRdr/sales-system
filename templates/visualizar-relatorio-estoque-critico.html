@@ -37,8 +37,8 @@
     <div class="row">
         <div class="relatorio-card">
             <h4>ESTOQUE CRÍTICO DE PRODUTOS</h4>
-            <p class="info">Quantidade de produtos com estoque crítico: <span class="valor">{{quantidade_produtos_critico}}</span></p>
-            <h3>Necessário Reposição!</h3>
+            <p class="info">Quantidade de produtos com estoque crítico: <span class="valor" style="color: red;">{{quantidade_produtos_critico}}</span></p>
+            <h3 style="color: red;">Necessário Reposição!</h3>
         </div>
         <div class="my-4">
             {{ grafico_html|safe }}
@@ -55,6 +55,7 @@
             <table class="table table-striped" id="tabela">
                 <thead>
                     <tr>
+                    <th scope="col">Código Produto</th>
                     <th scope="col">Produto</th>
                     <th scope="col">Fornecedor</th>
                     <th scope="col">Quantidade em estoque</th>                   
@@ -64,8 +65,15 @@
                     {% for produto in tabela_produtos %}
                     <tr>
                         <th>{{produto[0]}}</th>
-                        <td>{{produto[1]}}</td>
-                        <td style="color: red; font-weight: bold;">{{produto[2]}}</td>                        
+                        <th>{{produto[1]}}</th>
+                        <td>{{produto[2]}}</td>
+                        <td style="color: red; font-weight: bold;">{{produto[3]}}</td> 
+                        <td>
+                            <form action="{{url_for('atualizar_produtos_main')}}" method="POST" autocomplete="off" enctype="multipart/form-data" style="display:inline-block;">
+                                <input type="hidden" name="codigo" id="codigo" value="{{ produto[0] }}">
+                                <button type="submit" class="btn btn-info">Visualizar</button>
+                            </form>
+                        </td>                       
                     </tr>
                     {% endfor %}
                 </tbody>

@@ -125,7 +125,10 @@
     <br>
     <div class="invoice-box" id="invoice">
         <!-- Título do software -->
-        <div class="title"> <img src="../static/tr-software-white.jpg" alt=""></div>
+        <div class="title"> 
+            <img src="../static/tr-software-white.jpg" alt="">
+            <label class="d-flex justify-content-center" id="labelcancelada" style="font-size: 30px; color: red; display: none; font-weight: bold;"></label>
+        </div>
 
         <!-- Informações da Venda -->
         <div class="invoice-header">
@@ -185,6 +188,7 @@
 
             
         </form>
+
     </div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.9.3/html2pdf.bundle.min.js" ></script>
@@ -192,12 +196,17 @@
 <script>
 
     const status = document.getElementById('status').value;
+    const labelcancelada = document.getElementById('labelcancelada');
     const botao_cancelar = document.getElementById('cancelar-venda');
     const botao_exportar = document.getElementById('exportar-pdf');
 
     // Condição para esconder o botão com base no texto vindo do backend
     if (status.includes('Cancelada')) {
         botao_cancelar.style.display = 'none';  // Esconde o botão
+        labelcancelada.style.display = 'block';
+        labelcancelada.innerText = 'VENDA CANCELADA';
+    }else{
+        labelcancelada.style.display = 'none';
     }
 
     
@@ -230,41 +239,6 @@
     }, { once: true });  // O evento de clique será vinculado apenas uma vez
     }   
     
-
-    // cancelarvenda.onsubmit = function(event){
-    //     event.preventDefault();
-    //     codigo = document.getElementById("idvenda").value; 
-
-    //     console.log(codigo)
-    //     Swal.fire({
-    //         title: "Confirme o cancelamento da venda",
-    //         text: "Não será possível reverter após o cancelamento",
-    //         icon: "warning",
-    //         showCancelButton: true,
-    //         cancelButtonText: `Fechar`,
-    //         confirmButtonColor: "#3085d6",
-    //         cancelButtonColor: "#d33",
-    //         confirmButtonText: "Confirmar"
-    //         }).then((result) => {
-    //         if (result.isConfirmed) {
-    //             $.ajax({
-    //             type: 'POST',
-    //             url: `/cancelaVenda/${codigo}`
-    //             }).then(() => {
-    //                 Swal.fire({
-    //                 title: "Cancelado!",
-    //                 text: "Venda cancelada com sucesso!",
-    //                 icon: "success",
-    //                 timer: 2000
-    //             });
-    //             setTimeout(function() {
-    //                 window.location.reload();
-    //             }, 3000); // 2000 milissegundos = 2 segundos    
-    //         })
-    //         }
-    //     });       
-        
-    // }
 
     cancelarvenda.onsubmit = async function(event) {
     event.preventDefault();

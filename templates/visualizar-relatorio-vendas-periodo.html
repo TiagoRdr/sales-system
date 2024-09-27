@@ -20,7 +20,7 @@
     }
     .valor {
         font-size: 1.25rem; /* Tamanho do valor */
-        color: #007bff; /* Cor do valor */
+        color: green; /* Cor do valor */
     }
     .info {
         font-size: 1rem; /* Tamanho da informação */
@@ -74,6 +74,12 @@
                         <td>{{venda[3]}}</td>
                         <td>{{venda[4]}}</td>
                         <td>{{venda[5]}}</td>
+                        <td>
+                            <form action="{{url_for('visualizar_venda_main')}}" method="POST" autocomplete="off" enctype="multipart/form-data" style="display:inline-block;">
+                                <input type="hidden" name="codigo" id="codigo" value="{{ venda[0] }}">
+                                <button type="submit" class="btn btn-info">Visualizar</button>
+                            </form>
+                        </td>
                     </tr>
                     {% endfor %}
                 </tbody>
