@@ -405,8 +405,12 @@ def consulta_main():
 ############ CONSULTA VENDAS ##############
 @app.route("/consulta-vendas")
 def consulta_vendas():
+    lista_produtos, nvenda, clientes = consulta_produtos_nvenda_clientes()  
     vendas_mes = consulta_vendas_mes()
-    return render_template("consulta-vendas.html", vendas_mes=vendas_mes, data_atual=data_atual)
+    produto = ''
+    datainicial = date.today().strftime("%Y-%m-%d")
+    datafinal = date.today().strftime("%Y-%m-%d")
+    return render_template("consulta-vendas.html", vendas_mes=vendas_mes, datainicial=datainicial, datafinal=datafinal, produto=produto, lista_produtos=lista_produtos)
 
 
 def consulta_vendas_mes():
@@ -435,6 +439,61 @@ def consulta_vendas_mes():
     myresult = mycursor.fetchall()
     return myresult
 
+@app.route("/consulta-vendas-filtros" ,methods=["POST","GET"])
+def consulta_vendas_filtros():
+    datainicial = request.form.get("datainicio") 
+    datafinal = request.form.get("datafim")  
+    produto = request.form.get("filtro_produto")
+
+    mydb = mysql.connector.connect(
+        host="localhost",
+        user="root",
+        password="root",
+        database="tr-sale-system"
+    )
+
+    if produto:
+        query = f"""
+                select
+                    v.id,
+                    DATE_FORMAT(v.data_venda, '%d/%m/%Y') AS data_formatada,
+                    v.forma_pagamento,
+                    c2.nome,
+                    REPLACE(FORMAT(v.total_venda , 2), '.', ',') AS campo_formatado,
+                    status_venda
+                    from vendas v 
+                    left join clientes c2 on v.id_cliente  = c2.id
+                    left join vendas_produtos vp on vp.id_venda = v.id
+                    where
+                    data_venda between '{datainicial}' and '{datafinal}'
+                    and vp.nome_produto = '{produto}'
+                    group by v.id
+                    ORDER BY v.id desc
+                """
+    else:
+        query = f"""
+            select
+                v.id,
+                DATE_FORMAT(v.data_venda, '%d/%m/%Y') AS data_formatada,
+                v.forma_pagamento,
+                c2.nome,
+                REPLACE(FORMAT(v.total_venda , 2), '.', ',') AS campo_formatado,
+                status_venda
+                from vendas v 
+                left join clientes c2 on v.id_cliente  = c2.id
+                left join vendas_produtos vp on vp.id_venda = v.id
+                where
+                data_venda between '{datainicial}' and '{datafinal}'                
+                group by v.id
+                ORDER BY v.id desc
+            """
+
+    print(query)
+    mycursor = mydb.cursor()
+    mycursor.execute(query)
+    lista_produtos, nvenda, clientes = consulta_produtos_nvenda_clientes()
+    vendas_mes_filtro = mycursor.fetchall()
+    return render_template("consulta-vendas.html", vendas_mes=vendas_mes_filtro, lista_produtos=lista_produtos, produto=produto, datainicial=datainicial, datafinal=datafinal)
 
 ############ CONSULTA PRODUTOS ##############
 

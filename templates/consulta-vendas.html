@@ -6,11 +6,33 @@
 
 <p class="lead text-center ">FILTROS</p>
 
-<div style="display: inline-block; justify-content: center; align-items: center; flex-direction: column;">
-<input type="date" class="text-center" id="filtro_data" style="width: 426px;" onkeyup="filtrarPorData()" onchange="filtrarPorData()" placeholder="Filtrar por data da venda">
-<input type="text" class="text-center" id="filtro_pagamento" style="width: 426px;" onkeyup="filtrarVendasPagamento()" placeholder="Filtrar por forma de pagamento">
-<input type="text" class="text-center" id="filtro_clientes" style="width: 426px;" onkeyup="filtrarVendasClientes()" placeholder="Filtrar por nome do cliente">
-</div>
+<form action="{{url_for('consulta_vendas_filtros')}}" method="POST" autocomplete="off" enctype="multipart/form-data" style="display:inline-block;">
+    <div style="display: flex; justify-content: center; align-items: center;">
+        <div style="margin-right: 10px; text-align: center;">
+            <label for="datainicio">Data Inicial</label>
+            <input type="date" class="text-center" id="datainicio" name="datainicio" style="width: 426px;" value="{{datainicial}}" required>
+        </div>
+        <div style="margin-right: 10px; text-align: center;">
+            <label for="datafim">Data Final</label>
+            <input type="date" class="text-center" id="datafim" name="datafim" style="width: 426px;" value="{{datafinal}}" required>
+        </div>
+        <div style="text-align: center;">
+            <label for="filtro_produto">Produto</label>
+            <input list="produtos" class="text-center" id="filtro_produto" name="filtro_produto" style="width: 426px;" value="{{produto}}" placeholder="Selecione um produto">
+            <datalist id="produtos">
+                {% for produto in lista_produtos %}
+                    <option>{{ produto[0] }}</option>
+                {% endfor %}
+            </datalist>
+        </div>
+    </div>
+    <div style="text-align: center; margin-top: 15px;">
+        <input type="submit" value="Consultar" class="btn btn-success">
+    </div>
+</form>
+
+
+
 
 <br><br>
 
@@ -69,93 +91,33 @@ th, td {
 tbody tr {
   vertical-align: middle; /* Alinha o texto verticalmente ao centro */
 }
+
 </style>
 
 
 <script>
-    function filtrarPorData() {
-    // Obtém o valor da data do input no formato AAAA-MM-DD
-    var input = document.getElementById("filtro_data").value;
-    
-    // Se o campo de data estiver vazio, exibe todas as linhas
-    if (!input) {
-        exibirTodasAsLinhas();
-        return;
-    }
+    function handleDatalist(inputId, datalistId) {
+    const input = document.getElementById(inputId);
+    const datalist = document.getElementById(datalistId);
+    const allOptions = datalist.innerHTML;  // Guarda todas as opções geradas pelo Jinja
 
-    // Obtém o valor da data do input sem fuso horário (apenas a data)
-    var filtroData = input.split("-").reverse().join("/"); // Converte para DD/MM/AAAA
+    // Inicialmente remove todas as opções do datalist
+    datalist.innerHTML = '';
 
-    var tabela = document.getElementById("tabela");
-    var tr = tabela.getElementsByTagName("tr");
-
-    // Itera sobre todas as linhas da tabela (exceto o cabeçalho)
-    for (var i = 1; i < tr.length; i++) {
-        var td = tr[i].getElementsByTagName("td")[0]; // Coluna de data de venda
-        if (td) {
-        var dataVendaTexto = td.textContent || td.innerText;
-
-        // Verifica se a data de venda coincide com a data do input
-        if (filtroData === dataVendaTexto) {
-            tr[i].style.display = "";
+    // Quando o usuário começar a digitar
+    input.addEventListener('input', function() {
+        // Adiciona as opções novamente quando houver entrada
+        if (input.value.length > 0) {
+            datalist.innerHTML = allOptions;
         } else {
-            tr[i].style.display = "none";
+            // Remove as opções se o campo de entrada estiver vazio
+            datalist.innerHTML = '';
         }
-        }
-    }
-    }
+    });
+}
 
-    function exibirTodasAsLinhas() {
-    var tabela = document.getElementById("tabela");
-    var tr = tabela.getElementsByTagName("tr");
-    for (var i = 1; i < tr.length; i++) {
-        tr[i].style.display = "";
-    }
-    }
-
-    function filtrarVendasPagamento() {
-      // Obtém o valor do input de filtro
-        var input = document.getElementById("filtro_pagamento");
-        var filtro = input.value.toLowerCase();
-        var tabela = document.getElementById("tabela");
-        var tr = tabela.getElementsByTagName("tr");
-
-      // Itera sobre todas as linhas da tabela (exceto o cabeçalho)
-    for (var i = 1; i < tr.length; i++) {
-        var td = tr[i].getElementsByTagName("td")[1]; // Filtra pela primeira coluna (Nome do Produto)
-        if (td) {
-        var texto = td.textContent || td.innerText;
-        // Exibe ou oculta a linha com base no filtro
-        if (texto.toLowerCase().indexOf(filtro) > -1) {
-            tr[i].style.display = "";
-        } else {
-            tr[i].style.display = "none";
-            }
-            }
-        }
-    }
-
-    function filtrarVendasClientes() {
-      // Obtém o valor do input de filtro
-        var input = document.getElementById("filtro_clientes");
-        var filtro = input.value.toLowerCase();
-        var tabela = document.getElementById("tabela");
-        var tr = tabela.getElementsByTagName("tr");
-
-      // Itera sobre todas as linhas da tabela (exceto o cabeçalho)
-    for (var i = 1; i < tr.length; i++) {
-        var td = tr[i].getElementsByTagName("td")[3]; // Filtra pela primeira coluna (Nome do Produto)
-        if (td) {
-        var texto = td.textContent || td.innerText;
-        // Exibe ou oculta a linha com base no filtro
-        if (texto.toLowerCase().indexOf(filtro) > -1) {
-            tr[i].style.display = "";
-        } else {
-            tr[i].style.display = "none";
-            }
-            }
-        }
-    }
+// Aplicar a função para o primeiro input e datalist
+    handleDatalist('filtro_produto', 'produtos');
 
 </script>
 

@@ -239,8 +239,8 @@ def visualiza_relatorio_lucro_produtos(data_inicio, data_fim):
                         sum(vp.quantidade) as quantidade_vendida,
                         max(p.valor_unitario) as valor_unitario,
                         sum(vp.quantidade * vp.valor_unitario) as receita_total,
-                        sum(vp.quantidade * p.custo_aquisicao) as custo_total,
-                        (SUM(vp.quantidade * vp.valor_unitario) - sum(vp.quantidade * p.custo_aquisicao)) as lucro_bruto
+                        coalesce(sum(vp.quantidade * p.custo_aquisicao),0) as custo_total,
+                        (SUM(vp.quantidade * vp.valor_unitario) - sum(vp.quantidade * coalesce(p.custo_aquisicao,0))) as lucro_bruto
                         from vendas_produtos vp 
                         join vendas v on v.id = vp.id_venda
                         join produtos p on p.id = vp.id_produto
@@ -294,7 +294,7 @@ def visualiza_relatorio_vendas_fornecedor(data_inicio, data_fim):
         conn = conexao()
         query = f"""SELECT f.nome AS nome_fornecedor, 
                         SUM(vp.quantidade) AS total_produtos_vendidos,
-                        SUM(vp.quantidade * (vp.valor_unitario - p.custo_aquisicao)) AS lucro_total
+                        SUM(vp.quantidade * (vp.valor_unitario - coalesce(p.custo_aquisicao,0))) AS lucro_total
                         FROM `tr-sale-system`.fornecedores f
                         JOIN `tr-sale-system`.produtos p ON f.id = p.id_fornecedor
                         JOIN `tr-sale-system`.vendas_produtos vp ON p.id = vp.id_produto
@@ -312,7 +312,7 @@ def visualiza_relatorio_vendas_fornecedor(data_inicio, data_fim):
             go.Bar(x=df['nome_fornecedor'], y=df['total_produtos_vendidos'], text=df['total_produtos_vendidos'], textposition='auto')
         ])
 
-
+        print(query)
         # Adicionando o label ao eixo Y
         fig.update_layout(
             yaxis_title='Total de Produtos Vendidos',  # Título do eixo Y
