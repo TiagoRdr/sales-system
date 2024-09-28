@@ -1,90 +1,85 @@
 {% extends 'base.html' %}
 
 {% block conteudo %}
-    <h1 class="display-3">CONSULTAS</h1>
+    <h1 class="display-3 text-center text-primary mb-4">CONSULTAS</h1>
     <hr>
 
-
     <div class="container">        
-        <div class="row">            
-            <div class="col-md-6">
+        <div class="row justify-content-center">            
+            <div class="col-md-4 mb-4">
                 <a class="nav-link" href="{{url_for('consulta_vendas')}}">
-                <button type="submit" class="btn btn-outline-primary text-black" value="NOVA VENDA" id="btn_nova_venda">
-                    <img class="img_menu" src="../static/search_sale.png" alt="buttonpng">
-                    <p style="font-size: 40px;" class="text-black">VENDAS</p>
-                </button>  
+                    <button type="button" class="btn btn-custom" id="btn_nova_venda">
+                        <img class="img_menu" src="../static/search_sale.png" alt="buttonpng">
+                        <p>VENDAS</p>
+                    </button>  
                 </a>          
             </div>  
                 
-            <div class="col-md-6">             
+            <div class="col-md-4 mb-4">             
                 <a class="nav-link" href="{{url_for('consulta_produtos')}}">
-                <button type="submit" class="btn btn-outline-primary text-black" value="CADASTROS" id="btn_cadastros">
-                    <img class="img_menu"  src="../static/products.png" alt="buttonpng">
-                    <p style="font-size: 40px;" class="text-black">PRODUTOS</p>
-                </button>        
+                    <button type="button" class="btn btn-custom" id="btn_cadastros">
+                        <img class="img_menu" src="../static/products.png" alt="buttonpng">
+                        <p>PRODUTOS</p>
+                    </button>        
                 </a>
             </div>  
         </div>
-    </div>
-    <br>
-    
-    <div class="container">        
-        <div class="row">            
-            <div class="col-md-6">  
+        
+        <div class="row justify-content-center">            
+            <div class="col-md-4 mb-4">  
                 <a class="nav-link" href="{{url_for('consulta_clientes')}}">         
-                    <button type="submit" class="btn btn-outline-primary text-black" value="CONSULTAS" id="btn_consultas">
+                    <button type="button" class="btn btn-custom" id="btn_consultas">
                         <img class="img_menu" src="../static/clientes.png" alt="buttonpng">
-                        <p style="font-size: 40px;" class="text-black">CLIENTES</p>
+                        <p>CLIENTES</p>
                     </button> 
                 </a>         
             </div>  
             
-            <div class="col-md-6"> 
+            <div class="col-md-4 mb-4"> 
                 <a class="nav-link" href="{{url_for('consulta_fornecedores')}}">              
-                    <button type="submit" class="btn btn-outline-primary text-black" value="SUPORTE" id="btn_suporte">
+                    <button type="button" class="btn btn-custom" id="btn_suporte">
                         <img class="img_menu" src="../static/fornecedor.png" alt="buttonpng">
-                        <p style="font-size: 40px;" class="text-black">FORNECEDORES</p>
+                        <p>FORNECEDORES</p>
                     </button> 
                 </a>       
             </div>  
         </div>
     </div>
 
-<style>
-#btn_nova_venda, #btn_cadastros, #btn_consultas, #btn_suporte {
-background: linear-gradient(145deg, #85c786, #71a174); /* Degradê leve */
-border: none;
-border-radius: 12px;
-width: 500px;
-height: 250px;
-display: flex;
-flex-direction: column;
-justify-content: center;
-align-items: center;
-margin-left: 55px;
-box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
-transition: transform 0.3s;
-cursor: pointer;
-text-align: center;
-color: white;
-}
+    <style>
+        .btn-custom {
+            background: linear-gradient(145deg, #eae7eb, #d1cbcc); /* Degradê leve */
+            border: none;
+            border-radius: 12px;
+            width: 100%; /* Ajuste para largura total do botão */
+            height: 250px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s, box-shadow 0.3s;
+            cursor: pointer;
+            text-align: center;
+            color: black;
+            font-weight: bold;
+            font-size: 1.5rem; /* Tamanho da fonte para os botões */
+        }
 
-.img_menu {
-    width: 150px;
-    height: 150px;
-    margin-top: 30px;
+        .btn-custom:hover {
+            transform: scale(1.05); /* Efeito de hover */
+            box-shadow: 0px 8px 12px rgba(0, 0, 0, 0.2); /* Sombra ao passar o mouse */
+        }
 
-}
+        .img_menu {
+            width: 100px; /* Tamanho reduzido para melhor aparência */
+            height: 100px;
+            margin-bottom: 20px; /* Margem inferior para espaçamento */
+        }
 
-.btn p {
-    font-size: 15px;
-    font-weight: bold;
-}
-
-.btn:hover {
-  transform: scale(1.05); /* Efeito de hover */
-}
-</style>
-
+        p {
+            margin: 0; /* Remove margens do parágrafo */
+        }
+    </style>
 
 {% endblock conteudo %}
