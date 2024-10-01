@@ -1,114 +1,109 @@
-<!DOCTYPE html>
-<html lang="pt-br">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Nota Fiscal</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            margin: 0;
-            padding: 20px;
-            background-color: #f4f4f4;
-        }
 
-        .invoice-box {
-            max-width: 800px;
-            margin: auto;
-            padding: 20px;
-            border: 1px solid #eee;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.15);
-            background-color: white;
-        }
+<style>
+    body {
+        font-family: Arial, sans-serif;
+        margin: 0;
+        padding: 20px;
+        background-color: #f4f4f4;
+    }
 
-        .title {
-            font-size: 45px;
-            font-weight: bold;
-            text-align: center;
-            color: #333;
-            margin-bottom: 20px;
-        }
+    .container {
+        max-width: 800px;
+        margin: 0 auto;
+        background-color: white;
+        padding: 20px;
+        border-radius: 8px;
+        box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
+    }
 
-        .invoice-header, .invoice-footer {
-            text-align: center;
-            padding: 10px 0;
-            background-color: #f0f0f0;
-            border-top: 1px solid #ddd;
-        }
+    h1, h2 {
+        text-align: center;
+        color: #333;
+    }
 
-        .invoice-details {
-            margin-bottom: 20px;
-        }
+    .header, .footer {
+        text-align: center;
+        margin-bottom: 20px;
+    }
 
-        .invoice-details p {
-            margin: 5px 0;
-        }
+    .header {
+        padding: 10px 0;
+        border-bottom: 2px solid #333;
+    }
 
-        .invoice-items {
-            width: 100%;
-            border-collapse: collapse;
-            margin-bottom: 20px;
-        }
+    .info-section {
+        margin-bottom: 20px;
+    }
 
-        .invoice-items th, .invoice-items td {
-            padding: 10px;
-            border: 1px solid #ddd;
-            text-align: left;
-        }
+    .info-section p {
+        margin: 5px 0;
+    }
 
-        .invoice-items th {
-            background-color: #f0f0f0;
-        }
+    .info-label {
+        font-weight: bold;
+    }
 
-        .total, .discount, .tax{
-            text-align: right;
-            padding-right: 20px;
-            font-size: 20px;
-            font-weight: bold;
-        }
+    .table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-bottom: 20px;
+    }
 
-        .final-total{
-            text-align: center;
-            padding-right: 20px;
-            font-size: 30px;
-            font-weight: bold;
-            background-color: rgb(255, 255, 255);
-        }
+    .table th, .table td {
+        border: 1px solid #ccc;
+        padding: 10px;
+        text-align: left;
+    }
 
-        .discount {
-            color: red;
-        }
+    .table th {
+        background-color: #f0f0f0;
+    }
 
-        .tax, .final-total {
-            color: green;
-        }
+    .totals {
+        margin-top: 20px;
+        text-align: right;
+    }
 
-        .center {
-            text-align: center;
+    .totals p {
+        margin: 5px 0;
+        font-size: 1.1rem;
+    }
+
+    .highlight {
+        font-weight: bold;
+        font-size: 1.2rem;
+        color: #4CAF50;
+    }
+
+    img{
+            width: 100px;
+            height: 100px;
         }
-    </style>
+</style>
 </head>
 <body>
 
-    <div class="invoice-box">
-        <!-- Título do software -->
-        <div class="title">Sistema de Vendas XYZ</div>
-
-        <!-- Informações da Venda -->
-        <div class="invoice-header">
-            <p>Nota Fiscal Nº: <strong>#12345</strong></p>
-            <p>Data da Venda: <strong>15/09/2024</strong></p>
+    <div class="container" id="container">
+        <div class="header">
+            <div class="title"> 
+                <img src="../static/tr-software-white.jpg" alt="">
+                <label class="d-flex justify-content-center" id="labelcancelada" style="font-size: 30px; color: red; display: none; font-weight: bold;"></label>
+            </div>
+            <p><strong>Número da Venda:</strong> #{{info_venda[0]}}</p>
         </div>
 
-        <!-- Detalhes do Cliente -->
-        <div class="invoice-details">
-            <p><strong>Cliente:</strong> João da Silva</p>
-            <p><strong>CPF:</strong> 123.456.789-00</p>
-            <p><strong>Telefone:</strong> (11) 99999-9999</p>
+        <!-- Informações do Cliente e Pagamento -->
+        <div class="info-section">
+            <h2>Informações da Venda</h2>
+            <p><span class="info-label">Data da venda:</span> {{info_venda[1]}}</p>
+            <p><span class="info-label">Cliente:</span> {{info_venda[6]}}</p>
+            <p><span class="info-label">Forma de Pagamento:</span> {{info_venda[3]}}</p>
+            <p><span class="info-label">Endereço de Entrega:</span> {{info_venda[5]}}</p>
+            <p><span class="info-label">Observações:</span> {{info_venda[8]}}</p>
         </div>
 
-        <!-- Lista de Produtos -->
-        <table class="invoice-items">
+        <!-- Tabela de Produtos -->
+        <table class="table">
             <thead>
                 <tr>
                     <th>Produto</th>
@@ -118,42 +113,146 @@
                 </tr>
             </thead>
             <tbody>
+                {% for produto in info_produtos %}
                 <tr>
-                    <td>Produto A</td>
-                    <td>2</td>
-                    <td>R$ 50,00</td>
-                    <td>R$ 100,00</td>
+                    <td>{{produto[0]}}</td>
+                    <td>{{produto[1]}}</td>
+                    <td>R$ {{produto[2]}}</td>
+                    <td>R$ {{produto[3]}}</td>
                 </tr>
-                <tr>
-                    <td>Produto B</td>
-                    <td>1</td>
-                    <td>R$ 30,00</td>
-                    <td>R$ 30,00</td>
-                </tr>
-                <tr>
-                    <td>Produto C</td>
-                    <td>5</td>
-                    <td>R$ 10,00</td>
-                    <td>R$ 50,00</td>
-                </tr>
+                {% endfor %}
             </tbody>
         </table>
 
-        <!-- Desconto -->
-        <p class="discount">Desconto: -R$ 20,00</p>
-
-        <!-- Taxa de Entrega -->
-        <p class="tax">Taxa de Entrega: R$ 10,00</p>
-        <hr>
-        <!-- Total Final -->
-        <p class="final-total">Total da venda: R$ 170,00</p>
-
-        <!-- Rodapé da Nota -->
-        <div class="invoice-footer">
-            <p>Obrigado por comprar conosco!</p>
-            <p>Sistema de Vendas XYZ - www.exemplo.com</p>
+        <!-- Totais -->
+        <div class="totals">
+            <p><span class="info-label">Subtotal de Produtos:</span> R$ {{info_venda[5]}}</p>
+            <p><span class="info-label">Desconto:</span> R$ {{info_venda[7]}}</p>
+            <p><span class="info-label">Taxa de Entrega:</span> R$ {{info_venda[4]}}</p>
+            <input type="hidden" name="status" id="status" value="{{info_venda[10]}}">
+            <hr>
+            <p class="highlight"><span class="info-label">Total Final:</span> R$ {{info_venda[9]}}</p>
         </div>
+
+        <div class="d-flex justify-content-center" style="margin: auto;">
+            <button id="exportar-pdf" class="btn btn-primary btn-lg btn-exportar" onclick="ExportarPdf()" style="width: 250px; margin-bottom: 10px;">Exportar para PDF</button>
+        </div>
+        <form id="cancelarvenda" method="POST" id="form" autocomplete="off" enctype="multipart/form-data" onsubmit="showAlert(event)">
+            <input type="hidden" name="idvenda" id="idvenda" value="{{info_venda[0]}}">            
+            
+            <div class="d-flex justify-content-center" style="margin: auto;">
+                <button type="submit" name="cancelar-venda" id="cancelar-venda" class="btn btn-danger btn-lg" style="width: 250px; margin-bottom: 10px;">Cancelar venda</button>
+            </div>
+
+            
+        </form>
+
     </div>
 
+
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.9.3/html2pdf.bundle.min.js" ></script>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script>
+
+    const status = document.getElementById('status').value;
+    const labelcancelada = document.getElementById('labelcancelada');
+    const botao_cancelar = document.getElementById('cancelar-venda');
+    const botao_exportar = document.getElementById('exportar-pdf');
+
+    // Condição para esconder o botão com base no texto vindo do backend
+    if (status.includes('Cancelada')) {
+        botao_cancelar.style.display = 'none';  // Esconde o botão
+        labelcancelada.style.display = 'block';
+        labelcancelada.innerText = 'VENDA CANCELADA';
+    }else{
+        labelcancelada.style.display = 'none';
+    }
+
+    
+    function ExportarPdf() {
+    // Defina o comportamento de exportar PDF uma vez
+    const botaoExportar = document.querySelector('.btn-exportar');
+
+    botaoExportar.addEventListener('click', function(event) {
+        event.preventDefault();
+        botao_cancelar.style.display = 'none';
+        botaoExportar.style.display = 'none';
+
+        // Elemento a ser exportado
+        var element = document.getElementById('container');
+
+        // Configurações do html2pdf
+        var opt = {
+            margin: 1,
+            filename: 'ResumoVenda-' + "{{info_venda[0]}}" + '.pdf',
+            image: { type: 'jpeg', quality: 0.98 },
+            html2canvas: { scale: 2 },
+            jsPDF: { unit: 'in', format: 'letter', orientation: 'portrait' }
+        };
+
+        // Gera o PDF
+        html2pdf().set(opt).from(element).save().then(() => {
+            botaoExportar.style.display = 'block';
+            botao_cancelar.style.display = 'block';
+        });
+    }, { once: true });  // O evento de clique será vinculado apenas uma vez
+    }   
+    
+
+    cancelarvenda.onsubmit = async function(event) {
+    event.preventDefault();
+    let codigo = document.getElementById("idvenda").value; 
+
+    const motivoOptions = {
+        erro_registro: "Erro no registro da venda",
+        produto_indisponivel: "Produto Indisponível",
+        solicitacao_cliente: "Solicitação do Cliente",
+        problemas_pagamento: "Problemas de Pagamento",
+        venda_duplicada: "Venda Duplicada",
+        alteracao_pedido: "Alteração no Pedido",
+        falha_sistema: "Falha no Sistema",
+        outro: "Outro"
+    };
+
+    const { value: motivo } = await Swal.fire({
+        title: "Selecione o motivo do cancelamento",
+        input: "select",
+        inputOptions: motivoOptions,
+        inputPlaceholder: "Selecione",
+        showCancelButton: true,
+        inputValidator: (value) => {
+            return new Promise((resolve) => {
+                if (value) {
+                    resolve();
+                } else {
+                    resolve("Selecione um motivo válido");
+                }
+            });
+        }
+    });
+
+    // Checa se o usuário clicou em "Cancelar"
+    if (motivo) {
+        let motivoTexto = motivoOptions[motivo]; // Mapeia o valor para o texto legível
+        
+        $.ajax({
+            type: 'POST',
+            url: `/cancelaVenda/${codigo}/${motivoTexto}`  // Envia o texto legível
+        }).then(() => {
+            Swal.fire({
+                title: "Cancelado!",
+                text: "Venda cancelada com sucesso!",
+                icon: "success",
+                timer: 2000
+            });
+            setTimeout(function() {
+                window.location.href = "/consulta-vendas";
+            }, 3000);
+        });
+    }
+}
+
+</script>
 </body>
 </html>

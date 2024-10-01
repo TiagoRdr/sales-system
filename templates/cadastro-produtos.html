@@ -15,8 +15,8 @@
                 </div>
                 <div class="form-group">
                     <label for="input_marca">Marca</label>
-                    <input list="options" id="input_marca" name="input_marca" class="form-control" placeholder="Avon"/>
-                    <datalist id="options">
+                    <input list="options_marca" id="input_marca" name="input_marca" class="form-control" placeholder="Avon"/>
+                    <datalist id="options_marca">
                         {% for marca in marcas %}
                         <option value="{{ marca }}"></option>
                         {% endfor %}
@@ -24,8 +24,8 @@
                 </div>
                 <div class="form-group">
                     <label for="input_fornecedor">Fornecedor</label>
-                    <input list="options" id="input_fornecedor" name="input_fornecedor" class="form-control" placeholder="Diamonds Cosméticos"/>
-                    <datalist id="options">
+                    <input list="options_fornecedor" id="input_fornecedor" name="input_fornecedor" class="form-control" placeholder="Diamonds Cosméticos"/>
+                    <datalist id="options_fornecedor">
                         {% for fornecedor in fornecedores %}
                         <option value="{{ fornecedor }}">{{ fornecedor }}</option>
                         {% endfor %}

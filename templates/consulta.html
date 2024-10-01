@@ -1,24 +1,24 @@
 {% extends 'base.html' %}
 
 {% block conteudo %}
-    <h1 class="display-3 text-center text-primary mb-4">CONSULTAS</h1>
+    <h1 class="display-3 mb-4">CONSULTAS</h1>
     <hr>
 
     <div class="container">        
         <div class="row justify-content-center">            
-            <div class="col-md-4 mb-4">
+            <div class="col-md-4 mb-5"> <!-- Aumentei a margem inferior para espaçar mais os botões -->
                 <a class="nav-link" href="{{url_for('consulta_vendas')}}">
                     <button type="button" class="btn btn-custom" id="btn_nova_venda">
-                        <img class="img_menu" src="../static/search_sale.png" alt="buttonpng">
+                        <img class="img_menu" src="../static/sale.png" alt="Vendas">
                         <p>VENDAS</p>
                     </button>  
                 </a>          
             </div>  
                 
-            <div class="col-md-4 mb-4">             
+            <div class="col-md-4 mb-5">             
                 <a class="nav-link" href="{{url_for('consulta_produtos')}}">
                     <button type="button" class="btn btn-custom" id="btn_cadastros">
-                        <img class="img_menu" src="../static/products.png" alt="buttonpng">
+                        <img class="img_menu" src="../static/products.png" alt="Produtos">
                         <p>PRODUTOS</p>
                     </button>        
                 </a>
@@ -26,19 +26,19 @@
         </div>
         
         <div class="row justify-content-center">            
-            <div class="col-md-4 mb-4">  
+            <div class="col-md-4 mb-5">  
                 <a class="nav-link" href="{{url_for('consulta_clientes')}}">         
                     <button type="button" class="btn btn-custom" id="btn_consultas">
-                        <img class="img_menu" src="../static/clientes.png" alt="buttonpng">
+                        <img class="img_menu" src="../static/clientes.png" alt="Clientes">
                         <p>CLIENTES</p>
                     </button> 
                 </a>         
             </div>  
             
-            <div class="col-md-4 mb-4"> 
+            <div class="col-md-4 mb-5"> 
                 <a class="nav-link" href="{{url_for('consulta_fornecedores')}}">              
                     <button type="button" class="btn btn-custom" id="btn_suporte">
-                        <img class="img_menu" src="../static/fornecedor.png" alt="buttonpng">
+                        <img class="img_menu" src="../static/fornecedor.png" alt="Fornecedores">
                         <p>FORNECEDORES</p>
                     </button> 
                 </a>       
@@ -48,37 +48,54 @@
 
     <style>
         .btn-custom {
-            background: linear-gradient(145deg, #eae7eb, #d1cbcc); /* Degradê leve */
+            background: linear-gradient(145deg, #eae7eb, #d1cbcc); /* Degradê suave */
             border: none;
-            border-radius: 12px;
-            width: 100%; /* Ajuste para largura total do botão */
-            height: 250px;
+            border-radius: 8px;
+            width: 400px;
+            height: 200px;
             display: flex;
             flex-direction: column;
             justify-content: center;
             align-items: center;
+            margin: 10px auto;
             box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
-            transition: transform 0.3s, box-shadow 0.3s;
+            transition: transform 0.1s;
             cursor: pointer;
             text-align: center;
-            color: black;
+            color: white;
+        }
+
+        .btn p {
+            font-size: 20px;
             font-weight: bold;
-            font-size: 1.5rem; /* Tamanho da fonte para os botões */
         }
 
         .btn-custom:hover {
-            transform: scale(1.05); /* Efeito de hover */
-            box-shadow: 0px 8px 12px rgba(0, 0, 0, 0.2); /* Sombra ao passar o mouse */
+            transform: scale(1.01); /* Efeito de hover */
+            color: white;
         }
 
         .img_menu {
-            width: 100px; /* Tamanho reduzido para melhor aparência */
-            height: 100px;
-            margin-bottom: 20px; /* Margem inferior para espaçamento */
+            width: 90px; /* Tamanho ajustado das imagens */
+            height: 90px;
+            margin-bottom: 15px;
         }
 
         p {
-            margin: 0; /* Remove margens do parágrafo */
+            margin: 0;
+            color: #000000; /* Verde para os títulos */
+        }
+
+        h1 {
+            color: #000000; /* Cor do título principal */
+            font-weight: 700;
+        }
+
+        /* Ajuste para telas menores */
+        @media (max-width: 768px) {
+            .btn-custom {
+                height: 220px;
+            }
         }
     </style>
 

@@ -1,28 +1,73 @@
-from flask import request
+from flask import request, render_template
 from datetime import datetime, date
-import mysql.connector
 import pandas as pd
-import calendar
 import plotly.express as px
 import plotly.io as pio
 import plotly.graph_objects as go
+from database import DatabaseConnection
+from app_conf import app
 
-def conexao():
-    mydb = mysql.connector.connect(
-        host="localhost",
-        user="root",
-        password="root",
-        database="tr-sale-system"
-        )
-    
-    return mydb
+@app.route("/relatorios-main", methods=["POST", "GET"])
+def relatorios_main():
+    try:
+        return render_template("relatorios.html")
+    except Exception as e:
+        print(e)
+        return "Ocorreu um erro ao atualizar o produto.", 500  # Retornar uma mensagem de erro
+
+
+@app.route("/visualizar-relatorio", methods=["POST", "GET"])
+def visualiza_relatorio():
+    try:
+        data_inicio = request.form.get("dataInicio")
+        data_fim = request.form.get("dataFim")
+        if request.form.get("tipoRelatorio") == "Vendas por Período":           
+
+            grafico_html, data_inicio, data_fim, total_vendas, total_produtos, ticket_medio, total_transacoes, vendas_periodo = visualiza_relatorio_vendas_periodo(data_inicio, data_fim)
+
+            return render_template("visualizar-relatorio-vendas-periodo.html", grafico_html=grafico_html, data_inicio=data_inicio, data_fim=data_fim, total_vendas=total_vendas, total_produtos=total_produtos, ticket_medio=ticket_medio, total_transacoes=total_transacoes, vendas_periodo=vendas_periodo)  
+
+        elif request.form.get("tipoRelatorio") == "Produtos Mais Vendidos":
+            grafico_html, data_inicio, data_fim, quantidade_total, total_produtos, tabela_produtos = visualiza_relatorio_produtos_mais_vendidos(data_inicio, data_fim)
+
+            return render_template("visualizar-relatorio-produtos-mais-vendidos.html", grafico_html=grafico_html, data_inicio=data_inicio, data_fim=data_fim,quantidade_total=quantidade_total, total_produtos=total_produtos, tabela_produtos=tabela_produtos)  
+        
+        elif request.form.get("tipoRelatorio") == "Estoque Crítico":
+            grafico_html, quantidade_produtos_critico, list_items = visualiza_relatorio_estoque_critico()
+
+            return render_template("visualizar-relatorio-estoque-critico.html", grafico_html=grafico_html, quantidade_produtos_critico=quantidade_produtos_critico, tabela_produtos=list_items)  
+        
+        elif request.form.get("tipoRelatorio") == "Vendas por Cliente":
+            grafico_html, data_inicio, data_fim, quantidade_clientes, lucro_total, list_items = visualiza_relatorio_vendas_clientes(data_inicio, data_fim)
+
+            return render_template("visualizar-relatorio-vendas-clientes.html", grafico_html=grafico_html, data_inicio=data_inicio, data_fim=data_fim, quantidade_clientes=quantidade_clientes, lucro_total=lucro_total, list_clientes=list_items)  
+            
+        elif request.form.get("tipoRelatorio") == "Lucro por Produto":
+            grafico_html, data_inicio, data_fim, quantidade_produtos_vendidos, receita_total, custo_total, lucro_bruto_total, list_items = visualiza_relatorio_lucro_produtos(data_inicio, data_fim)
+
+            return render_template("visualizar-relatorio-lucro-produto.html", grafico_html=grafico_html, data_inicio=data_inicio, data_fim=data_fim, quantidade_produtos_vendidos=quantidade_produtos_vendidos, receita_total=receita_total, custo_total=custo_total, lucro_bruto_total=lucro_bruto_total, tabela_produtos=list_items) 
+
+        elif request.form.get("tipoRelatorio") == "Vendas por Fornecedor":
+            grafico_html, data_inicio, data_fim, quantidade_fornecedores, lucro_total, list_items = visualiza_relatorio_vendas_fornecedor(data_inicio, data_fim)
+
+            return render_template("visualizar-relatorio-vendas-fornecedores.html", grafico_html=grafico_html, data_inicio=data_inicio, data_fim=data_fim, quantidade_fornecedores=quantidade_fornecedores, lucro_total=lucro_total, tabela_fornecedores=list_items)
+
+        elif request.form.get("tipoRelatorio") == "Relatório de Cancelamentos":
+            print(visualiza_relatorio_vendas_cancelamentos(data_inicio, data_fim))
+            grafico_html, data_inicio, data_fim, quantidade_cancelamentos, total_cancelado, list_items, grafico_html2 = visualiza_relatorio_vendas_cancelamentos(data_inicio, data_fim)
+
+            return render_template("visualizar-relatorio-vendas-canceladas.html", grafico_html=grafico_html, data_inicio=data_inicio, data_fim=data_fim, quantidade_cancelamentos=quantidade_cancelamentos, total_cancelado=total_cancelado, tabela_canceladas=list_items, grafico_html2=grafico_html2)  
+            
+    except Exception as e:
+        print('eeeeeeeeeeeee', e)
+        return "Ocorreu um erro ao atualizar o produto.", 500  # Retornar uma mensagem de erro
 
 def consulta_vendas_mes(data_inicio, data_fim):
 
-    conn = conexao()
+    db_connection = DatabaseConnection()
+    db_connection.connect()
 
-    mycursor = conn.cursor()    
-    mycursor.execute(f"""select
+    query_vendas_mes = f"""select
                             v.id,
                             DATE_FORMAT(v.data_venda, '%d/%m/%Y') AS data_formatada,
                             v.forma_pagamento,
@@ -33,13 +78,16 @@ def consulta_vendas_mes(data_inicio, data_fim):
                             where data_venda between '{data_inicio}' and '{data_fim}'
                             and status_venda not like '%Cancelada%'
                             ORDER BY v.id desc
-                    """)
-    myresult = mycursor.fetchall()
-    return myresult
+                    """
+    
+    result_vendas_filtros = db_connection.execute_query(query_vendas_mes)
+    return result_vendas_filtros
 
 def visualiza_relatorio_vendas_periodo(data_inicio, data_fim):
     try:
-        conn = conexao()
+        db_connection = DatabaseConnection()
+        db_connection.connect()
+
         query = f"""SELECT
                         data_venda AS Data,
                         CAST(sum(total_venda)AS FLOAT) AS Totais,
@@ -54,7 +102,7 @@ def visualiza_relatorio_vendas_periodo(data_inicio, data_fim):
                     ORDER BY data_venda ASC;  -- Ordenar pela data em ordem crescente
                 """
 
-        df = pd.read_sql(query, conn)
+        df = pd.read_sql(query, con=db_connection.connection)
 
         df['Data'] = pd.to_datetime(df['Data'])
 
@@ -80,7 +128,9 @@ def visualiza_relatorio_vendas_periodo(data_inicio, data_fim):
 
 def visualiza_relatorio_produtos_mais_vendidos(data_inicio, data_fim):
     try:
-        conn = conexao()
+        db_connection = DatabaseConnection()
+        db_connection.connect()
+
         query = f"""select
                     max(vp.nome_produto) as nome_produto,
                     sum(quantidade) as quantidade,
@@ -94,7 +144,7 @@ def visualiza_relatorio_produtos_mais_vendidos(data_inicio, data_fim):
                     order by quantidade desc;
                 """
         print(query)
-        df = pd.read_sql(query, conn)
+        df = pd.read_sql(query, con=db_connection.connection)
 
         # # Criando o gráfico de linha com Plotly
         # fig = px.bar(df, x='nome_produto', y='quantidade', title="Vendas por Produto",
@@ -133,7 +183,9 @@ def visualiza_relatorio_produtos_mais_vendidos(data_inicio, data_fim):
 
 def visualiza_relatorio_estoque_critico():
     try:
-        conn = conexao()
+        db_connection = DatabaseConnection()
+        db_connection.connect()
+
         query = f"""select
                     max(p.id),
                     max(p.nome) as nome_produto,
@@ -147,7 +199,7 @@ def visualiza_relatorio_estoque_critico():
                     order by p.qtd_estoque asc
                 """
 
-        df = pd.read_sql(query, conn)
+        df = pd.read_sql(query, con=db_connection.connection)
 
         # # Criando o gráfico de linha com Plotly
         # fig = px.bar(df, x='nome_produto', y='quantidade', title="Vendas por Produto",
@@ -183,7 +235,9 @@ def visualiza_relatorio_estoque_critico():
 
 def visualiza_relatorio_vendas_clientes(data_inicio, data_fim):
     try:
-        conn = conexao()
+        db_connection = DatabaseConnection()
+        db_connection.connect()
+
         query = f"""SELECT c.nome AS nome_cliente, 
                         SUM(vp.quantidade) AS total_produtos_comprados, 
                         SUM(vp.quantidade * (vp.valor_unitario - p.custo_aquisicao)) AS lucro_total
@@ -197,7 +251,7 @@ def visualiza_relatorio_vendas_clientes(data_inicio, data_fim):
                         ORDER BY lucro_total DESC; 
                 """
 
-        df = pd.read_sql(query, conn)
+        df = pd.read_sql(query, con=db_connection.connection)
 
         # Criando o gráfico de linha com Plotly
         fig = go.Figure(data=[
@@ -233,7 +287,9 @@ def visualiza_relatorio_vendas_clientes(data_inicio, data_fim):
 
 def visualiza_relatorio_lucro_produtos(data_inicio, data_fim):
     try:
-        conn = conexao()
+        db_connection = DatabaseConnection()
+        db_connection.connect()
+
         query = f"""select 
                         max(p.nome) as nome_produto,
                         sum(vp.quantidade) as quantidade_vendida,
@@ -250,7 +306,7 @@ def visualiza_relatorio_lucro_produtos(data_inicio, data_fim):
                         order by lucro_bruto desc;
                 """
 
-        df = pd.read_sql(query, conn)
+        df = pd.read_sql(query, con=db_connection.connection)
 
         fig = go.Figure(data=[
             go.Bar(x=df['nome_produto'], y=df['lucro_bruto'], text=df['lucro_bruto'], textposition='auto')
@@ -291,7 +347,9 @@ def visualiza_relatorio_lucro_produtos(data_inicio, data_fim):
 
 def visualiza_relatorio_vendas_fornecedor(data_inicio, data_fim):
     try:
-        conn = conexao()
+        db_connection = DatabaseConnection()
+        db_connection.connect()
+
         query = f"""SELECT f.nome AS nome_fornecedor, 
                         SUM(vp.quantidade) AS total_produtos_vendidos,
                         SUM(vp.quantidade * (vp.valor_unitario - coalesce(p.custo_aquisicao,0))) AS lucro_total
@@ -305,7 +363,7 @@ def visualiza_relatorio_vendas_fornecedor(data_inicio, data_fim):
                         ORDER BY total_produtos_vendidos DESC;
                 """
 
-        df = pd.read_sql(query, conn)
+        df = pd.read_sql(query, con=db_connection.connection)
 
         # Criando o gráfico de linha com Plotly
         fig = go.Figure(data=[
@@ -343,7 +401,9 @@ def visualiza_relatorio_vendas_fornecedor(data_inicio, data_fim):
     
 def visualiza_relatorio_vendas_cancelamentos(data_inicio, data_fim):
     try:
-        conn = conexao()
+        db_connection = DatabaseConnection()
+        db_connection.connect()
+
         query = f"""select
                         v.id as id_venda,
                         DATE_FORMAT(data_venda, '%d/%m/%Y') as data_venda,
@@ -357,7 +417,7 @@ def visualiza_relatorio_vendas_cancelamentos(data_inicio, data_fim):
                         and v.data_venda BETWEEN '{data_inicio}' AND '{data_fim}'
                 """
 
-        df = pd.read_sql(query, conn)
+        df = pd.read_sql(query, con=db_connection.connection)
 
         #Somando as quantidades de diferentes tipos de cancelamentos
         cancelamento_counts = df['motivo_cancelamento'].value_counts()

@@ -1,0 +1,110 @@
+{% extends 'base.html' %}
+{% block conteudo %}
+
+<style>
+
+    .container {
+        background-color: white;
+        width: 100%;
+        max-width: 500px;
+        padding: 20px;
+        border-radius: 10px;
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+        text-align: center;
+    }
+
+    h1 {
+        color: #333;
+        margin-bottom: 20px;
+    }
+
+    img {
+        width: 100px;
+        height: 100px;
+        margin-bottom: 20px;
+    }
+
+    p {
+        color: #666;
+        font-size: 16px;
+        margin-bottom: 30px;
+    }
+
+    .contact-info {
+        margin-bottom: 10px;
+        font-size: 18px;
+    }
+
+    .contact-info span {
+        font-weight: bold;
+        color: #4CAF50;
+    }
+
+    .contact-info i {
+        color: #4CAF50;
+        margin-right: 8px;
+    }
+
+    .btn-whatsapp, .btn-email {
+        display: block;
+        width: 100%;
+        max-width: 300px;
+        margin: 10px auto;
+        padding: 12px 0;
+        font-size: 18px;
+        color: white;
+        text-align: center;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+        transition: background-color 0.3s ease;
+    }
+
+    .btn-whatsapp {
+        background-color: #25d366;
+    }
+
+    .btn-whatsapp:hover {
+        background-color: #20b359;
+    }
+
+    .btn-email {
+        background-color: #007bff;
+    }
+
+    .btn-email:hover {
+        background-color: #0056b3;
+    }
+
+    @media (max-width: 600px) {
+        .container {
+            padding: 15px;
+        }
+
+        .btn-whatsapp, .btn-email {
+            font-size: 16px;
+            padding: 10px 0;
+        }
+    }
+</style>
+<body>
+    <div class="container">
+        <h1>Suporte Técnico</h1>
+        <img src="../static/support.png" alt="Suporte Técnico">
+        <p>Entre em contato com nossa equipe de suporte pelos meios abaixo:</p>
+
+        <div class="contact-info">
+            <i class="fa fa-whatsapp"></i><span>WhatsApp:</span> (19) 996331314
+        </div>
+
+        <button class="btn-whatsapp" onclick="window.open('https://wa.me/5519996331314', '_blank')">Conversar no WhatsApp</button>
+
+        <div class="contact-info">
+            <i class="fa fa-envelope"></i><span>Email:</span> tiago.fordrgs@gmail.com
+        </div>
+
+        <button class="btn-email" onclick="window.location.href='mailto:tiago.fordrgs@gmail.com'">Enviar Email</button>
+    </div>
+
+</body>
+{% endblock conteudo %}

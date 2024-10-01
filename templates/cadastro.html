@@ -11,7 +11,7 @@
             <a class="nav-link" href="{{url_for('cadastro_produtos')}}">
                 <button type="submit" class="btn btn-outline-primary text-black" value="CADASTROS" id="btn_produtos">
                     <img class="img_menu" src="../static/products.png" alt="buttonpng">
-                    <p style="font-size: 40px;" class="text-black">PRODUTOS</p>
+                    <p  class="text-black">PRODUTOS</p>
                 </button>        
             </a>        
         </div>  
@@ -19,7 +19,7 @@
             <a class="nav-link" href="{{url_for('cadastro_clientes')}}">         
                 <button type="submit" class="btn btn-outline-primary text-black" value="CONSULTAS" id="btn_clientes">
                     <img class="img_menu" src="../static/clientes.png" alt="buttonpng">
-                    <p style="font-size: 40px;" class="text-black">CLIENTES</p>
+                    <p  class="text-black">CLIENTES</p>
                 </button> 
             </a>         
         </div>  
@@ -27,7 +27,7 @@
             <a class="nav-link" href="{{url_for('cadastro_fornecedores')}}">              
                 <button type="submit" class="btn btn-outline-primary text-black" value="SUPORTE" id="btn_fornecedores" style="margin-top: 40px;">
                     <img class="img_menu" src="../static/fornecedor.png" alt="buttonpng">
-                    <p style="font-size: 40px;" class="text-black">FORNECEDORES</p>
+                    <p  class="text-black">FORNECEDORES</p>
                 </button> 
             </a>       
         </div>  
@@ -37,32 +37,31 @@
 
 <style>
 #btn_produtos, #btn_clientes, #btn_fornecedores {
-background: linear-gradient(145deg, #85c786, #71a174); /* Degradê leve */
-border: none;
-border-radius: 12px;
-width: 500px;
-height: 250px;
-display: flex;
-flex-direction: column;
-justify-content: center;
-align-items: center;
-margin-left: 55px;
-box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
-transition: transform 0.3s;
-cursor: pointer;
-text-align: center;
-color: white;
+    background: linear-gradient(145deg, #eae7eb, #d1cbcc); /* Degradê leve */
+    border: none;
+    border-radius: 8px;
+    width: 400px;
+    height: 200px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    margin: 5px auto;
+    box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+    transition: transform 0.1s;
+    cursor: pointer;
+    text-align: center;
+    color: white;
 }
 
 .img_menu {
-    width: 150px;
-    height: 150px;
-    margin-top: 30px;
-
+    width: 90px; /* Tamanho ajustado das imagens */
+    height: 90px;
+    margin-bottom: 15px;
 }
 
 .btn p {
-    font-size: 15px;
+    font-size: 20px;
     font-weight: bold;
 }
 

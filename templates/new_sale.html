@@ -1,6 +1,7 @@
 {% extends 'base.html' %}
 {% block conteudo %}
     <h1 class="display-3">NOVA VENDA #{{nvenda[0][0]}}</h1>
+    <input type="hidden" value="{{nvenda[0][0]}}" id="inputnvenda" name="inputnvenda">
     <hr>
 
 <div class="container">        
@@ -254,7 +255,7 @@ function handleDatalist(inputId, datalistId) {
 
     $.ajax({
     type: 'POST',
-    url: '/resume-sale',
+    url: '/preview-resume-sale',
     data: {                  
         valortaxa: $("#inputtaxaentrega").val(),
         valordesconto: $("#inputdesconto").val(),
@@ -266,18 +267,19 @@ function handleDatalist(inputId, datalistId) {
         cpf_cnpj: $("#inputcpfcnpj").val(),
         telefone: $("#inputtelefone").val(),
         observacoes: $("#inputobservacoes").val(),
-        data_entrega: $("#inputdataentrega").val()
+        data_entrega: $("#inputdataentrega").val(),
+        nvenda: $("#inputnvenda").val()
     },
     success: function(response) {
         console.log(response);
         // Enviar dados via POST para a nova página
         $.ajax({
         type: 'POST',
-        url: '/nova-pagina',
+        url: '/show-resume-sale',
         data: response,        
         success: function() {
             // Redirecionar após o sucesso
-            window.location.assign('/nova-pagina');
+            window.location.assign('/show-resume-sale');
         },
         error: function(jqXHR, textStatus, errorThrown) {
             console.log("Error details:", jqXHR, textStatus, errorThrown);
