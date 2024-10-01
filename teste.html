@@ -1,84 +1,118 @@
-
+{% extends 'base.html' %}
+{% block conteudo %}
 <style>
     body {
         font-family: Arial, sans-serif;
         margin: 0;
-        padding: 20px;
+        
         background-color: #f4f4f4;
     }
 
-    .container {
-        max-width: 800px;
-        margin: 0 auto;
+    .invoice-box {
+        max-width: 1000px;
+        margin: auto;
+        padding: 10px;
+        border: 1px solid #eee;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.15);
         background-color: white;
-        padding: 20px;
-        border-radius: 8px;
-        box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
     }
 
-    h1, h2 {
+    .title {
+        font-size: 45px;
+        font-weight: bold;
         text-align: center;
+        color: #333;
+        margin-bottom: 20px;
+    }
+
+    .invoice-header, .invoice-footer {
+        text-align: center;
+        padding: 10px 0;
+        background-color: #f0f0f0;
+        border-top: 1px solid #ddd;
+        font-size: 25px;
+    }
+
+    .invoice-details {
+        display: grid;
+        grid-template-columns: repeat(5, 1fr); /* Cria 4 colunas de tamanhos iguais */
+        column-gap: 10px; /* Espaçamento entre colunas */
+        row-gap: 10px; /* Espaçamento entre linhas */
+        text-align: center; /* Alinha o texto centralizado */
+    }
+
+    .invoice-details p {
+        margin: 0;
+        padding: 10px;
+        display: flex;
+        flex-direction: column; /* Chave em cima, valor embaixo */
+    }
+
+    .invoice-details strong {
+        display: block;
+        font-weight: bold;
+        margin-bottom: 5px; /* Pequeno espaço entre a chave e o valor */
+    }
+
+    .invoice-details span {
+        font-size: 14px;
         color: #333;
     }
 
-    .header, .footer {
-        text-align: center;
-        margin-bottom: 20px;
-    }
-
-    .header {
-        padding: 10px 0;
-        border-bottom: 2px solid #333;
-    }
-
-    .info-section {
-        margin-bottom: 20px;
-    }
-
-    .info-section p {
-        margin: 5px 0;
-    }
-
-    .info-label {
-        font-weight: bold;
-    }
-
-    .table {
+    .invoice-items {
         width: 100%;
         border-collapse: collapse;
         margin-bottom: 20px;
     }
 
-    .table th, .table td {
-        border: 1px solid #ccc;
+    .invoice-items th, .invoice-items td {
         padding: 10px;
+        border: 1px solid #ddd;
         text-align: left;
     }
 
-    .table th {
+    .invoice-items th {
         background-color: #f0f0f0;
     }
 
-    .totals {
-        margin-top: 20px;
+    .total {
         text-align: right;
-    }
-
-    .totals p {
-        margin: 5px 0;
-        font-size: 1.1rem;
-    }
-
-    .highlight {
+        padding-right: 20px;
+        font-size: 20px;
         font-weight: bold;
-        font-size: 1.2rem;
-        color: #4CAF50;
     }
 
+    .center {
+        text-align: center;
+    }
+
+    .total, .discount, .tax{
+        text-align: right;
+        padding-right: 20px;
+        font-size: 20px;
+        font-weight: bold;
+    }
+
+    .final-total{
+        text-align: center;
+        padding-right: 20px;
+        font-size: 30px;
+        font-weight: bold;
+        background-color: rgb(255, 255, 255);
+    }
+
+    .discount {
+        color: red;
+    }
+
+    .tax, .final-total {
+        color: green;
+    }
+    
     img{
-            width: 100px;
-            height: 100px;
-        }
+        width: 100px;
+        height: 100px;
+    }
 </style>
 </head>
 <body>
@@ -89,17 +123,17 @@
                 <img src="../static/tr-software-white.jpg" alt="">
                 <label class="d-flex justify-content-center" id="labelcancelada" style="font-size: 30px; color: red; display: none; font-weight: bold;"></label>
             </div>
-            <p><strong>Número da Venda:</strong> #{{info_venda[0]}}</p>
+            <p><strong>Número da Venda:</strong> #{{nvenda}}</p>
         </div>
 
         <!-- Informações do Cliente e Pagamento -->
         <div class="info-section">
             <h2>Informações da Venda</h2>
-            <p><span class="info-label">Data da venda:</span> {{info_venda[1]}}</p>
-            <p><span class="info-label">Cliente:</span> {{info_venda[6]}}</p>
-            <p><span class="info-label">Forma de Pagamento:</span> {{info_venda[3]}}</p>
-            <p><span class="info-label">Endereço de Entrega:</span> {{info_venda[5]}}</p>
-            <p><span class="info-label">Observações:</span> {{info_venda[8]}}</p>
+            <p><span class="info-label">Data da venda:</span> {{data_venda}}</p>
+            <p><span class="info-label">Cliente:</span> {{nome_cliente}}</p>
+            <p><span class="info-label">Forma de Pagamento:</span> {{forma_pagamento}}</p>
+            <p><span class="info-label">Endereço de Entrega:</span> {{endereco_entrega}}</p>
+            <p><span class="info-label">Observações:</span> {{observacoes}}</p>
         </div>
 
         <!-- Tabela de Produtos -->
@@ -113,12 +147,12 @@
                 </tr>
             </thead>
             <tbody>
-                {% for produto in info_produtos %}
+                {% for produto in produtos %}
                 <tr>
-                    <td>{{produto[0]}}</td>
                     <td>{{produto[1]}}</td>
-                    <td>R$ {{produto[2]}}</td>
+                    <td>{{produto[2]}}</td>
                     <td>R$ {{produto[3]}}</td>
+                    <td>R$ {{produto[4]}}</td>
                 </tr>
                 {% endfor %}
             </tbody>
@@ -126,14 +160,52 @@
 
         <!-- Totais -->
         <div class="totals">
-            <p><span class="info-label">Subtotal de Produtos:</span> R$ {{info_venda[5]}}</p>
-            <p><span class="info-label">Desconto:</span> R$ {{info_venda[7]}}</p>
-            <p><span class="info-label">Taxa de Entrega:</span> R$ {{info_venda[4]}}</p>
+            <p><span class="info-label">Subtotal de Produtos:</span> R$ {{total_prods}}</p>
+            <p ><span class="info-label" style="color: red;">Desconto:</span> R$ -{{desconto}}</p>
+            <p ><span class="info-label" style="color: green;">Taxa de Entrega:</span> R$ {{taxaentrega}}</p>
             <input type="hidden" name="status" id="status" value="{{info_venda[10]}}">
             <hr>
-            <p class="highlight"><span class="info-label">Total Final:</span> R$ {{info_venda[9]}}</p>
+            <p class="highlight"><span class="info-label">Total Final:</span> R$ {{total_venda}}</p>
         </div>
 
+        
+        <!-- Rodapé da Nota -->
+        <form action="{{url_for('salvar_venda')}}" method="POST" id="form" autocomplete="off" enctype="multipart/form-data" onsubmit="showAlert(event)">
+            <input type="hidden" name="data_venda" id="data_venda" value="{{data_venda}}">
+            <input type="hidden" name="nome" id="nome" value="{{nome_cliente}}">
+            <input type="hidden" name="metodo_pagamento" id="metodo_pagamento" value="{{forma_pagamento}}">
+            <input type="hidden" name="endereco_entrega" id="endereco_entrega" value="{{endereco_entrega}}">
+            <input type="hidden" name="total_prods" id="total_prods" value="{{total_prods}}">
+            <input type="hidden" name="taxa_entrega" id="taxa_entrega" value="{{taxaentrega}}">
+            <input type="hidden" name="desconto" id="desconto" value="{{desconto}}">
+            <input type="hidden" name="total_venda" id="total_venda" value="{{total_venda}}">
+            <input type="hidden" name="idcliente" id="idcliente" value="{{id_cliente}}">
+            <input type="hidden" name="cpfcnpj" id="cpfcnpj" value="{{cpf_cnpj}}">
+            <input type="hidden" name="telefone" id="telefone" value="{{telefone}}">
+            <input type="hidden" name="observacoes" id="observacoes" value="{{observacoes}}">
+            <input type="hidden" name="data_entrega" id="data_entrega" value="{{data_entrega}}">
+            
+            <div class="d-flex justify-content-center" style="margin: auto;">
+                <button type="submit" name="add-venda" class="btn btn-success btn-lg" style="width: 250px; margin-bottom: 10px;">Finalizar Venda</button>
+            </div>            
+        </form>
+
+
+        <br><br>
+        <div class="row" id="assinaturas" style="display: none;">
+            <div class="form-group col-md-6">
+                <div id="assinatura_comprador" style="float: left; margin-left: 80px;">
+                    <p>___________________________</p>
+                    <p>Assinatura do Comprador</p>
+                </div>
+            </div>
+            <div class="form-group col-md-6">
+                <div id="assinatura_vendedor" style="float: right; margin-right: 80px;">
+                    <p>___________________________</p>
+                    <p>Assinatura do Vendedor</p>
+                </div>
+            </div>
+        </div>
         <div class="d-flex justify-content-center" style="margin: auto;">
             <button id="exportar-pdf" class="btn btn-primary btn-lg btn-exportar" onclick="ExportarPdf()" style="width: 250px; margin-bottom: 10px;">Exportar para PDF</button>
         </div>
@@ -146,6 +218,7 @@
 
             
         </form>
+    
 
     </div>
 
@@ -159,6 +232,9 @@
     const labelcancelada = document.getElementById('labelcancelada');
     const botao_cancelar = document.getElementById('cancelar-venda');
     const botao_exportar = document.getElementById('exportar-pdf');
+    const assinaturas = document.getElementById('assinaturas');
+    const assinatura_comprador = document.getElementById('assinatura_comprador');
+    const assinatura_vendedor = document.getElementById('assinatura_vendedor');
 
     // Condição para esconder o botão com base no texto vindo do backend
     if (status.includes('Cancelada')) {
@@ -178,6 +254,9 @@
         event.preventDefault();
         botao_cancelar.style.display = 'none';
         botaoExportar.style.display = 'none';
+        if (status.includes('Cancelada')) {
+            assinaturas.style.display = 'none'
+        }
 
         // Elemento a ser exportado
         var element = document.getElementById('container');
@@ -193,8 +272,13 @@
 
         // Gera o PDF
         html2pdf().set(opt).from(element).save().then(() => {
-            botaoExportar.style.display = 'block';
-            botao_cancelar.style.display = 'block';
+            if (status.includes('Cancelada')) {
+                botao_cancelar.style.display = 'none';
+            }else{
+                botao_cancelar.style.display = 'block';
+            }
+            botaoExportar.style.display = 'block';            
+            assinaturas.style.display = 'none'
         });
     }, { once: true });  // O evento de clique será vinculado apenas uma vez
     }   
@@ -254,5 +338,4 @@
 }
 
 </script>
-</body>
-</html>
+{% endblock conteudo %}

@@ -10,6 +10,7 @@ from cadastros import CadastroProdutos
 from update import AtualizaClientes, AtualizaFornecedores, AtualizaProdutos
 import support
 from app_conf import app
+from dateutil.relativedelta import relativedelta
 
 
 def format_value(value):
@@ -24,18 +25,19 @@ class TelaInicial:
         self.db_connection = db_connection
     
     def get_monthly_values(self):
-        ultimo_dia_mes = calendar.monthrange(date.today().year, date.today().month)[1]
+        ultimo_dia_mes_atual = calendar.monthrange(date.today().year, date.today().month)[1]
 
         query = f"""select
-                            sum(total_venda),
+                            coalesce(sum(total_venda),0),
                             count( distinct(id_cliente)),
-                            avg(total_venda),
-                            coalesce((select sum(total_venda) from vendas where month(data_venda) = '{date.today().month}'),0) - coalesce((select sum(total_venda) from vendas where month(data_venda) = '{date.today().month -1}'),0) as variacao
-                            from vendas v 
-                            where data_venda between '{date.today().year}-{date.today().month}-01' and '{date.today().year}-{date.today().month}-{ultimo_dia_mes}'
+                            coalesce(avg(total_venda),0),
+                            (select count(distinct(p2.nome)) from produtos p2 where qtd_estoque <= 10) as qtd_produtos_estoque_critico
+                            from vendas v
+                            where data_venda between '{date.today().year}-{date.today().month}-01' and '{date.today().year}-{date.today().month}-{ultimo_dia_mes_atual}'
                         """
 
         result = self.db_connection.execute_query(query)
+        print(result)
         return result[0]
 
     @app.route('/', methods=["GET", "POST"])
@@ -53,13 +55,13 @@ class TelaInicial:
         total_mensal = format_value(valores_mensal[0])
         total_clientes = valores_mensal[1]
         ticket_medio = format_value(valores_mensal[2])
-        variacao_mensal = format_value(valores_mensal[3])
+        qtd_produtos_estoque_critico = valores_mensal[3]
 
         return render_template("index.html", 
                                 total_mensal=total_mensal, 
                                 total_clientes=total_clientes, 
                                 ticket_medio=ticket_medio, 
-                                variacao_mensal=variacao_mensal)
+                                qtd_produtos_estoque_critico=qtd_produtos_estoque_critico)
 
 
 

@@ -1,8 +1,6 @@
 {% extends 'base.html' %}
 {% block conteudo %}
 <style>
-
-
     .container {
         max-width: 800px;
         margin: 0 auto;
@@ -72,8 +70,10 @@
     }
 
     img{
-            width: 100px;
-            height: 100px;
+        margin-top: -40px;
+        width: 150px;
+        height: 100px;
+        margin-bottom: -10px;
         }
 </style>
 </head>
@@ -82,7 +82,7 @@
     <div class="container" id="container">
         <div class="header">
             <div class="title"> 
-                <img src="../static/tr-software-white.jpg" alt="">
+                <img src="../static/marleneecamilo.jpg" alt="">
                 <label class="d-flex justify-content-center" id="labelcancelada" style="font-size: 30px; color: red; display: none; font-weight: bold;"></label>
             </div>
             <p><strong>Número da Venda:</strong> #{{info_venda[0]}}</p>
@@ -193,6 +193,7 @@
         event.preventDefault();
         botao_cancelar.style.display = 'none';
         botaoExportar.style.display = 'none';
+        assinaturas.style.display = 'flex';
         if (status.includes('Cancelada')) {
             assinaturas.style.display = 'none'
         }

@@ -60,7 +60,7 @@ def visualiza_relatorio():
             
     except Exception as e:
         print('eeeeeeeeeeeee', e)
-        return "Ocorreu um erro ao atualizar o produto.", 500  # Retornar uma mensagem de erro
+        return "Não existem dados para o período selecionado", 500  # Retornar uma mensagem de erro
 
 def consulta_vendas_mes(data_inicio, data_fim):
 
@@ -90,22 +90,22 @@ def visualiza_relatorio_vendas_periodo(data_inicio, data_fim):
 
         query = f"""SELECT
                         data_venda AS Data,
-                        CAST(sum(total_venda)AS FLOAT) AS Totais,
-                        CAST((SELECT SUM(total_venda) FROM vendas WHERE data_venda BETWEEN '{data_inicio}' AND '{data_fim}' AND status_venda NOT LIKE '%Cancelada%') AS FLOAT) AS soma_total,
-                        (SELECT sum(vp.quantidade) FROM vendas_produtos vp LEFT JOIN vendas v ON v.id = vp.id_venda WHERE v.data_venda BETWEEN '{data_inicio}' AND '{data_fim}' AND v.status_venda NOT LIKE '%Cancelada%') AS qtd_produtos,
-                        CAST((SELECT AVG(total_venda) FROM vendas WHERE data_venda BETWEEN '{data_inicio}' AND '{data_fim}' AND status_venda NOT LIKE '%Cancelada%') AS FLOAT) AS ticket_medio,
-                        (SELECT COUNT(id) FROM vendas WHERE data_venda BETWEEN '{data_inicio}' AND '{data_fim}' AND status_venda NOT LIKE '%Cancelada%') AS total_transacoes
+                        coalesce(CAST(sum(total_venda)AS FLOAT),0) AS Totais,
+                        coalesce(CAST((SELECT SUM(total_venda) FROM vendas WHERE data_venda BETWEEN '{data_inicio}' AND '{data_fim}' AND status_venda NOT LIKE '%Cancelada%') AS FLOAT),0) AS soma_total,
+                        coalesce((SELECT sum(vp.quantidade) FROM vendas_produtos vp LEFT JOIN vendas v ON v.id = vp.id_venda WHERE v.data_venda BETWEEN '{data_inicio}' AND '{data_fim}' AND v.status_venda NOT LIKE '%Cancelada%'),0) AS qtd_produtos,
+                        coalesce(CAST((SELECT AVG(total_venda) FROM vendas WHERE data_venda BETWEEN '{data_inicio}' AND '{data_fim}' AND status_venda NOT LIKE '%Cancelada%') AS FLOAT),0) AS ticket_medio,
+                        coalesce((SELECT COUNT(id) FROM vendas WHERE data_venda BETWEEN '{data_inicio}' AND '{data_fim}' AND status_venda NOT LIKE '%Cancelada%'),0) AS total_transacoes
                     FROM vendas
                     WHERE data_venda BETWEEN '{data_inicio}' AND '{data_fim}'
                     AND status_venda NOT LIKE '%Cancelada%'
                     GROUP BY data_venda
-                    ORDER BY data_venda ASC;  -- Ordenar pela data em ordem crescente
+                    ORDER BY data_venda ASC;
                 """
 
         df = pd.read_sql(query, con=db_connection.connection)
-
+        
         df['Data'] = pd.to_datetime(df['Data'])
-
+        
         # Criando o gráfico de linha com Plotly
         fig = px.line(df, x='Data', y='Totais', title="Vendas por período",
                         labels={"Totais": "Total de Vendas", "Data": "Data"})
@@ -114,15 +114,17 @@ def visualiza_relatorio_vendas_periodo(data_inicio, data_fim):
         grafico_html = pio.to_html(fig, full_html=False)
         vendas_periodo = consulta_vendas_mes(data_inicio, data_fim)
         # Obtenha os valores necessários
-        total_vendas = str(format(df['soma_total'][1], '.2f')).replace(".", ",")
+
+        total_vendas = str(format(df['soma_total'][0], '.2f')).replace(".", ",")
+
         total_produtos = int(df['qtd_produtos'].iloc[0])  # Altere o índice para 0, pois df[1] pode não existir
         ticket_medio = str(format(df['ticket_medio'].iloc[0], '.2f')).replace(".", ",")  # Altere o índice para 0
         total_transacoes = df['total_transacoes'].iloc[0]  # Altere o índice para 0
 
-        return grafico_html, datetime.strptime(data_inicio, '%Y-%m-%d').strftime("%d/%m/%Y"), datetime.strptime(data_fim, '%Y-%m-%d').strftime("%d/%m/%Y"), total_vendas, total_produtos, ticket_medio, total_transacoes, vendas_periodo    
+        return grafico_html, datetime.strptime(data_inicio, '%Y-%m-%d').strftime("%d/%m/%Y"), datetime.strptime(data_fim, '%Y-%m-%d').strftime("%d/%m/%Y"), total_vendas, total_produtos, ticket_medio, total_transacoes, vendas_periodo 
     except Exception as e:
         print(e)
-        return "Ocorreu um erro ao atualizar o produto.", 500  # Retornar uma mensagem de erro
+        return "Não existem dados para o período selecionado", 500  # Retornar uma mensagem de erro
     
 ###########################################################################################################################
 
@@ -140,15 +142,11 @@ def visualiza_relatorio_produtos_mais_vendidos(data_inicio, data_fim):
                     left join vendas v on v.id = vp.id_venda 
                     WHERE data_venda BETWEEN '{data_inicio}' AND '{data_fim}'
                     AND status_venda NOT LIKE '%Cancelada%'
-                    group by vp.id_produto, quantidade
+                    group by vp.id_produto
                     order by quantidade desc;
                 """
         print(query)
         df = pd.read_sql(query, con=db_connection.connection)
-
-        # # Criando o gráfico de linha com Plotly
-        # fig = px.bar(df, x='nome_produto', y='quantidade', title="Vendas por Produto",
-        #                 labels={"nome_produto": "Produto", "quantidade": "Quantidade vendida"})
 
         fig = go.Figure(data=[
             go.Bar(x=df['nome_produto'], y=df['quantidade'], text=df['quantidade'], textposition='auto')
@@ -352,7 +350,7 @@ def visualiza_relatorio_vendas_fornecedor(data_inicio, data_fim):
 
         query = f"""SELECT f.nome AS nome_fornecedor, 
                         SUM(vp.quantidade) AS total_produtos_vendidos,
-                        SUM(vp.quantidade * (vp.valor_unitario - coalesce(p.custo_aquisicao,0))) AS lucro_total
+                        SUM(vp.quantidade * (vp.valor_unitario - coalesce(p.custo_aquisicao,0))) AS     
                         FROM `tr-sale-system`.fornecedores f
                         JOIN `tr-sale-system`.produtos p ON f.id = p.id_fornecedor
                         JOIN `tr-sale-system`.vendas_produtos vp ON p.id = vp.id_produto

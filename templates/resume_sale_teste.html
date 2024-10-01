@@ -1,148 +1,106 @@
 {% extends 'base.html' %}
 {% block conteudo %}
-<!DOCTYPE html>
-<html lang="pt-br">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Resumo da venda</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            margin: 0;
-            
-            background-color: #f4f4f4;
-        }
+<style>
 
-        .invoice-box {
-            max-width: 1000px;
-            margin: auto;
-            padding: 10px;
-            border: 1px solid #eee;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.15);
-            background-color: white;
-        }
+.container {
+    max-width: 800px;
+    margin: 0 auto;
+    background-color: white;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
+}
 
-        .title {
-            font-size: 45px;
-            font-weight: bold;
-            text-align: center;
-            color: #333;
-            margin-bottom: 20px;
-        }
+h1, h2 {
+    text-align: center;
+    color: #333;
+}
 
-        .invoice-header, .invoice-footer {
-            text-align: center;
-            padding: 10px 0;
-            background-color: #f0f0f0;
-            border-top: 1px solid #ddd;
-            font-size: 25px;
-        }
+.header, .footer {
+    text-align: center;
+    margin-bottom: 20px;
+}
 
-        .invoice-details {
-            display: grid;
-            grid-template-columns: repeat(5, 1fr); /* Cria 4 colunas de tamanhos iguais */
-            column-gap: 10px; /* Espaçamento entre colunas */
-            row-gap: 10px; /* Espaçamento entre linhas */
-            text-align: center; /* Alinha o texto centralizado */
-        }
+.header {
+    padding: 10px 0;
+    border-bottom: 2px solid #333;
+}
 
-        .invoice-details p {
-            margin: 0;
-            padding: 10px;
-            display: flex;
-            flex-direction: column; /* Chave em cima, valor embaixo */
-        }
+.info-section {
+    margin-bottom: 20px;
+}
 
-        .invoice-details strong {
-            display: block;
-            font-weight: bold;
-            margin-bottom: 5px; /* Pequeno espaço entre a chave e o valor */
-        }
+.info-section p {
+    margin: 5px 0;
+}
 
-        .invoice-details span {
-            font-size: 14px;
-            color: #333;
-        }
+.info-label {
+    font-weight: bold;
+}
 
-        .invoice-items {
-            width: 100%;
-            border-collapse: collapse;
-            margin-bottom: 20px;
-        }
+.table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 20px;
+}
 
-        .invoice-items th, .invoice-items td {
-            padding: 10px;
-            border: 1px solid #ddd;
-            text-align: left;
-        }
+.table th, .table td {
+    border: 1px solid #ccc;
+    padding: 10px;
+    text-align: left;
+}
 
-        .invoice-items th {
-            background-color: #f0f0f0;
-        }
+.table th {
+    background-color: #f0f0f0;
+}
 
-        .total {
-            text-align: right;
-            padding-right: 20px;
-            font-size: 20px;
-            font-weight: bold;
-        }
+.totals {
+    margin-top: 20px;
+    text-align: right;
+}
 
-        .center {
-            text-align: center;
-        }
+.totals p {
+    margin: 5px 0;
+    font-size: 1.1rem;
+}
 
-        .total, .discount, .tax{
-            text-align: right;
-            padding-right: 20px;
-            font-size: 20px;
-            font-weight: bold;
-        }
+.highlight {
+    font-weight: bold;
+    font-size: 1.2rem;
+    color: #4CAF50;
+}
 
-        .final-total{
-            text-align: center;
-            padding-right: 20px;
-            font-size: 30px;
-            font-weight: bold;
-            background-color: rgb(255, 255, 255);
+img{
+        margin-top: -40px;
+        width: 150px;
+        height: 100px;
+        margin-bottom: -10px;
         }
-
-        .discount {
-            color: red;
-        }
-
-        .tax, .final-total {
-            color: green;
-        }
-        
-        img{
-            width: 100px;
-            height: 100px;
-        }
-    </style>
+</style>
 </head>
 <body>
-    <br>
-    <div class="invoice-box" id="invoice-box">
-        <!-- Título do software -->
-        <div class="title"> <img src="../static/tr-software-white.jpg" alt=""></div>
 
-        <!-- Informações da Venda -->
-        <div class="invoice-header">
-            <p><strong>RESUMO DA VENDA #{{nvenda}}</strong></p>            
+    <div class="container" id="container">
+        <div class="header">
+            <div class="title"> 
+                <img src="../static/marleneecamilo.jpg" alt="">
+                <label class="d-flex justify-content-center" id="labelcancelada" style="font-size: 30px; color: red; display: none; font-weight: bold;"></label>
+            </div>
+            <p><strong>Número da Venda:</strong> #{{nvenda}}</p>
         </div>
 
-        <!-- Detalhes do Cliente -->
-        <div class="invoice-details">
-            <p><strong>Data da Venda</strong> <span>{{data_venda}}</span></p>
-            <p><strong>Cliente</strong> <span>{{nome_cliente}}</span></p>
-            <p><strong>Pagamento</strong> <span>{{forma_pagamento}}</span></p>
-            <p><strong>Endereço</strong> <span>{{endereco_entrega}}</span></p>
-            <p><strong>Observações</strong> <span>{{observacoes}}</span></p>
+        <!-- Informações do Cliente e Pagamento -->
+        <div class="info-section">
+            <h2>Informações da Venda</h2>
+            <p><span class="info-label">Data da venda:</span> {{data_venda}}</p>
+            <p><span class="info-label">Cliente:</span> {{nome_cliente}}</p>
+            <p><span class="info-label">Forma de Pagamento:</span> {{forma_pagamento}}</p>
+            <p><span class="info-label">Endereço de Entrega:</span> {{endereco_entrega}}</p>
+            <p><span class="info-label">Observações:</span> {{observacoes}}</p>
         </div>
 
-        <!-- Lista de Produtos -->
-        <table class="invoice-items">
+        <!-- Tabela de Produtos -->
+        <table class="table">
             <thead>
                 <tr>
                     <th>Produto</th>
@@ -163,15 +121,16 @@
             </tbody>
         </table>
 
-        <!-- Desconto -->
-        <p class="discount">Desconto: - R$ {{desconto}}</p>
+        <!-- Totais -->
+        <div class="totals">
+            <p><span class="info-label">Subtotal de Produtos:</span> R$ {{total_prods}}</p>
+            <p ><span class="info-label" style="color: red;">Desconto:</span> R$ -{{desconto}}</p>
+            <p ><span class="info-label" style="color: green;">Taxa de Entrega:</span> R$ {{taxaentrega}}</p>
+            <hr>
+            <p class="highlight"><span class="info-label">Total Final:</span> R$ {{total_venda}}</p>
+        </div>
 
-        <!-- Taxa de Entrega -->
-        <p class="tax">Taxa de Entrega: R$ {{taxaentrega}}</p>
-        <hr>
-        <!-- Total Final -->
-        <p class="final-total">Total da venda: R$ {{total_venda}}</p>
-
+        
         <!-- Rodapé da Nota -->
         <form action="{{url_for('salvar_venda')}}" method="POST" id="form" autocomplete="off" enctype="multipart/form-data" onsubmit="showAlert(event)">
             <input type="hidden" name="data_venda" id="data_venda" value="{{data_venda}}">
@@ -189,16 +148,37 @@
             <input type="hidden" name="data_entrega" id="data_entrega" value="{{data_entrega}}">
             
             <div class="d-flex justify-content-center" style="margin: auto;">
-                <button type="submit" name="add-venda" class="btn btn-success btn-lg" style="width: 250px; margin-bottom: 10px;">Finalizar Venda</button>
+                <button type="submit" name="add-venda" id="addvenda" class="btn btn-success btn-lg" style="width: 250px; margin-bottom: 10px;">Finalizar Venda</button>
             </div>            
         </form>
+
+
+        <br><br>
+        <div class="row" id="assinaturas" style="display: none;">
+            <div class="form-group col-md-6">
+                <div id="assinatura_comprador" style="float: left; margin-left: 80px;">
+                    <p>___________________________</p>
+                    <p>Assinatura do Comprador</p>
+                </div>
+            </div>
+            <div class="form-group col-md-6">
+                <div id="assinatura_vendedor" style="float: right; margin-right: 80px;">
+                    <p>___________________________</p>
+                    <p>Assinatura do Vendedor</p>
+                </div>
+            </div>
+        </div>
+
     </div>
+
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.9.3/html2pdf.bundle.min.js" ></script>
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script>
     document.getElementById('form').onsubmit = function(event) {
-    event.preventDefault(); // Previne o envio imediato do formulário
+    event.preventDefault(); // Previne o envio imediato do formulário    
+    const botaovenda = document.getElementById('addvenda');
+    botaovenda.style.display = 'none'
     Swal.fire({
         position: "center",
         icon: "success",
@@ -206,19 +186,18 @@
         showConfirmButton: false,
         timer: 3500
         });
-        ExportarPdf();
+    ExportarPdf();
     // Atrasar o envio em 2 segundos (2000 milissegundos)
     setTimeout(function() {
         document.getElementById('form').submit(); // Enviar o formulário após o atraso
     }, 3500); // 2000 milissegundos = 2 segundos
 }
 
-
-
 function ExportarPdf() {
-
+        const assinaturas = document.getElementById('assinaturas');
+        assinaturas.style.display = 'flex';
         // Elemento a ser exportado
-        var element = document.getElementById('invoice-box');
+        var element = document.getElementById('container');
 
         // Configurações do html2pdf
         var opt = {
