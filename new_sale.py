@@ -337,7 +337,7 @@ def salvar_venda():
                                                         1000, 
                                                         float(str(produto[3]).replace(",",".")),
                                                         imagem_binaria, 
-                                                        datetime.strptime('2025-12-31', '%Y-%m-%d')))
+                                                        datetime.strptime('2029-12-31', '%Y-%m-%d')))
             id_produto = save_produtos.lastrowid
         else:
             id_produto = produto[0]

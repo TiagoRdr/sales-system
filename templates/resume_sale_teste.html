@@ -193,12 +193,13 @@ img{
     }, 3500); // 2000 milissegundos = 2 segundos
 }
 
-function ExportarPdf() {
+    function ExportarPdf() {
         const assinaturas = document.getElementById('assinaturas');
-        assinaturas.style.display = 'flex';
+        assinaturas.style.display = 'flex'; // Mostra a div de assinaturas
+        
         // Elemento a ser exportado
         var element = document.getElementById('container');
-
+        
         // Configurações do html2pdf
         var opt = {
             margin: 1,
@@ -207,10 +208,12 @@ function ExportarPdf() {
             html2canvas: { scale: 2 },
             jsPDF: { unit: 'in', format: 'letter', orientation: 'portrait' }
         };
-
-        // Gera o PDF
-        html2pdf().set(opt).from(element).save()
-    }; // O evento de clique será vinculado apenas uma vez
+        
+        // Gera o PDF e esconde a div depois de gerado
+        html2pdf().set(opt).from(element).save().then(() => {
+            assinaturas.style.display = 'none'; // Esconde a div após a exportação
+        });
+    };
 
 </script>
 </body>

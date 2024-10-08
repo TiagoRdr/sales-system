@@ -1,0 +1,159 @@
+{% extends 'base.html' %}
+
+{% block conteudo %}
+    <h1 class="display-3">NOVA COMPRA</h1>
+    <hr>
+
+<form action="{{url_for('salvar_compra')}}" method="POST" autocomplete="off" enctype="multipart/form-data" onsubmit="showAlert(event)">
+    <div class="row">            
+        <div class="col-md-6">
+            <div class="row">
+                <div class="form-group col-md-6">
+                    <label for="inputdatacompra">Data da compra</label>
+                    <input type="date" class="form-control" id="inputdatacompra" name="inputdatacompra" value={{data_atual}}>
+                </div>
+                <div class="form-group col-md-6">
+                    <label for="inputdatapagamento">Data de pagamento</label>
+                    <input type="date" class="form-control" id="inputdatapagamento" name="inputdatapagamento" value={{data_atual}}>
+                </div>
+            </div>        
+        <div class="row">
+            <div class="form-group col-md-12">
+                <label for="inputnome">Nome do produto</label>
+                <input list="options_produtos" id="inputnomeproduto" autocomplete="off" name="inputnomeproduto" class="form-control" placeholder="Digite para exibir sugestões" required/>
+                    <datalist id="options_produtos">
+                        {% for produto in produtos %}
+                        <option>{{ produto }}</option>
+                        {% endfor %}
+                    </datalist>
+            </div>
+        </div>
+            <div class="row">
+                <div class="form-group col-md-4">
+                    <label for="inputqtd">Quantidade comprada</label>
+                    <input type="text" class="form-control" id="inputqtd" name="inputqtd" autocomplete="off" onkeypress='validate(event)' onkeyup="soma_total()" placeholder="50" required >
+                </div>
+                <div class="form-group col-md-4">
+                    <label for="inputprecounitario">Preço unitário</label>
+                    <input type="text" class="form-control" id="inputprecounitario" name="inputprecounitario" autocomplete="off" placeholder="0,00" onkeypress='validate(event)' onkeyup="soma_total();" required>
+                </div>
+                <div class="form-group col-md-4">
+                    <label for="inputtotalcompra">Total da compra</label>
+                    <input type="text" class="form-control" id="inputtotalcompra" name="inputtotalcompra" autocomplete="off" placeholder="0,00" onkeypress='validate(event)' required>
+                </div>
+            </div>   
+        </div>
+        <div class="col-md-6">                
+            <div class="row">
+                <div class="form-group col-md-12">
+                    <label for="inputfornecedor">Fornecedor</label>
+                    <input list="options_fornecedores" id="inputfornecedor" autocomplete="off" name="inputfornecedor" class="form-control" placeholder="Digite para exibir sugestões" required/>
+                        <datalist id="options_fornecedores">
+                            {% for fornecedor in fornecedores %}
+                            <option>{{ fornecedor }}</option>
+                            {% endfor %}
+                        </datalist>
+                </div>
+                <div class="form-group col-md-6">
+                    <label for="inputnotafiscal">Número da nota fiscal</label>
+                    <input type="text" class="form-control" id="inputnotafiscal" name="inputnotafiscal" autocomplete="off" placeholder="9999999999">
+                </div>                
+                <div class="form-group col-md-6">
+                    <label for="inputmetodopagamento">Método de pagamento</label>
+                    <select id="inputmetodopagamento" name="inputmetodopagamento" class="form-control">
+                        <option selected>...</option>
+                        <option>Cartão Débito</option>
+                        <option>Cartão Crédito</option>
+                        <option>Dinheiro</option>
+                        <option>PIX</option>
+                        <option>Boleto</option>
+                    </select>
+                </div>
+                <div class="form-group col-md-12">
+                    <label for="inputobservacoes">Observações</label>
+                    <textarea class="form-control" id="inputobservacoes" name="inputobservacoes" autocomplete="off" rows="1"></textarea>
+                </div>
+            </div>
+        </div>
+    </div>
+    <br>
+        <div class="d-flex justify-content-center">
+            <button type="submit" name="btn-resume-sale" class="btn btn-success btn-lg">Registrar compra</button>
+        </div>
+
+</form>
+
+
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script>
+    function showAlert() {
+        Swal.fire({
+        position: "center",
+        icon: "success",
+        title: "Cliente Cadastrado",
+        showConfirmButton: false,
+        timer: 2000
+    });
+    };
+
+
+
+    function handleDatalist(inputId, datalistId) {
+        const input = document.getElementById(inputId);
+        const datalist = document.getElementById(datalistId);
+        const allOptions = datalist.innerHTML;  // Guarda todas as opções geradas pelo Jinja
+
+        // Inicialmente remove todas as opções do datalist
+        datalist.innerHTML = '';
+
+        // Quando o usuário começar a digitar
+        input.addEventListener('input', function() {
+            // Adiciona as opções novamente quando houver entrada
+            if (input.value.length > 0) {
+                datalist.innerHTML = allOptions;
+            } else {
+                // Remove as opções se o campo de entrada estiver vazio
+                datalist.innerHTML = '';
+            }
+        });
+    }
+
+    // Aplicar a função para o primeiro input e datalist
+    handleDatalist('inputnomeproduto', 'options_produtos');
+
+    // Aplicar a função para o segundo input e datalist
+    handleDatalist('inputfornecedor', 'options_fornecedores');
+
+    function validate(evt) {
+        var theEvent = evt || window.event;
+
+        // Handle paste
+        if (theEvent.type === 'paste') {
+            key = event.clipboardData.getData('text/plain');
+        } else {
+        // Handle key press
+            var key = theEvent.keyCode || theEvent.which;
+            key = String.fromCharCode(key);
+        }
+        var regex = /[0-9,]/;
+        if( !regex.test(key) ) {
+            theEvent.returnValue = false;
+            if(theEvent.preventDefault) theEvent.preventDefault();
+        }
+    }
+
+    function soma_total(){
+        qtd = document.getElementById("inputqtd").value.replace(",", ".");
+        unitario = document.getElementById("inputprecounitario").value.replace(",", ".");
+        total_compra = document.getElementById("inputtotalcompra");
+
+        if (!isNaN(qtd) && !isNaN(unitario)){
+            total_final = qtd * unitario;
+            total_compra.value = total_final.toFixed(2).replace(".", ",");
+        }else{
+            total_compra.value = 0
+        }
+    }
+</script>
+
+{% endblock conteudo %}

@@ -22,7 +22,6 @@ def visualiza_relatorio():
         data_inicio = request.form.get("dataInicio")
         data_fim = request.form.get("dataFim")
         if request.form.get("tipoRelatorio") == "Vendas por Período":           
-
             grafico_html, data_inicio, data_fim, total_vendas, total_produtos, ticket_medio, total_transacoes, vendas_periodo = visualiza_relatorio_vendas_periodo(data_inicio, data_fim)
 
             return render_template("visualizar-relatorio-vendas-periodo.html", grafico_html=grafico_html, data_inicio=data_inicio, data_fim=data_fim, total_vendas=total_vendas, total_produtos=total_produtos, ticket_medio=ticket_medio, total_transacoes=total_transacoes, vendas_periodo=vendas_periodo)  
@@ -104,24 +103,26 @@ def visualiza_relatorio_vendas_periodo(data_inicio, data_fim):
 
         df = pd.read_sql(query, con=db_connection.connection)
         
-        df['Data'] = pd.to_datetime(df['Data'])
-        
-        # Criando o gráfico de linha com Plotly
-        fig = px.line(df, x='Data', y='Totais', title="Vendas por período",
-                        labels={"Totais": "Total de Vendas", "Data": "Data"})
+        if len(df) > 0:
+            df['Data'] = pd.to_datetime(df['Data'])
+            
+            # Criando o gráfico de linha com Plotly
+            fig = px.line(df, x='Data', y='Totais', title="Vendas por período",
+                            labels={"Totais": "Total de Vendas", "Data": "Data"})
 
-        # Salvando o gráfico em formato HTML
-        grafico_html = pio.to_html(fig, full_html=False)
-        vendas_periodo = consulta_vendas_mes(data_inicio, data_fim)
-        # Obtenha os valores necessários
+            # Salvando o gráfico em formato HTML
+            grafico_html = pio.to_html(fig, full_html=False)
+            vendas_periodo = consulta_vendas_mes(data_inicio, data_fim)
+            # Obtenha os valores necessários
 
-        total_vendas = str(format(df['soma_total'][0], '.2f')).replace(".", ",")
+            total_vendas = str(format(df['soma_total'][0], '.2f')).replace(".", ",")
 
-        total_produtos = int(df['qtd_produtos'].iloc[0])  # Altere o índice para 0, pois df[1] pode não existir
-        ticket_medio = str(format(df['ticket_medio'].iloc[0], '.2f')).replace(".", ",")  # Altere o índice para 0
-        total_transacoes = df['total_transacoes'].iloc[0]  # Altere o índice para 0
+            total_produtos = int(df['qtd_produtos'].iloc[0])  # Altere o índice para 0, pois df[1] pode não existir
+            ticket_medio = str(format(df['ticket_medio'].iloc[0], '.2f')).replace(".", ",")  # Altere o índice para 0
+            total_transacoes = df['total_transacoes'].iloc[0]  # Altere o índice para 0
 
-        return grafico_html, datetime.strptime(data_inicio, '%Y-%m-%d').strftime("%d/%m/%Y"), datetime.strptime(data_fim, '%Y-%m-%d').strftime("%d/%m/%Y"), total_vendas, total_produtos, ticket_medio, total_transacoes, vendas_periodo 
+            return grafico_html, datetime.strptime(data_inicio, '%Y-%m-%d').strftime("%d/%m/%Y"), datetime.strptime(data_fim, '%Y-%m-%d').strftime("%d/%m/%Y"), total_vendas, total_produtos, ticket_medio, total_transacoes, vendas_periodo 
+            
     except Exception as e:
         print(e)
         return "Não existem dados para o período selecionado", 500  # Retornar uma mensagem de erro

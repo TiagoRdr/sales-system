@@ -96,11 +96,20 @@
 
 <div class="container">        
     <div class="row">            
-        <div class="col-md-12 text-center">  <!-- Alinhamento central -->
+        <div class="col-md-6">
             <a class="nav-link" href="{{url_for('suporte')}}">         
                 <button type="submit" class="btn btn-outline-primary text-black" value="SUPORTE" id="btn_suporte_novo">
                     <img class="img_menu" src="../static/support.png" alt="buttonpng">
                     <p class="text-black">SUPORTE</p>
+                </button> 
+            </a>         
+        </div>  
+
+        <div class="col-md-6">
+            <a class="nav-link" href="{{url_for('compras')}}">         
+                <button type="submit" class="btn btn-outline-primary text-black" value="compras" id="btn_compras_novo">
+                    <img class="img_menu" src="../static/shopping-cart.png" alt="buttonpng">
+                    <p class="text-black">COMPRAS</p>
                 </button> 
             </a>         
         </div>  
@@ -165,7 +174,7 @@ img {
     margin-bottom: 5px;
 }
 
-#btn_nova_venda, #btn_cadastros, #btn_consultas, #btn_suporte, #btn_suporte_novo {
+#btn_nova_venda, #btn_cadastros, #btn_consultas, #btn_suporte, #btn_suporte_novo, #btn_compras_novo {
     background: linear-gradient(145deg, #eae7eb, #d1cbcc); /* Degradê suave */
     border: none;
     border-radius: 8px;

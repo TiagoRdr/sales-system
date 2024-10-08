@@ -8,6 +8,7 @@ import new_sale
 from consults import ConsultaProdutos, ConsultaClientes, ConsultaFornecedores
 from cadastros import CadastroProdutos
 from update import AtualizaClientes, AtualizaFornecedores, AtualizaProdutos
+import buy
 import support
 from app_conf import app
 from dateutil.relativedelta import relativedelta
