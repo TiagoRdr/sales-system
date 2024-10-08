@@ -1,0 +1,207 @@
+{% extends 'base.html' %}
+
+{% block conteudo %}
+    <h1 class="display-3">VISUALIZAR COMPRA</h1>
+    <hr>
+    <p style="color: red; font-weight: bold; font-size: 20px; display: none;" class="text-center" id="lblcancelado"></p>
+    <div class="row">            
+        <div class="col-md-6">
+            <div class="row">
+                <div class="form-group col-md-6">
+                    <label for="inputdatacompra">Data da compra</label>
+                    <input type="date" class="form-control" id="inputdatacompra" name="inputdatacompra" value={{info_compra[4]}}>
+                </div>
+                <div class="form-group col-md-6">
+                    <label for="inputdatapagamento">Data de pagamento</label>
+                    <input type="date" class="form-control" id="inputdatapagamento" name="inputdatapagamento" value={{info_compra[10]}}>
+                </div>
+            </div>        
+        <div class="row">
+            <div class="form-group col-md-12">
+                <label for="inputnome">Nome do produto</label>
+                <input list="options_produtos" id="inputnomeproduto" autocomplete="off" name="inputnomeproduto" class="form-control" placeholder="Digite para exibir sugestões" value="{{info_compra[1]}}" required/>
+                    <datalist id="options_produtos">
+                        {% for produto in produtos %}
+                        <option>{{ produto }}</option>
+                        {% endfor %}
+                    </datalist>
+            </div>
+        </div>
+            <div class="row">
+                <div class="form-group col-md-4">
+                    <label for="inputqtd">Quantidade comprada</label>
+                    <input type="text" class="form-control" id="inputqtd" name="inputqtd" autocomplete="off" onkeypress='validate(event)' onkeyup="soma_total()" placeholder="50" value="{{info_compra[2]}}"  required >
+                </div>
+                <div class="form-group col-md-4">
+                    <label for="inputprecounitario">Preço unitário</label>
+                    <input type="text" class="form-control" id="inputprecounitario" name="inputprecounitario" autocomplete="off" placeholder="0,00" onkeypress='validate(event)' onkeyup="soma_total();" value="{{info_compra[3]}}" required>
+                </div>
+                <div class="form-group col-md-4">
+                    <label for="inputtotalcompra">Total da compra</label>
+                    <input type="text" class="form-control" id="inputtotalcompra" name="inputtotalcompra" autocomplete="off" placeholder="0,00" onkeypress='validate(event)' value="{{info_compra[6]}}" required>
+                </div>
+            </div>   
+        </div>
+        <div class="col-md-6">                
+            <div class="row">
+                <div class="form-group col-md-12">
+                    <label for="inputfornecedor">Fornecedor</label>
+                    <input list="options_fornecedores" id="inputfornecedor" autocomplete="off" name="inputfornecedor" class="form-control" placeholder="Digite para exibir sugestões" value="{{info_compra[5]}}" required/>
+                        <datalist id="options_fornecedores">
+                            {% for fornecedor in fornecedores %}
+                            <option>{{ fornecedor }}</option>
+                            {% endfor %}
+                        </datalist>
+                </div>
+                <div class="form-group col-md-6">
+                    <label for="inputnotafiscal">Número da nota fiscal</label>
+                    <input type="text" class="form-control" id="inputnotafiscal" name="inputnotafiscal" autocomplete="off" value="{{info_compra[7]}}" placeholder="9999999999">
+                </div>                
+                <div class="form-group col-md-6">
+                    <label for="inputmetodopagamento">Método de pagamento</label>
+                    <select id="inputmetodopagamento" name="inputmetodopagamento" value="{{info_compra[8]}}" class="form-control">
+                        <option>Cartão Débito</option>
+                        <option>Cartão Crédito</option>
+                        <option>Dinheiro</option>
+                        <option>PIX</option>
+                        <option>Boleto</option>
+                    </select>
+                </div>
+                <input type="hidden" name="codigocompra" id="codigocompra" value="{{info_compra[0]}}">
+                <input type="hidden" name="status" id="status" value="{{info_compra[11]}}">
+                <input type="hidden" name="codigoproduto" id="codigoproduto" value="{{info_compra[12]}}">
+                <div class="form-group col-md-12">
+                    <label for="inputobservacoes">Observações</label>
+                    <textarea class="form-control" id="inputobservacoes" name="inputobservacoes" autocomplete="off" rows="1">{{info_compra[9]}}</textarea>
+                </div>
+            </div>
+        </div>
+    </div>
+    <br>
+    <form method="POST" autocomplete="off" enctype="multipart/form-data" id="cancelarcompra" onsubmit="showAlert(event)">
+        <div class="d-flex justify-content-center">
+            <button type="submit" name="btn-resume-sale" class="btn btn-danger btn-lg" id="cancelarcompra" name="cancelarcompra">Cancelar Compra</button>
+        </div>
+
+</form>
+
+
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script>
+    // Condição para esconder o botão com base no texto vindo do backend
+    const status = document.getElementById('status').value;
+    const lblcancelado = document.getElementById('lblcancelado');
+    const botao_cancelar = document.getElementById('cancelarcompra');
+    if (status.includes('Cancelada')) {
+        botao_cancelar.style.display = 'none';  // Esconde o botão
+        lblcancelado.style.display = 'block';
+        lblcancelado.innerText = 'COMPRA CANCELADA';
+    }else{
+        lblcancelado.style.display = 'none';
+    }
+
+
+
+
+
+    cancelarcompra.onsubmit = async function(event) {
+    event.preventDefault();
+    let codigocompra = document.getElementById("codigocompra").value; 
+    let codigoproduto = document.getElementById("codigoproduto").value; 
+    let quantidade = document.getElementById("inputqtd").value; 
+    Swal.fire({
+        title: "Deseja cancelar a compra?",
+        text: "Não será possível reverter após o cancelamento",
+        icon: "warning",
+        showCancelButton: true,
+        confirmButtonColor: "#3085d6",
+        cancelButtonColor: "#d33",
+        confirmButtonText: "Sim, cancelar!"
+    }).then((result) => {
+        if (result.isConfirmed) {
+            $.ajax({
+                type: 'POST',
+                url: `/cancelaCompra/${codigocompra}/${codigoproduto}/${quantidade}`,  // Envia o código da compra
+                success: function(response) { // Função chamada após sucesso
+                    Swal.fire({
+                        title: "Cancelado!",
+                        text: "Compra cancelada com sucesso!",
+                        icon: "success",
+                        timer: 2000
+                    });
+                    setTimeout(function() {
+                        window.location.href = "/consulta-compras-main";
+                    }, 2000); // Tempo ajustado para 2 segundos para sincronizar com o timer do Swal
+                },
+                error: function(xhr, status, error) { // Lida com erros na requisição
+                    Swal.fire({
+                        title: "Erro!",
+                        text: "Ocorreu um erro ao tentar cancelar a compra.",
+                        icon: "error",
+                        timer: 2000
+                    });
+                }
+            });
+        }
+    });
+}
+
+    function handleDatalist(inputId, datalistId) {
+        const input = document.getElementById(inputId);
+        const datalist = document.getElementById(datalistId);
+        const allOptions = datalist.innerHTML;  // Guarda todas as opções geradas pelo Jinja
+
+        // Inicialmente remove todas as opções do datalist
+        datalist.innerHTML = '';
+
+        // Quando o usuário começar a digitar
+        input.addEventListener('input', function() {
+            // Adiciona as opções novamente quando houver entrada
+            if (input.value.length > 0) {
+                datalist.innerHTML = allOptions;
+            } else {
+                // Remove as opções se o campo de entrada estiver vazio
+                datalist.innerHTML = '';
+            }
+        });
+    }
+
+    // Aplicar a função para o primeiro input e datalist
+    handleDatalist('inputnomeproduto', 'options_produtos');
+
+    // Aplicar a função para o segundo input e datalist
+    handleDatalist('inputfornecedor', 'options_fornecedores');
+
+    function validate(evt) {
+        var theEvent = evt || window.event;
+
+        // Handle paste
+        if (theEvent.type === 'paste') {
+            key = event.clipboardData.getData('text/plain');
+        } else {
+        // Handle key press
+            var key = theEvent.keyCode || theEvent.which;
+            key = String.fromCharCode(key);
+        }
+        var regex = /[0-9,]/;
+        if( !regex.test(key) ) {
+            theEvent.returnValue = false;
+            if(theEvent.preventDefault) theEvent.preventDefault();
+        }
+    }
+
+    function soma_total(){
+        qtd = document.getElementById("inputqtd").value.replace(",", ".");
+        unitario = document.getElementById("inputprecounitario").value.replace(",", ".");
+        total_compra = document.getElementById("inputtotalcompra");
+
+        if (!isNaN(qtd) && !isNaN(unitario)){
+            total_final = qtd * unitario;
+            total_compra.value = total_final.toFixed(2).replace(".", ",");
+        }else{
+            total_compra.value = 0
+        }
+    }
+</script>
+
+{% endblock conteudo %}

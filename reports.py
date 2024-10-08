@@ -41,8 +41,8 @@ def visualiza_relatorio():
 
             return render_template("visualizar-relatorio-vendas-clientes.html", grafico_html=grafico_html, data_inicio=data_inicio, data_fim=data_fim, quantidade_clientes=quantidade_clientes, lucro_total=lucro_total, list_clientes=list_items)  
             
-        elif request.form.get("tipoRelatorio") == "Lucro por Produto":
-            grafico_html, data_inicio, data_fim, quantidade_produtos_vendidos, receita_total, custo_total, lucro_bruto_total, list_items = visualiza_relatorio_lucro_produtos(data_inicio, data_fim)
+        elif request.form.get("tipoRelatorio") == "Fluxo de caixa":
+            grafico_html, data_inicio, data_fim, quantidade_produtos_vendidos, receita_total, custo_total, lucro_bruto_total, list_items = visualiza_relatorio_fluxo_caixa(data_inicio, data_fim)
 
             return render_template("visualizar-relatorio-lucro-produto.html", grafico_html=grafico_html, data_inicio=data_inicio, data_fim=data_fim, quantidade_produtos_vendidos=quantidade_produtos_vendidos, receita_total=receita_total, custo_total=custo_total, lucro_bruto_total=lucro_bruto_total, tabela_produtos=list_items) 
 
@@ -284,7 +284,7 @@ def visualiza_relatorio_vendas_clientes(data_inicio, data_fim):
     
 #############################################################################################################################
 
-def visualiza_relatorio_lucro_produtos(data_inicio, data_fim):
+def visualiza_relatorio_fluxo_caixa(data_inicio, data_fim):
     try:
         db_connection = DatabaseConnection()
         db_connection.connect()

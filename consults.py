@@ -95,11 +95,26 @@ def visualizar_venda_main():
 def cancelar_venda(idvenda, motivo):
     db_connection = DatabaseConnection()
     db_connection.connect() 
-    print('aaaaaaaaaaaaaaaaaaaaaaaaaaaa')
     status_venda = '❌ Cancelada'
+
     query_cancelar = "UPDATE `tr-sale-system`.vendas set status_venda = %s, motivo_cancelamento = %s WHERE id= %s"
     result_cancelar_venda = db_connection.execute_query(query_cancelar, False, params=(status_venda, motivo, idvenda,))
-    
+
+    query_produtos = """SELECT 
+                            id_produto,
+                            quantidade
+                            FROM `tr-sale-system`.vendas_produtos
+                            where id_venda = %s
+                        """
+    result_produtos = db_connection.execute_query(query_produtos, params=(idvenda,))
+
+    for produto in result_produtos:
+        print(produto[1],'aaa', produto[0])
+        query_update_produto = f"""
+            UPDATE produtos set qtd_estoque = qtd_estoque - {int(produto[1])} where id = {int(produto[0])}
+        """
+        result_update_produto = db_connection.execute_query(query_update_produto, False)
+
     return redirect(url_for('consulta_vendas'))
 
 class ConsultaVendas:

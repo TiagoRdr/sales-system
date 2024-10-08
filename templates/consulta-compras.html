@@ -1,16 +1,39 @@
 {% extends 'base.html' %}
 
 {% block conteudo %}
-    <h1 class="display-3">CONSULTAR CLIENTES</h1>
+    <h1 class="display-3">CONSULTAR COMPRAS</h1>
     <hr>
 
-<p class="lead text-center ">FILTRO</p>
+<p class="lead text-center ">FILTROS</p>
 
-<div style="display: flex; justify-content: center; align-items: center; flex-direction: column;">
-<input type="text" class="text-center" id="filtro_cliente" style="width: 400px;" onkeyup="filtrarClientes()" placeholder="Filtrar por nome do cliente">
-</div>
+<form action="{{url_for('consulta_compras_filtros')}}" method="POST" autocomplete="off" enctype="multipart/form-data" style="display:inline-block;">
+    <div style="display: flex; justify-content: center; align-items: center;">
+        <div style="margin-right: 10px; text-align: center;">
+            <label for="datainicio">Data Inicial</label>
+            <input type="date" class="text-center" id="datainicio" name="datainicio" style="width: 426px;" value="{{datainicial}}" required>
+        </div>
+        <div style="margin-right: 10px; text-align: center;">
+            <label for="datafim">Data Final</label>
+            <input type="date" class="text-center" id="datafim" name="datafim" style="width: 426px;" value="{{datafinal}}" required>
+        </div>
+        <div style="text-align: center;">
+            <label for="filtro_produto">Produto</label>
+            <input list="produtos" class="text-center" id="filtro_produto" name="filtro_produto" style="width: 426px;" value="{{produto}}" placeholder="Selecione um produto">
+            <datalist id="produtos">
+                {% for produto in lista_produtos %}
+                    <option>{{ produto[0] }}</option>
+                {% endfor %}
+            </datalist>
+        </div>
+    </div>
+    <div style="text-align: center; margin-top: 15px;">
+        <input type="submit" value="Consultar" class="btn btn-success">
+    </div>
+</form>
 
-<br>
+
+<br><br>
+
 
 <div class="container">        
     <div class="row">         
@@ -18,36 +41,32 @@
             <table class="table table-striped" id="tabela">
                 <thead>
                     <tr>
-                    <th scope="col" class="coluna">Código Cliente</th>
-                    <th scope="col">Nome</th>
-                    <th scope="col">Endereço</th>
-                    <th scope="col">E-mail</th>
-                    <th scope="col">Telefone</th>  
-                    <th scope="col">CPF/CNPJ</th>                     
+                    <th scope="col" class="coluna">Código Compra</th>
+                    <th scope="col">Data da compra</th>
+                    <th scope="col">Forma Pagamento</th>
+                    <th scope="col">Fornecedor</th>
+                    <th scope="col">Produto</th>
+                    <th scope="col">Total da compra</th>
+                    <th scope="col">Status da compra</th>
                     </tr>
                 </thead>
                 <tbody>
-                    {% for cliente in clientes_cadastrados %}
-                    <form action="{{url_for('atualizar_clientes_main')}}" method="POST" autocomplete="off" enctype="multipart/form-data"></form>
-                        <tr>
-                            <th scope="row">{{cliente[0]}}</th>
-                            <td>{{cliente[1]}}</td>
-                            <td>{{cliente[2]}}</td>
-                            <td>{{cliente[3]}}</td>                    
-                            <td>{{cliente[4]}}</td>
-                            <td>{{cliente[5]}}</td>                        
-                            <td>
-                                <form action="{{url_for('atualizar_clientes_main')}}" method="POST" autocomplete="off" enctype="multipart/form-data" style="display:inline-block;">
-                                    <input type="hidden" name="codigo" id="codigo" value="{{ cliente[0] }}">
-                                    <button type="submit" class="btn btn-info">Visualizar</button>
-                                </form>
-
-                                <form id="removecliente" method="POST" autocomplete="off" enctype="multipart/form-data" style="display:inline-block;">
-                                    <input type="hidden" name="codigoremove" id="codigoremove" value="{{ cliente[0] }}">
-                                    <button type="submit" class="btn btn-danger">Remover</button>
-                                </form>
-                            </td>
-                        </tr>
+                    {% for compra in compras_mes %}
+                    <tr>
+                        <th scope="row">{{compra[0]}}</th>
+                        <td>{{compra[1]}}</td>
+                        <td>{{compra[2]}}</td>
+                        <td>{{compra[3]}}</td>
+                        <td>{{compra[4]}}</td>
+                        <td>{{compra[5]}}</td>
+                        <td>{{compra[6]}}</td>
+                        <td>
+                            <form action="{{url_for('visualizar_compra_main')}}" method="POST" autocomplete="off" enctype="multipart/form-data" style="display:inline-block;">
+                                <input type="hidden" name="codigo" id="codigo" value="{{ compra[0] }}">
+                                <button type="submit" class="btn btn-info">Visualizar</button>
+                            </form>
+                        </td>
+                    </tr>
                     {% endfor %}
                 </tbody>
             </table>
@@ -72,66 +91,34 @@ th, td {
 tbody tr {
   vertical-align: middle; /* Alinha o texto verticalmente ao centro */
 }
+
 </style>
 
-<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
 <script>
-    function filtrarClientes() {
-      // Obtém o valor do input de filtro
-        var input = document.getElementById("filtro_cliente");
-        var filtro = input.value.toLowerCase();
-        var tabela = document.getElementById("tabela");
-        var tr = tabela.getElementsByTagName("tr");
+    function handleDatalist(inputId, datalistId) {
+    const input = document.getElementById(inputId);
+    const datalist = document.getElementById(datalistId);
+    const allOptions = datalist.innerHTML;  // Guarda todas as opções geradas pelo Jinja
 
-      // Itera sobre todas as linhas da tabela (exceto o cabeçalho)
-    for (var i = 1; i < tr.length; i++) {
-        var td = tr[i].getElementsByTagName("td")[0]; // Filtra pela primeira coluna (Nome do Produto)
-        if (td) {
-        var texto = td.textContent || td.innerText;
-        // Exibe ou oculta a linha com base no filtro
-        if (texto.toLowerCase().indexOf(filtro) > -1) {
-            tr[i].style.display = "";
+    // Inicialmente remove todas as opções do datalist
+    datalist.innerHTML = '';
+
+    // Quando o usuário começar a digitar
+    input.addEventListener('input', function() {
+        // Adiciona as opções novamente quando houver entrada
+        if (input.value.length > 0) {
+            datalist.innerHTML = allOptions;
         } else {
-            tr[i].style.display = "none";
-            }
-            }
+            // Remove as opções se o campo de entrada estiver vazio
+            datalist.innerHTML = '';
         }
-    }
+    });
+}
 
+// Aplicar a função para o primeiro input e datalist
+    handleDatalist('filtro_produto', 'produtos');
 
-
-    removecliente.onsubmit = function(event){
-            event.preventDefault();
-            codigo = document.getElementById("codigoremove").value; 
-
-            console.log(codigo)
-            Swal.fire({
-                title: "Confirme a exclusão do cliente",
-                text: "Não será possível reverter após a exclusão",
-                icon: "warning",
-                showCancelButton: true,
-                confirmButtonColor: "#3085d6",
-                cancelButtonColor: "#d33",
-                confirmButtonText: "Remover"
-                }).then((result) => {
-                if (result.isConfirmed) {
-                    $.ajax({
-                    type: 'POST',
-                    url: `/removeCliente/${codigo}`
-                    }).then(() => {
-                        Swal.fire({
-                        title: "Removido!",
-                        text: "O cliente foi removido com sucesso!",
-                        icon: "success",
-                        timer: 2000
-                    });
-                    setTimeout(function() {
-                        window.location.reload();
-                    }, 3000); // 2000 milissegundos = 2 segundos    
-                })
-                }
-            });       
-            
-        }
 </script>
+
 {% endblock conteudo %}
