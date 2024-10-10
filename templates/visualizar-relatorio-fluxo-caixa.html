@@ -1,0 +1,209 @@
+{% extends 'base.html' %}
+
+{% block conteudo %}
+
+<style>
+    body {
+        font-family: Arial, sans-serif;
+        margin: 0;
+        padding: 0;
+        background-color: #f4f4f4;
+        color: #333;
+    }
+
+    h1 {
+        margin: 0;
+    }
+
+    .container {
+        max-width: 1200px;
+        margin: 20px auto;
+        padding: 20px;
+        background-color: white;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        border-radius: 8px;
+    }
+
+    .summary {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 40px;
+    }
+
+    .summary_entrada {
+        background-color: rgb(156, 204, 156);
+        padding: 20px;
+        text-align: center;
+        border-radius: 8px;
+        flex: 1;
+        margin: 0 10px;
+    }
+
+    .summary_saida {
+        background-color: rgb(238, 126, 126);
+        padding: 20px;
+        text-align: center;
+        border-radius: 8px;
+        flex: 1;
+        margin: 0 10px;
+    }
+
+    .summary_saldo {
+        background-color: lightblue;
+        padding: 20px;
+        text-align: center;
+        border-radius: 8px;
+        flex: 1;
+        margin: 0 10px;
+    }
+
+    .summary div h2 {
+        margin: 0 0 10px 0;
+        font-size: 24px;
+    }
+
+    .summary div p {
+        font-size: 20px;
+        margin: 0;
+        font-weight: bold;
+    }
+
+    .table-container {
+        max-height: 500px; /* Ajuste conforme necessário */
+        overflow-y: auto;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+    }
+
+    table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 20px;
+    }
+
+    table, th, td {
+        border: 1px solid #000000;
+    }
+
+    th, td {
+        padding: 12px;
+        text-align: center;
+    }
+
+    th {
+        background-color: white; /* Cabeçalho branco */
+        color: black; /* Cor do texto do cabeçalho */
+    }
+
+    /* Remover estilo de linhas alternadas */
+    tr {
+        background-color: transparent; /* Define o fundo padrão como transparente */
+    }
+
+    .total {
+        font-size: 22px;
+        font-weight: bold;
+        text-align: right;
+        padding-right: 20px;
+        margin-top: 20px;
+    }
+
+    /* Estilos Responsivos */
+    @media (max-width: 768px) {
+        .summary {
+            flex-direction: column;
+        }
+
+        .summary div {
+            margin-bottom: 20px;
+        }
+    }
+
+    .my-4 {
+        width: 1100px;
+    }
+
+    /* Cores para as linhas */
+    .linha-entrada {
+        background-color: rgb(156, 204, 156); /* Verde claro */
+    }
+
+    .linha-saida {
+        background-color: rgb(238, 126, 126); /* Vermelho claro */
+    }
+</style>
+
+<div class="container">
+    <h3 class="text-center">FLUXO DE CAIXA</h3>
+    <P class="text-center"><strong >{{data_inicio}} a {{data_fim}}</strong></p>
+    <hr>
+    <div class="summary">
+        <div class="summary_entrada">
+            <h2>Total de Entradas</h2>
+            <p>R$ {{total_entradas}}</p>
+        </div>
+        <div class="summary_saida">
+            <h2>Total de Saídas</h2>
+            <p>R$ {{total_saidas}}</p>
+        </div>
+        <div class="summary_saldo">
+            <h2>Saldo do Período</h2>
+            <p>R$ {{saldo_periodo}}</p>
+        </div>
+    </div>
+
+    <div class="my-4">
+        {{ grafico_html|safe }}
+    </div>
+
+    <div class="tables">
+        <div class="container-vendas">        
+            <div class="row">      
+                <h3 class="text-center">Entradas e Saídas do Período</h3>   
+                <div class="table-container"> 
+                    <table id="tabela1">
+                        <thead>
+                            <tr>
+                                <th>Data de entrada/saída</th>
+                                <th>Método de pagamento</th>
+                                <th>Cliente/Fornecedor</th>
+                                <th>Total</th>
+                                <th>Tipo</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for valor in lista_entradas_saidas %}
+                            <tr>
+                                <td>{{valor[1]}}</td> 
+                                <td>{{valor[2]}}</td> 
+                                <td>{{valor[3]}}</td> 
+                                <td>{{valor[4]}}</td>
+                                <td>{{valor[5]}}</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            const tabela = document.getElementById('tabela1');
+            const linhas = tabela.getElementsByTagName('tr');
+
+            for (let i = 1; i < linhas.length; i++) { // Começa em 1 para ignorar o cabeçalho
+                const tipo = linhas[i].cells[4].innerText.trim(); // Obtém o valor da coluna "Tipo"
+                console.log(tipo); // Para verificar o valor da coluna Tipo
+                if (tipo === 'Entrada') {
+                    linhas[i].classList.add('linha-entrada'); // Adiciona a classe de entrada
+                } else if (tipo === 'Saída') {
+                    linhas[i].classList.add('linha-saida'); // Adiciona a classe de saída
+                }
+            }
+        });
+    </script>
+</div>
+
+{% endblock conteudo %}

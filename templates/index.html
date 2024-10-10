@@ -5,74 +5,69 @@
 
 <div class="containers">
     <div class="card">
-      <div class="image-text">
-        <img src="https://cdn.icon-icons.com/icons2/514/PNG/512/shop_icon-icons.com_51010.png" alt="Imagem 1">
-        <div class="text-container">
-          <p class="top-text">Vendas do Mês</p>
-          <p class="bottom-text">R$ {{total_mensal}}</p>
+        <div class="image-text">
+            <img src="https://cdn.icon-icons.com/icons2/514/PNG/512/shop_icon-icons.com_51010.png" alt="Imagem 1">
+            <div class="text-container">
+                <p class="top-text">Vendas do Mês</p>
+                <p class="bottom-text">R$ {{total_mensal}}</p>
+            </div>
         </div>
-      </div>
-    </div>
-
-    <div class="card">
-      <div class="image-text">
-        <img class="img_header" src="https://cdn.pixabay.com/photo/2013/07/13/12/49/group-160427_1280.png" alt="Imagem 2">
-        <div class="text-container">
-          <p class="top-text">Total de clientes</p>
-          <p class="bottom-text">{{total_clientes}} Clientes</p>
-        </div>
-      </div>
-    </div>
-
-    <div class="card">
-      <div class="image-text">
-        <img src="https://cdn.icon-icons.com/icons2/943/PNG/512/shoppaymentorderbuy-11_icon-icons.com_73850.png" alt="Imagem 3">
-        <div class="text-container">
-          <p class="top-text">Ticket médio</p>
-          <p class="bottom-text">R$ {{ticket_medio}}</p>
-        </div>
-      </div>
     </div>
 
     <div class="card">
         <div class="image-text">
-          <img src="../static/low.png" alt="Imagem 3">
-          <div class="text-container">
-            <p class="top-text">Total de produtos com estoque crítico</p>
-            <p class="bottom-text">{{qtd_produtos_estoque_critico}} Produtos</p>
-          </div>
+            <img class="img_header" src="https://cdn.pixabay.com/photo/2013/07/13/12/49/group-160427_1280.png" alt="Imagem 2">
+            <div class="text-container">
+                <p class="top-text">Total de clientes</p>
+                <p class="bottom-text">{{total_clientes}} Clientes</p>
+            </div>
         </div>
-      </div>
-</div>
+    </div>
 
-<br>
+    <div class="card">
+        <div class="image-text">
+            <img src="https://cdn.icon-icons.com/icons2/943/PNG/512/shoppaymentorderbuy-11_icon-icons.com_73850.png" alt="Imagem 3">
+            <div class="text-container">
+                <p class="top-text">Ticket médio</p>
+                <p class="bottom-text">R$ {{ticket_medio}}</p>
+            </div>
+        </div>
+    </div>
 
-<div class="container">        
-    <div class="row">            
-        <div class="col-md-6">
-            <a class="nav-link" href="{{url_for('nova_venda')}}">
-            <button type="submit" class="btn btn-outline-primary text-black" value="NOVA VENDA" id="btn_nova_venda">
-                <img class="img_menu" src="../static/nova-venda.png" alt="buttonpng">
-                <p class="text-black">NOVA VENDA</p>
-            </button>  
-            </a>          
-        </div>  
-            
-        <div class="col-md-6">
-            <a class="nav-link" href="{{url_for('cadastro_main')}}">             
-              <button type="submit" class="btn btn-outline-primary text-black" value="CADASTROS" id="btn_cadastros">
-                  <img class="img_menu"  src="../static/register.png" alt="buttonpng">
-                  <p class="text-black">CADASTROS</p>
-              </button>     
-            </a>   
-        </div>  
+    <div class="card">
+        <div class="image-text">
+            <img src="../static/cash-flow.png" alt="Imagem 3">
+            <div class="text-container">
+                <p class="top-text">Saldo do Mês</p>
+                <p class="bottom-text">R$ {{saldo_atual}}</p>
+            </div>
+        </div>
     </div>
 </div>
+
 <br>
 
 <div class="container">        
-    <div class="row">            
-        <div class="col-md-6">  
+    <div class="row">
+        <div class="col-md-4">
+            <a class="nav-link" href="{{url_for('nova_venda')}}">
+                <button type="submit" class="btn btn-outline-primary text-black" value="NOVA VENDA" id="btn_nova_venda">
+                    <img class="img_menu" src="../static/nova-venda.png" alt="buttonpng">
+                    <p class="text-black">NOVA VENDA</p>
+                </button>  
+            </a>          
+        </div>  
+        <div class="col-md-4">
+            <a class="nav-link" href="{{url_for('nova_compra')}}">         
+                <button type="submit" class="btn btn-outline-primary text-black" value="compras" id="btn_compras_novo">
+                    <img class="img_menu" src="../static/add-to-cart.png" alt="buttonpng">
+                    <p class="text-black">NOVA COMPRA</p>
+                </button> 
+            </a>         
+        </div>  
+        
+        
+        <div class="col-md-4">
             <a class="nav-link" href="{{url_for('consulta_main')}}">         
                 <button type="submit" class="btn btn-outline-primary text-black" value="CONSULTAS" id="btn_consultas">
                     <img class="img_menu" src="../static/search.png" alt="buttonpng">
@@ -80,23 +75,30 @@
                 </button> 
             </a>         
         </div>  
-        
-        <div class="col-md-6">
-          <a class="nav-link" href="{{url_for('relatorios_main')}}">               
-            <button type="submit" class="btn btn-outline-primary text-black" value="RELATÓRIOS" id="btn_suporte">
-                <img class="img_menu" src="../static/monitor.png" alt="buttonpng">
-                <p class="text-black">RELATÓRIOS</p>
-            </button>
-          </a>      
-        </div>  
     </div>
 </div>
 
 <br>
 
 <div class="container">        
-    <div class="row">            
-        <div class="col-md-6">
+    <div class="row">
+        <div class="col-md-4">
+            <a class="nav-link" href="{{url_for('cadastro_main')}}">             
+                <button type="submit" class="btn btn-outline-primary text-black" value="CADASTROS" id="btn_cadastros">
+                    <img class="img_menu" src="../static/register.png" alt="buttonpng">
+                    <p class="text-black">CADASTROS</p>
+                </button>     
+            </a>   
+        </div>  
+        <div class="col-md-4">
+            <a class="nav-link" href="{{url_for('relatorios_main')}}">               
+                <button type="submit" class="btn btn-outline-primary text-black" value="RELATÓRIOS" id="btn_suporte">
+                    <img class="img_menu" src="../static/monitor.png" alt="buttonpng">
+                    <p class="text-black">RELATÓRIOS</p>
+                </button>
+            </a>      
+        </div>          
+        <div class="col-md-4">
             <a class="nav-link" href="{{url_for('suporte')}}">         
                 <button type="submit" class="btn btn-outline-primary text-black" value="SUPORTE" id="btn_suporte_novo">
                     <img class="img_menu" src="../static/support.png" alt="buttonpng">
@@ -105,14 +107,7 @@
             </a>         
         </div>  
 
-        <div class="col-md-6">
-            <a class="nav-link" href="{{url_for('compras')}}">         
-                <button type="submit" class="btn btn-outline-primary text-black" value="compras" id="btn_compras_novo">
-                    <img class="img_menu" src="../static/shopping-cart.png" alt="buttonpng">
-                    <p class="text-black">COMPRAS</p>
-                </button> 
-            </a>         
-        </div>  
+        
     </div>
 </div>
 
@@ -133,7 +128,7 @@
 }
 
 .card {
-    background: linear-gradient(145deg, #eae7eb, #d1cbcc); /* Degradê suave */ /* Cor de fundo mais suave */
+    background: linear-gradient(145deg, #eae7eb, #d1cbcc); /* Degradê suave */
     border: 3px solid #5a6068; /* Cor da borda mais suave */
     border-radius: 8px;
     padding: 10px;
@@ -178,7 +173,7 @@ img {
     background: linear-gradient(145deg, #eae7eb, #d1cbcc); /* Degradê suave */
     border: none;
     border-radius: 8px;
-    width: 400px;
+    width: 100%; /* 100% da largura do coluna */
     height: 200px;
     display: flex;
     flex-direction: column;

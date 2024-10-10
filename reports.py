@@ -42,9 +42,9 @@ def visualiza_relatorio():
             return render_template("visualizar-relatorio-vendas-clientes.html", grafico_html=grafico_html, data_inicio=data_inicio, data_fim=data_fim, quantidade_clientes=quantidade_clientes, lucro_total=lucro_total, list_clientes=list_items)  
             
         elif request.form.get("tipoRelatorio") == "Fluxo de caixa":
-            grafico_html, data_inicio, data_fim, quantidade_produtos_vendidos, receita_total, custo_total, lucro_bruto_total, list_items = visualiza_relatorio_fluxo_caixa(data_inicio, data_fim)
+            grafico_html, data_inicio, data_fim, total_entradas, total_saidas, saldo_periodo, lista_entradas_saidas = visualiza_relatorio_fluxo_caixa(data_inicio, data_fim)
 
-            return render_template("visualizar-relatorio-lucro-produto.html", grafico_html=grafico_html, data_inicio=data_inicio, data_fim=data_fim, quantidade_produtos_vendidos=quantidade_produtos_vendidos, receita_total=receita_total, custo_total=custo_total, lucro_bruto_total=lucro_bruto_total, tabela_produtos=list_items) 
+            return render_template("visualizar-relatorio-fluxo-caixa.html", grafico_html=grafico_html, data_inicio=data_inicio, data_fim=data_fim, total_entradas=total_entradas, total_saidas=total_saidas, saldo_periodo=saldo_periodo, lista_entradas_saidas=lista_entradas_saidas) 
 
         elif request.form.get("tipoRelatorio") == "Vendas por Fornecedor":
             grafico_html, data_inicio, data_fim, quantidade_fornecedores, lucro_total, list_items = visualiza_relatorio_vendas_fornecedor(data_inicio, data_fim)
@@ -71,7 +71,8 @@ def consulta_vendas_mes(data_inicio, data_fim):
                             DATE_FORMAT(v.data_venda, '%d/%m/%Y') AS data_formatada,
                             v.forma_pagamento,
                             c2.nome,
-                            REPLACE(FORMAT(v.total_venda , 2), '.', ',') AS campo_formatado                                
+                            REPLACE(FORMAT(v.total_venda , 2), '.', ',') AS campo_formatado,
+                            'Entrada' as entrada                                
                             from vendas v 
                             left join clientes c2 on v.id_cliente  = c2.id
                             where data_venda between '{data_inicio}' and '{data_fim}'
@@ -81,6 +82,29 @@ def consulta_vendas_mes(data_inicio, data_fim):
     
     result_vendas_filtros = db_connection.execute_query(query_vendas_mes)
     return result_vendas_filtros
+
+
+def consulta_compras_periodo(data_inicio, data_fim):
+
+    db_connection = DatabaseConnection()
+    db_connection.connect()
+
+    query_compras_mes = f"""select 
+                            c.id,
+                            DATE_FORMAT(c.data_compra, '%d/%m/%Y') AS data_formatada,
+                            c.metodo_pagamento as forma_pagamento,
+                            f.nome as fornecedor,
+                            REPLACE(FORMAT(c.valor_total_compra , 2), '.', ',') as total_compra,
+                            'Saída' as saida
+                            from compras c
+                            left join fornecedores f on c.id_fornecedor = f.id 
+                            where c.data_compra between '{data_inicio}' and '{data_fim}'
+                            and c.status_compra not like '%Cancelada%'
+                            order by c.id desc 
+                    """
+    
+    result_compras_filtros = db_connection.execute_query(query_compras_mes)
+    return result_compras_filtros
 
 def visualiza_relatorio_vendas_periodo(data_inicio, data_fim):
     try:
@@ -289,54 +313,160 @@ def visualiza_relatorio_fluxo_caixa(data_inicio, data_fim):
         db_connection = DatabaseConnection()
         db_connection.connect()
 
-        query = f"""select 
-                        max(p.nome) as nome_produto,
-                        sum(vp.quantidade) as quantidade_vendida,
-                        max(p.valor_unitario) as valor_unitario,
-                        sum(vp.quantidade * vp.valor_unitario) as receita_total,
-                        coalesce(sum(vp.quantidade * p.custo_aquisicao),0) as custo_total,
-                        (SUM(vp.quantidade * vp.valor_unitario) - sum(vp.quantidade * coalesce(p.custo_aquisicao,0))) as lucro_bruto
-                        from vendas_produtos vp 
-                        join vendas v on v.id = vp.id_venda
-                        join produtos p on p.id = vp.id_produto
-                        WHERE data_venda BETWEEN '{data_inicio}' AND '{data_fim}'
-                        AND status_venda NOT LIKE '%Cancelada%'
-                        group by vp.id_produto
-                        order by lucro_bruto desc;
+        if data_inicio[5:7] != data_fim[5:7]:
+            query = f"""
+                SELECT 
+                YEAR(data_venda_compra) AS ano,
+                MONTH(data_venda_compra) AS mes,
+                max(data_venda_compra) as data_venda_compra,
+                SUM(total_venda) AS valor_venda,
+                SUM(valor_total_compra) AS total_compras,
+                sum(total_venda) - sum(valor_total_compra) as saldo_mensal
+            FROM (
+                SELECT data_venda AS data_venda_compra, total_venda AS total_venda, 0 AS valor_total_compra
+                FROM vendas
+                WHERE data_venda BETWEEN '{data_inicio}' AND '{data_fim}'
+                AND status_venda NOT LIKE '%Cancelada%'
+                UNION ALL
+                SELECT data_compra AS data_venda_compra, 0 AS valor_venda, valor_total_compra AS valor_total_compra
+                FROM compras
+                WHERE data_compra BETWEEN '{data_inicio}' AND '{data_fim}'
+                AND status_compra NOT LIKE '%Cancelada%'
+            ) AS vendas_combinadas
+            GROUP BY ano, mes
+            ORDER BY ano, mes;
                 """
+        else:
+            query = f"""WITH vendas_combinadas AS (
+                            SELECT 
+                                data_venda AS data_venda_compra, 
+                                total_venda, 
+                                0 AS valor_total_compra
+                            FROM vendas
+                            WHERE data_venda BETWEEN '{data_inicio}' AND '{data_fim}'
+                            AND status_venda NOT LIKE '%Cancelada%'
+                            
+                            UNION ALL
+
+                            SELECT 
+                                data_compra AS data_venda_compra, 
+                                0 AS total_venda, 
+                                valor_total_compra
+                            FROM compras
+                            WHERE data_compra BETWEEN '{data_inicio}' AND '{data_fim}'
+                            AND status_compra NOT LIKE '%Cancelada%'
+                        ),
+                        saldos AS (
+                            SELECT 
+                                data_venda_compra,
+                                SUM(total_venda) AS valor_venda,
+                                SUM(valor_total_compra) AS total_compras,
+                                SUM(total_venda) - SUM(valor_total_compra) AS saldo_diario
+                            FROM vendas_combinadas
+                            GROUP BY data_venda_compra
+                        )
+                        SELECT 
+                            data_venda_compra,
+                            valor_venda,
+                            total_compras,
+                            -- Calcula o saldo acumulado até a data de cada registro
+                            SUM(saldo_diario) OVER (ORDER BY data_venda_compra) AS saldo_acumulado
+                        FROM saldos
+                        ORDER BY data_venda_compra;
+                    """
+            
 
         df = pd.read_sql(query, con=db_connection.connection)
 
-        fig = go.Figure(data=[
-            go.Bar(x=df['nome_produto'], y=df['lucro_bruto'], text=df['lucro_bruto'], textposition='auto')
-        ])
+        if data_inicio[5:7] != data_fim[5:7]:
+            fig = go.Figure()
+            fig.add_trace(go.Bar(
+                x=df['mes'].astype(str) + '/' + df['ano'].astype(str),
+                y=df['valor_venda'],
+                name='Total de Entradas',
+                marker_color='rgb(156, 204, 156)'
+            ))
+            fig.add_trace(go.Bar(
+                x=df['mes'].astype(str) + '/' + df['ano'].astype(str),
+                y=df['total_compras'],
+                name='Total de Saídas',
+                marker_color='rgb(238, 126, 126)'
+            ))
+            # Adiciona a linha de saldo
+            fig.add_trace(go.Scatter(
+                x=df['mes'].astype(str) + '/' + df['ano'].astype(str),  # Formata a data como 'mes/ano'
+                y=df['saldo_mensal'],
+                name='Saldo Mensal',
+                mode='lines+markers',  # 'lines' para apenas a linha, 'lines+markers' para adicionar pontos
+                line=dict(color='blue', width=2),  # Customize a cor e a largura da linha
+            ))
+            # Atualiza o layout
+            fig.update_layout(
+                title='Entradas e Saídas Mensais',
+                xaxis_title='Mês/Ano',
+                yaxis_title='Valor',
+                barmode='group',  # Modo de barras agrupadas
+            )
 
-
-        fig.update_layout(
-            yaxis_title='Lucro Bruto',  # Título do eixo Y
-            title='Lucro por Produto',  # Título do gráfico
-            title_x=0.5  # Centraliza o título
-        )
+        else:
+            fig = go.Figure()
+            fig.add_trace(go.Bar(
+                x=df['data_venda_compra'],
+                y=df['valor_venda'],
+                name='Total de Entradas',
+                marker_color='rgb(156, 204, 156)'
+            ))
+            fig.add_trace(go.Bar(
+                x=df['data_venda_compra'],
+                y=df['total_compras'],
+                name='Total de Saídas',
+                marker_color='rgb(238, 126, 126)'
+            ))
+            # Adiciona a linha de saldo
+            fig.add_trace(go.Scatter(
+                x=df['data_venda_compra'].astype(str),  # Formata a data como 'mes/ano'
+                y=df['saldo_acumulado'],
+                name='Saldo Acumulado',
+                mode='lines+markers',  # 'lines' para apenas a linha, 'lines+markers' para adicionar pontos
+                line=dict(color='blue', width=2),  # Customize a cor e a largura da linha
+            ))
+            # Atualiza o layout
+            fig.update_layout(
+                title='Entradas e Saídas Diarias',
+                xaxis_title='Mês/Ano',
+                yaxis_title='Valor',
+                barmode='group',  # Modo de barras agrupadas
+            )
 
         # Salvando o gráfico em formato HTML
         grafico_html = pio.to_html(fig, full_html=False)
         # Obtenha os valores necessários
 
-        quantidade_produtos_vendidos = int(df['quantidade_vendida'].sum())
-        receita_total = str(format(df['receita_total'].sum(), '.2f')).replace(".", ",")
-        custo_total = str(format(df['custo_total'].sum(), '.2f')).replace(".", ",")
-        lucro_bruto_total = str(format(df['lucro_bruto'].sum(), '.2f')).replace(".", ",")
+        # Calculando as somas
+        total_entradas = format(df['valor_venda'].sum(), '.2f').replace('.', ',')
+        total_saidas = format(df['total_compras'].sum(), '.2f').replace('.', ',')
 
+        # Calculando o saldo do período
+        saldo_periodo = df['valor_venda'].sum() - df['total_compras'].sum()
 
-        df['quantidade_vendida'] = df['quantidade_vendida'].astype(int)
-        df['valor_unitario'] = df['valor_unitario'].apply(lambda x: f"{x:.2f}".replace('.', ','))
-        df['receita_total'] = df['receita_total'].apply(lambda x: f"{x:.2f}".replace('.', ','))
-        df['custo_total'] = df['custo_total'].apply(lambda x: f"{x:.2f}".replace('.', ','))
-        df['lucro_bruto'] = df['lucro_bruto'].apply(lambda x: f"{x:.2f}".replace('.', ','))
+        # Formatando o saldo_periodo para duas casas decimais também
+        saldo_periodo_formatado = format(saldo_periodo, '.2f').replace('.', ',')
 
-        list_items = df.values.tolist()
-        
-        return grafico_html, datetime.strptime(data_inicio, '%Y-%m-%d').strftime("%d/%m/%Y"), datetime.strptime(data_fim, '%Y-%m-%d').strftime("%d/%m/%Y"), quantidade_produtos_vendidos, receita_total, custo_total, lucro_bruto_total, list_items
+        lista_entradas = consulta_vendas_mes(data_inicio, data_fim)
+        lista_saidas = consulta_compras_periodo(data_inicio, data_fim)
+
+        entradas_saidas = pd.concat([pd.DataFrame(lista_entradas), pd.DataFrame(lista_saidas)], ignore_index=True)
+        # Convertendo a coluna de datas (coluna 1) para o tipo datetime
+        entradas_saidas[1] = pd.to_datetime(entradas_saidas[1], format='%d/%m/%Y')
+
+        # Ordenando o DataFrame pela coluna 1 (data)
+        df_sorted = entradas_saidas.sort_values(by=1)
+        #print(df_sorted[1].dt.strftime('%d/%m/%Y'))
+        df_sorted[1] = df_sorted[1].dt.strftime('%d/%m/%Y')
+
+        lista_entradas_saidas = df_sorted.values.tolist()
+
+        return grafico_html, datetime.strptime(data_inicio, '%Y-%m-%d').strftime("%d/%m/%Y"), datetime.strptime(data_fim, '%Y-%m-%d').strftime("%d/%m/%Y"), total_entradas, total_saidas, saldo_periodo_formatado, lista_entradas_saidas
     
     except Exception as e:
         print(e)
@@ -351,7 +481,7 @@ def visualiza_relatorio_vendas_fornecedor(data_inicio, data_fim):
 
         query = f"""SELECT f.nome AS nome_fornecedor, 
                         SUM(vp.quantidade) AS total_produtos_vendidos,
-                        SUM(vp.quantidade * (vp.valor_unitario - coalesce(p.custo_aquisicao,0))) AS     
+                        SUM(vp.quantidade * vp.valor_unitario ) AS lucro_total 
                         FROM `tr-sale-system`.fornecedores f
                         JOIN `tr-sale-system`.produtos p ON f.id = p.id_fornecedor
                         JOIN `tr-sale-system`.vendas_produtos vp ON p.id = vp.id_produto
